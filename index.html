@@ -23,6 +23,7 @@ body { font-family: Arial; text-align:center; background:#111; color:white; }
 .fout { background:red; }
 
 button { padding:12px 20px; margin:5px; font-size:16px; }
+input { padding:10px; margin:5px; font-size:16px; }
 
 .screen {
   position:fixed;
@@ -43,32 +44,47 @@ button { padding:12px 20px; margin:5px; font-size:16px; }
 .noodBtn {
   background:red;
   color:white;
-  font-size:18px;
 }
 
 .noodBtn.open {
   background:green;
 }
 
-.poortDot {
-  font-size:20px;
-  margin:5px;
+#topbar {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#222;
+  padding:10px;
+  z-index:999;
+}
+
+#content {
+  margin-top:90px;
 }
 </style>
 </head>
 
 <body>
 
-<h1 id="title">🎟️ Ticket Systeem</h1>
+<!-- TOPBAR -->
+<div id="topbar">
+  <button onclick="gaNaarStart()">⬅ Terug</button>
+  <button onclick="openLogin()">🔒 Admin</button>
 
-<!-- POORT STATUS -->
-<div>
-  Poorten:
-  <span id="p1" class="poortDot">🔴</span>1
-  <span id="p2" class="poortDot">🔴</span>2
-  <span id="p3" class="poortDot">🔴</span>3
-  <span id="p4" class="poortDot">🔴</span>4
+  <div>
+    Poorten:
+    <span id="p1">🔴</span>1
+    <span id="p2">🔴</span>2
+    <span id="p3">🔴</span>3
+    <span id="p4">🔴</span>4
+  </div>
 </div>
+
+<div id="content">
+
+<h1 id="title">🎟️ Ticket Systeem</h1>
 
 <!-- MODUS -->
 <div id="modeScreen" class="screen">
@@ -91,16 +107,38 @@ button { padding:12px 20px; margin:5px; font-size:16px; }
 
 <div id="status">Wacht op scan...</div>
 
-<!-- 🔙 TERUG (ALTIJD ZICHTBAAR) -->
-<button onclick="gaNaarStart()">⬅ Terug</button>
-
-<!-- 🚨 NOOD -->
+<!-- NOOD -->
 <div id="noodPanel" style="display:none;">
   <h2>🚨 NOOD OPEN</h2>
   <button id="btn1" class="noodBtn" onclick="noodOpen(1)">Poort 1</button>
   <button id="btn2" class="noodBtn" onclick="noodOpen(2)">Poort 2</button>
   <button id="btn3" class="noodBtn" onclick="noodOpen(3)">Poort 3</button>
   <button id="btn4" class="noodBtn" onclick="noodOpen(4)">Poort 4</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin" style="display:none;">
+  <h2>Admin</h2>
+
+  <h3>Event</h3>
+  <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
+
+  <h3>Handmatig ticket</h3>
+  <input id="code" placeholder="Code"><br>
+  <input id="aantal" type="number" placeholder="Aantal strippen"><br>
+  <button onclick="maakTicket()">Opslaan</button>
+
+  <h3>Bulk tickets</h3>
+  <button onclick="genereerTickets()">Genereer 3000 tickets</button>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen" style="display:none;">
+  <h2>Pincode</h2>
+  <input type="password" id="pinInput"><br><br>
+  <button onclick="checkPin()">OK</button>
+</div>
+
 </div>
 
 <script type="module">
@@ -127,32 +165,26 @@ const POORTEN = {
 let MODE = "";
 let RELAIS_IP = "";
 
-// geluid
 function beep() {
   new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 }
 
-// visueel groen maken
 function setPoortGroen(nr){
   document.getElementById("p"+nr).innerText = "🟢";
 }
 
-// KASSA
 window.startKassa = () => {
   MODE = "kassa";
   document.getElementById("modeScreen").style.display = "none";
   document.getElementById("reader").style.display = "block";
-  document.getElementById("noodPanel").style.display = "none";
   startCamera();
 };
 
-// POORT SELECT
 window.showPoorten = () => {
   document.getElementById("modeScreen").style.display = "none";
   document.getElementById("poortScreen").style.display = "flex";
 };
 
-// START POORT
 window.startPoort = (nr) => {
   MODE = "poort";
   RELAIS_IP = POORTEN[nr];
@@ -160,33 +192,51 @@ window.startPoort = (nr) => {
   document.getElementById("poortScreen").style.display = "none";
   document.getElementById("scanInput").style.display = "block";
   document.getElementById("noodPanel").style.display = "block";
-
-  document.getElementById("title").innerText = "🚪 Poort " + nr;
-  document.getElementById("scanInput").focus();
 };
 
-// 🚨 NOOD OPEN (5 sec)
 window.noodOpen = (nr) => {
-
   let btn = document.getElementById("btn"+nr);
-
-  btn.classList.add("open"); // groen
+  btn.classList.add("open");
 
   fetch("http://" + POORTEN[nr] + "/relay/0?turn=on&timer=5");
 
   setPoortGroen(nr);
 
-  setTimeout(() => {
-    btn.classList.remove("open"); // terug rood
-  }, 5000);
+  setTimeout(()=>btn.classList.remove("open"),5000);
 };
 
-// TERUG
 window.gaNaarStart = () => location.reload();
 
-// SCAN
-async function processScan(code){
+window.openLogin = () => document.getElementById("loginScreen").style.display = "flex";
 
+window.checkPin = () => {
+  if (document.getElementById("pinInput").value === "8760") {
+    document.getElementById("admin").style.display = "block";
+    document.getElementById("loginScreen").style.display = "none";
+  }
+};
+
+window.maakTicket = async () => {
+  let code = document.getElementById("code").value.toUpperCase();
+  let aantal = parseInt(document.getElementById("aantal").value);
+  await setDoc(doc(db, "tickets", code), { remaining: aantal });
+  alert("Ticket opgeslagen");
+};
+
+window.genereerTickets = async () => {
+  let event = document.getElementById("eventnaam").value.toUpperCase();
+
+  for (let i=1;i<=3000;i++){
+    let nr = String(i).padStart(6,"0");
+    let code = "TOILETBEZOEK " + event + "-" + nr;
+
+    await setDoc(doc(db,"tickets",code),{remaining:10});
+  }
+
+  alert("3000 tickets gemaakt");
+};
+
+async function processScan(code){
   let ref = doc(db,"tickets",code.trim().toUpperCase());
   let status = document.getElementById("status");
 
@@ -214,12 +264,10 @@ async function processScan(code){
   }
 }
 
-// camera
 function startCamera(){
   new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
 }
 
-// scanner input
 document.getElementById("scanInput").addEventListener("change",function(){
   processScan(this.value);
   this.value="";
