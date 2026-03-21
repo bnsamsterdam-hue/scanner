@@ -44,11 +44,15 @@ input { padding:10px; margin:5px; font-size:16px; }
 .noodBtn {
   background:red;
   color:white;
-  font-size:18px;
 }
 
 .noodBtn.open {
   background:green;
+}
+
+#poortStatus {
+  margin-top:10px;
+  font-size:18px;
 }
 </style>
 </head>
@@ -56,6 +60,15 @@ input { padding:10px; margin:5px; font-size:16px; }
 <body>
 
 <h1 id="title">🎟️ Ticket Systeem</h1>
+
+<!-- 🔥 LIVE STATUS -->
+<div id="poortStatus">
+  Poorten:
+  <span id="s1">🔴</span> 1
+  <span id="s2">🔴</span> 2
+  <span id="s3">🔴</span> 3
+  <span id="s4">🔴</span> 4
+</div>
 
 <!-- MODUS -->
 <div id="modeScreen" class="screen">
@@ -78,8 +91,7 @@ input { padding:10px; margin:5px; font-size:16px; }
 
 <div id="status">Wacht op scan...</div>
 
-<!-- 🔙 TERUG -->
-<button onclick="gaNaarStart()">⬅ Terug naar start</button>
+<button onclick="gaNaarStart()">⬅ Terug</button>
 
 <!-- 🚨 NOOD -->
 <div id="noodPanel" style="display:none;">
@@ -94,23 +106,16 @@ input { padding:10px; margin:5px; font-size:16px; }
 <button onclick="openLogin()">🔒 Admin</button>
 
 <div id="admin" style="display:none;">
-<h2>Event</h2>
-<input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
-
-<h2>Ticket</h2>
+<input id="eventnaam" placeholder="Event"><br>
 <input id="code" placeholder="Code"><br>
 <input id="aantal" type="number" placeholder="Aantal"><br>
 <button onclick="maakTicket()">Opslaan</button>
-
-<h2>Bulk</h2>
 <button onclick="genereerTickets()">Genereer 3000</button>
 </div>
 
-<!-- LOGIN -->
 <div id="loginScreen" class="screen" style="display:none;">
-  <h2>Voer pincode in</h2>
-  <input type="password" id="pinInput"><br><br>
-  <button onclick="checkPin()">OK</button>
+<input type="password" id="pinInput"><br>
+<button onclick="checkPin()">OK</button>
 </div>
 
 <script type="module">
@@ -127,7 +132,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// POORT IP'S
 const POORTEN = {
   1: "192.168.1.50",
   2: "192.168.1.51",
@@ -138,33 +142,33 @@ const POORTEN = {
 let MODE = "";
 let RELAIS_IP = "";
 
-// geluid
 function beep() {
   new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 }
 
-// login
-window.openLogin = () => document.getElementById("loginScreen").style.display = "flex";
+// 🔥 CHECK STATUS
+async function checkPoorten() {
+  for (let i = 1; i <= 4; i++) {
+    try {
+      let res = await fetch("http://" + POORTEN[i] + "/status");
+      document.getElementById("s"+i).innerText = res.ok ? "🟢" : "🔴";
+    } catch {
+      document.getElementById("s"+i).innerText = "🔴";
+    }
+  }
+}
 
-window.checkPin = () => {
-  let pin = document.getElementById("pinInput").value.trim();
-  if (pin === "8760") {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("admin").style.display = "block";
-  } else alert("❌ Verkeerde pincode");
-  document.getElementById("pinInput").value = "";
-};
+// elke 5 sec refresh
+setInterval(checkPoorten, 5000);
+checkPoorten();
 
-// start kassa
 window.startKassa = () => {
   MODE = "kassa";
   document.getElementById("modeScreen").style.display = "none";
   document.getElementById("reader").style.display = "block";
-  document.getElementById("noodPanel").style.display = "none";
   startCamera();
 };
 
-// poorten
 window.showPoorten = () => {
   document.getElementById("modeScreen").style.display = "none";
   document.getElementById("poortScreen").style.display = "flex";
@@ -177,123 +181,77 @@ window.startPoort = (nr) => {
   document.getElementById("poortScreen").style.display = "none";
   document.getElementById("scanInput").style.display = "block";
   document.getElementById("noodPanel").style.display = "block";
-
-  document.getElementById("title").innerText = "🚪 Poort " + nr;
-  document.getElementById("scanInput").focus();
 };
 
-// nood open
-window.noodOpen = function(nr) {
-
-  let btn = document.getElementById("btn" + nr);
-  let ip = POORTEN[nr];
-
+window.noodOpen = (nr) => {
+  let btn = document.getElementById("btn"+nr);
   btn.classList.add("open");
 
-  fetch("http://" + ip + "/relay/0?turn=on&timer=1")
-    .then(() => {
-      let status = document.getElementById("status");
-      status.className = "ok";
-      status.innerText = "🚨 Poort " + nr + " geopend";
-    })
-    .catch(() => alert("Relais fout"));
+  fetch("http://" + POORTEN[nr] + "/relay/0?turn=on&timer=1");
 
-  // terug naar rood na 2 sec
-  setTimeout(() => {
-    btn.classList.remove("open");
-  }, 2000);
+  setTimeout(()=>btn.classList.remove("open"),2000);
 };
 
-// terug knop
-window.gaNaarStart = function() {
+window.gaNaarStart = () => location.reload();
 
-  document.getElementById("modeScreen").style.display = "flex";
-  document.getElementById("poortScreen").style.display = "none";
-  document.getElementById("reader").style.display = "none";
-  document.getElementById("scanInput").style.display = "none";
-  document.getElementById("noodPanel").style.display = "none";
-  document.getElementById("admin").style.display = "none";
+window.openLogin = () => document.getElementById("loginScreen").style.display = "flex";
 
-  document.getElementById("title").innerText = "🎟️ Ticket Systeem";
-  document.getElementById("status").innerText = "Wacht op scan...";
-  document.getElementById("status").className = "";
-
-  MODE = "";
-  RELAIS_IP = "";
-};
-
-// tickets
-window.maakTicket = async () => {
-  let code = document.getElementById("code").value.trim().toUpperCase();
-  let aantal = parseInt(document.getElementById("aantal").value, 10);
-  await setDoc(doc(db, "tickets", code), { remaining: aantal });
-  alert("Opgeslagen");
-};
-
-// bulk
-window.genereerTickets = async () => {
-  let event = document.getElementById("eventnaam").value.trim().toUpperCase();
-  if (!event) return alert("Voer event naam in");
-
-  for (let i = 1; i <= 3000; i++) {
-    let nr = String(i).padStart(6, '0');
-    let code = "TOILETBEZOEK " + event + "-" + nr;
-    await setDoc(doc(db, "tickets", code), { remaining: 10 });
+window.checkPin = () => {
+  if (document.getElementById("pinInput").value === "8760") {
+    document.getElementById("admin").style.display = "block";
+    document.getElementById("loginScreen").style.display = "none";
   }
-
-  alert("3000 tickets gemaakt");
 };
 
-// scan veilig
-async function processScan(code) {
+window.maakTicket = async () => {
+  let code = document.getElementById("code").value.toUpperCase();
+  let aantal = parseInt(document.getElementById("aantal").value);
+  await setDoc(doc(db, "tickets", code), { remaining: aantal });
+};
 
-  code = code.trim().toUpperCase();
+window.genereerTickets = async () => {
+  let event = document.getElementById("eventnaam").value.toUpperCase();
+  for (let i=1;i<=3000;i++){
+    let nr = String(i).padStart(6,"0");
+    await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
+  }
+};
+
+async function processScan(code){
+  let ref = doc(db,"tickets",code.trim().toUpperCase());
   let status = document.getElementById("status");
-  let ref = doc(db, "tickets", code);
 
-  try {
-    await runTransaction(db, async (transaction) => {
-      let snap = await transaction.get(ref);
-
-      if (!snap.exists()) throw "ongeldig";
-
-      let remaining = Number(snap.data().remaining);
-      if (remaining <= 0) throw "op";
-
-      transaction.update(ref, { remaining: remaining - 1 });
-
-      status.className = "ok";
-      status.innerText = "✅ OK - " + (remaining - 1);
+  try{
+    await runTransaction(db, async (t)=>{
+      let snap = await t.get(ref);
+      if(!snap.exists()) throw "fout";
+      let r = snap.data().remaining;
+      if(r<=0) throw "op";
+      t.update(ref,{remaining:r-1});
+      status.className="ok";
+      status.innerText="OK "+(r-1);
     });
 
     beep();
 
-    if (MODE === "poort" && RELAIS_IP) {
-      fetch("http://" + RELAIS_IP + "/relay/0?turn=on&timer=1");
+    if(MODE==="poort"){
+      fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
     }
 
-  } catch (e) {
-    status.className = "fout";
-    status.innerText = e === "op" ? "⛔ Op" : "❌ Ongeldig";
+  }catch(e){
+    status.className="fout";
+    status.innerText = e==="op"?"OP":"ONGELDIG";
     beep();
   }
-
-  setTimeout(() => {
-    status.innerText = "Wacht op scan...";
-    status.className = "";
-  }, 2000);
 }
 
-// camera
-function startCamera() {
-  new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
-    .render(processScan);
+function startCamera(){
+  new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
 }
 
-// keyboard scanner
-document.getElementById("scanInput").addEventListener("change", function() {
+document.getElementById("scanInput").addEventListener("change",function(){
   processScan(this.value);
-  this.value = "";
+  this.value="";
 });
 
 </script>
