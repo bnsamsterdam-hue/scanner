@@ -13,7 +13,7 @@ body { font-family: Arial; text-align:center; background:#111; color:white; }
 #reader { width:320px; margin:20px auto; }
 
 #status {
-  font-size:26px;
+  font-size:28px;
   padding:15px;
   border-radius:10px;
   margin-top:20px;
@@ -33,7 +33,6 @@ button { padding:12px 20px; margin:5px; font-size:16px; }
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  z-index:1000;
 }
 
 .noodBtn { background:red; color:white; }
@@ -50,7 +49,7 @@ button { padding:12px 20px; margin:5px; font-size:16px; }
 
 #content { margin-top:90px; }
 
-input { padding:10px; margin:5px; font-size:16px; }
+.dot { font-size:20px; margin:5px; }
 </style>
 </head>
 
@@ -63,10 +62,10 @@ input { padding:10px; margin:5px; font-size:16px; }
 
   <div>
     Poorten:
-    <span id="p1">🔴</span>1
-    <span id="p2">🔴</span>2
-    <span id="p3">🔴</span>3
-    <span id="p4">🔴</span>4
+    <span id="p1" class="dot">🔴</span>1
+    <span id="p2" class="dot">🔴</span>2
+    <span id="p3" class="dot">🔴</span>3
+    <span id="p4" class="dot">🔴</span>4
   </div>
 </div>
 
@@ -76,28 +75,20 @@ input { padding:10px; margin:5px; font-size:16px; }
 
 <!-- MODUS -->
 <div id="modeScreen" class="screen">
-  <h2>Kies modus</h2>
   <button onclick="startKassa()">📱 KASSA</button>
   <button onclick="showPoorten()">🚪 POORT</button>
 </div>
 
 <!-- POORT SELECT -->
-<div id="poortScreen" class="screen" style="display:none;">
-  <h2>Kies poort</h2>
-  <button onclick="startPoort(1)">Poort 1</button>
-  <button onclick="startPoort(2)">Poort 2</button>
-  <button onclick="startPoort(3)">Poort 3</button>
-  <button onclick="startPoort(4)">Poort 4</button>
-</div>
 
 <div id="reader"></div>
 <input id="scanInput" style="opacity:0; position:absolute;">
 
 <div id="status">Wacht op scan...</div>
 
-<!-- 🚨 NOOD ALTIJD ZICHTBAAR -->
-<div id="noodPanel">
-  <h2>🚨 NOOD OPEN</h2>
+<!-- NOOD -->
+<div id="noodPanel" style="display:none;">
+  <h2>🚨 NOOD</h2>
   <button id="btn1" class="noodBtn" onclick="noodOpen(1)">Poort 1</button>
   <button id="btn2" class="noodBtn" onclick="noodOpen(2)">Poort 2</button>
   <button id="btn3" class="noodBtn" onclick="noodOpen(3)">Poort 3</button>
@@ -106,24 +97,21 @@ input { padding:10px; margin:5px; font-size:16px; }
 
 <!-- ADMIN -->
 <div id="admin" style="display:none;">
-  <h2>Admin</h2>
+  <h3>Event</h3>
+  <input id="eventnaam"><br>
 
-  <h3>Event naam</h3>
-  <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
-
-  <h3>Handmatig ticket maken</h3>
-  <input id="code" placeholder="Bijv WC-000001"><br>
-  <input id="aantal" type="number" placeholder="Aantal strippen"><br>
+  <h3>Ticket</h3>
+  <input id="code"><br>
+  <input id="aantal" type="number"><br>
   <button onclick="maakTicket()">Opslaan</button>
 
-  <h3>Bulk tickets maken</h3>
-  <button onclick="genereerTickets()">Genereer 3000 tickets</button>
+  <h3>Bulk</h3>
+  <button onclick="genereerTickets()">Genereer 3000</button>
 </div>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen" style="display:none;">
-  <h2>Voer pincode in</h2>
-  <input type="password" id="pinInput"><br><br>
+  <input type="password" id="pinInput"><br>
   <button onclick="checkPin()">OK</button>
 </div>
 
@@ -152,6 +140,22 @@ const POORTEN = {
 
 let MODE="", RELAIS_IP="";
 
+// 🔥 STATUS CHECK
+async function checkPoorten(){
+  for(let i=1;i<=4;i++){
+    let el=document.getElementById("p"+i);
+    try{
+      await fetch("http://"+POORTEN[i]+"/rpc/Shelly.GetStatus",{mode:"no-cors"});
+      el.innerText="🟢";
+    }catch{
+      el.innerText="🔴";
+    }
+  }
+}
+
+setInterval(checkPoorten,5000);
+checkPoorten();
+
 // geluid
 function beep(){ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play(); }
 
@@ -159,17 +163,25 @@ function beep(){ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_a
 window.startKassa=()=>{
   MODE="kassa";
   document.getElementById("modeScreen").style.display="none";
+  document.getElementById("reader").style.display="block";
 };
 
-window.showPoorten=()=>{
-  document.getElementById("modeScreen").style.display="none";
-  document.getElementById("poortScreen").style.display="flex";
+window.showPoorten = () => {
+  MODE = "poort";
+
+  document.getElementById("modeScreen").style.display = "none";
+
+  document.getElementById("reader").style.display = "block";
+  document.getElementById("noodPanel").style.display = "block";
 };
 
 window.startPoort=(nr)=>{
   MODE="poort";
   RELAIS_IP=POORTEN[nr];
+
   document.getElementById("poortScreen").style.display="none";
+  document.getElementById("scanInput").focus();
+  document.getElementById("noodPanel").style.display="block";
 };
 
 // NOOD
@@ -183,30 +195,20 @@ window.noodOpen=(nr)=>{
 };
 
 // ADMIN
-window.openLogin=()=>{
-  document.getElementById("loginScreen").style.display="flex";
-};
+window.openLogin=()=>document.getElementById("loginScreen").style.display="flex";
 
 window.checkPin=()=>{
-  let pin=document.getElementById("pinInput").value;
-
-  if(pin==="8760"){
+  if(document.getElementById("pinInput").value==="8760"){
     document.getElementById("admin").style.display="block";
     document.getElementById("loginScreen").style.display="none";
-  } else {
-    alert("Foute code");
   }
-
-  document.getElementById("pinInput").value="";
 };
 
 // TICKETS
 window.maakTicket=async()=>{
-  let code=document.getElementById("code").value.toUpperCase();
-  let aantal=parseInt(document.getElementById("aantal").value);
-
-  await setDoc(doc(db,"tickets",code),{remaining:aantal});
-  alert("Ticket opgeslagen");
+  await setDoc(doc(db,"tickets",
+    document.getElementById("code").value.toUpperCase()
+  ),{remaining:parseInt(document.getElementById("aantal").value)});
 };
 
 window.genereerTickets=async()=>{
@@ -214,11 +216,10 @@ window.genereerTickets=async()=>{
 
   for(let i=1;i<=3000;i++){
     let nr=String(i).padStart(6,"0");
-    let code="TOILETBEZOEK "+event+"-"+nr;
-    await setDoc(doc(db,"tickets",code),{remaining:10});
+    await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
   }
 
-  alert("3000 tickets gemaakt");
+  alert("Klaar");
 };
 
 // SCAN
