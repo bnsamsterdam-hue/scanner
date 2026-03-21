@@ -13,8 +13,8 @@ body { font-family: Arial; text-align:center; background:#111; color:white; }
 #reader { width:320px; margin:20px auto; }
 
 #status {
-  font-size:30px;
-  padding:20px;
+  font-size:28px;
+  padding:15px;
   border-radius:10px;
   margin-top:20px;
 }
@@ -23,7 +23,6 @@ body { font-family: Arial; text-align:center; background:#111; color:white; }
 .fout { background:red; }
 
 button { padding:12px 20px; margin:5px; font-size:16px; }
-input { padding:10px; margin:5px; font-size:16px; }
 
 .screen {
   position:fixed;
@@ -36,33 +35,21 @@ input { padding:10px; margin:5px; font-size:16px; }
   flex-direction:column;
 }
 
-#scanInput {
-  opacity:0;
-  position:absolute;
-}
-
-.noodBtn {
-  background:red;
-  color:white;
-}
-
-.noodBtn.open {
-  background:green;
-}
+.noodBtn { background:red; color:white; }
+.noodBtn.open { background:green; }
 
 #topbar {
   position:fixed;
   top:0;
-  left:0;
   width:100%;
   background:#222;
   padding:10px;
   z-index:999;
 }
 
-#content {
-  margin-top:90px;
-}
+#content { margin-top:90px; }
+
+.dot { font-size:20px; margin:5px; }
 </style>
 </head>
 
@@ -70,25 +57,24 @@ input { padding:10px; margin:5px; font-size:16px; }
 
 <!-- TOPBAR -->
 <div id="topbar">
-  <button onclick="gaNaarStart()">⬅ Terug</button>
+  <button onclick="location.reload()">⬅ Terug</button>
   <button onclick="openLogin()">🔒 Admin</button>
 
   <div>
     Poorten:
-    <span id="p1">🔴</span>1
-    <span id="p2">🔴</span>2
-    <span id="p3">🔴</span>3
-    <span id="p4">🔴</span>4
+    <span id="p1" class="dot">🔴</span>1
+    <span id="p2" class="dot">🔴</span>2
+    <span id="p3" class="dot">🔴</span>3
+    <span id="p4" class="dot">🔴</span>4
   </div>
 </div>
 
 <div id="content">
 
-<h1 id="title">🎟️ Ticket Systeem</h1>
+<h1>🎟️ Ticket Systeem</h1>
 
 <!-- MODUS -->
 <div id="modeScreen" class="screen">
-  <h2>Kies modus</h2>
   <button onclick="startKassa()">📱 KASSA</button>
   <button onclick="showPoorten()">🚪 POORT</button>
 </div>
@@ -103,39 +89,36 @@ input { padding:10px; margin:5px; font-size:16px; }
 </div>
 
 <div id="reader"></div>
-<input id="scanInput" autofocus>
+<input id="scanInput" style="opacity:0; position:absolute;">
 
 <div id="status">Wacht op scan...</div>
 
 <!-- NOOD -->
 <div id="noodPanel" style="display:none;">
-  <h2>🚨 NOOD OPEN</h2>
+  <h2>🚨 NOOD</h2>
   <button id="btn1" class="noodBtn" onclick="noodOpen(1)">Poort 1</button>
   <button id="btn2" class="noodBtn" onclick="noodOpen(2)">Poort 2</button>
   <button id="btn3" class="noodBtn" onclick="noodOpen(3)">Poort 3</button>
   <button id="btn4" class="noodBtn" onclick="noodOpen(4)">Poort 4</button>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN -->
 <div id="admin" style="display:none;">
-  <h2>Admin</h2>
-
   <h3>Event</h3>
-  <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
+  <input id="eventnaam"><br>
 
-  <h3>Handmatig ticket</h3>
-  <input id="code" placeholder="Code"><br>
-  <input id="aantal" type="number" placeholder="Aantal strippen"><br>
+  <h3>Ticket</h3>
+  <input id="code"><br>
+  <input id="aantal" type="number"><br>
   <button onclick="maakTicket()">Opslaan</button>
 
-  <h3>Bulk tickets</h3>
-  <button onclick="genereerTickets()">Genereer 3000 tickets</button>
+  <h3>Bulk</h3>
+  <button onclick="genereerTickets()">Genereer 3000</button>
 </div>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="screen" style="display:none;">
-  <h2>Pincode</h2>
-  <input type="password" id="pinInput"><br><br>
+  <input type="password" id="pinInput"><br>
   <button onclick="checkPin()">OK</button>
 </div>
 
@@ -147,7 +130,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, doc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB8rljH8WmRih061v56YFjl60SXhgJBYfc",
+  apiKey: "AIzaSy...",
   authDomain: "ticket-systeem-18a08.firebaseapp.com",
   projectId: "ticket-systeem-18a08",
 };
@@ -156,95 +139,102 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const POORTEN = {
-  1: "192.168.1.50",
-  2: "192.168.1.51",
-  3: "192.168.1.52",
-  4: "192.168.1.53"
+  1:"192.168.1.50",
+  2:"192.168.1.51",
+  3:"192.168.1.52",
+  4:"192.168.1.53"
 };
 
-let MODE = "";
-let RELAIS_IP = "";
+let MODE="", RELAIS_IP="";
 
-function beep() {
-  new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+// 🔥 STATUS CHECK
+async function checkPoorten(){
+  for(let i=1;i<=4;i++){
+    let el=document.getElementById("p"+i);
+    try{
+      await fetch("http://"+POORTEN[i]+"/rpc/Shelly.GetStatus",{mode:"no-cors"});
+      el.innerText="🟢";
+    }catch{
+      el.innerText="🔴";
+    }
+  }
 }
 
-function setPoortGroen(nr){
-  document.getElementById("p"+nr).innerText = "🟢";
-}
+setInterval(checkPoorten,5000);
+checkPoorten();
 
-window.startKassa = () => {
-  MODE = "kassa";
-  document.getElementById("modeScreen").style.display = "none";
-  document.getElementById("reader").style.display = "block";
-  startCamera();
+// geluid
+function beep(){ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play(); }
+
+// MODES
+window.startKassa=()=>{
+  MODE="kassa";
+  document.getElementById("modeScreen").style.display="none";
+  document.getElementById("reader").style.display="block";
 };
 
-window.showPoorten = () => {
-  document.getElementById("modeScreen").style.display = "none";
-  document.getElementById("poortScreen").style.display = "flex";
+window.showPoorten=()=>{
+  document.getElementById("modeScreen").style.display="none";
+  document.getElementById("poortScreen").style.display="flex";
 };
 
-window.startPoort = (nr) => {
-  MODE = "poort";
-  RELAIS_IP = POORTEN[nr];
+window.startPoort=(nr)=>{
+  MODE="poort";
+  RELAIS_IP=POORTEN[nr];
 
-  document.getElementById("poortScreen").style.display = "none";
-  document.getElementById("scanInput").style.display = "block";
-  document.getElementById("noodPanel").style.display = "block";
+  document.getElementById("poortScreen").style.display="none";
+  document.getElementById("scanInput").focus();
+  document.getElementById("noodPanel").style.display="block";
 };
 
-window.noodOpen = (nr) => {
-  let btn = document.getElementById("btn"+nr);
+// NOOD
+window.noodOpen=(nr)=>{
+  let btn=document.getElementById("btn"+nr);
   btn.classList.add("open");
 
-  fetch("http://" + POORTEN[nr] + "/relay/0?turn=on&timer=5");
-
-  setPoortGroen(nr);
+  fetch("http://"+POORTEN[nr]+"/relay/0?turn=on&timer=5");
 
   setTimeout(()=>btn.classList.remove("open"),5000);
 };
 
-window.gaNaarStart = () => location.reload();
+// ADMIN
+window.openLogin=()=>document.getElementById("loginScreen").style.display="flex";
 
-window.openLogin = () => document.getElementById("loginScreen").style.display = "flex";
-
-window.checkPin = () => {
-  if (document.getElementById("pinInput").value === "8760") {
-    document.getElementById("admin").style.display = "block";
-    document.getElementById("loginScreen").style.display = "none";
+window.checkPin=()=>{
+  if(document.getElementById("pinInput").value==="8760"){
+    document.getElementById("admin").style.display="block";
+    document.getElementById("loginScreen").style.display="none";
   }
 };
 
-window.maakTicket = async () => {
-  let code = document.getElementById("code").value.toUpperCase();
-  let aantal = parseInt(document.getElementById("aantal").value);
-  await setDoc(doc(db, "tickets", code), { remaining: aantal });
-  alert("Ticket opgeslagen");
+// TICKETS
+window.maakTicket=async()=>{
+  await setDoc(doc(db,"tickets",
+    document.getElementById("code").value.toUpperCase()
+  ),{remaining:parseInt(document.getElementById("aantal").value)});
 };
 
-window.genereerTickets = async () => {
-  let event = document.getElementById("eventnaam").value.toUpperCase();
+window.genereerTickets=async()=>{
+  let event=document.getElementById("eventnaam").value.toUpperCase();
 
-  for (let i=1;i<=3000;i++){
-    let nr = String(i).padStart(6,"0");
-    let code = "TOILETBEZOEK " + event + "-" + nr;
-
-    await setDoc(doc(db,"tickets",code),{remaining:10});
+  for(let i=1;i<=3000;i++){
+    let nr=String(i).padStart(6,"0");
+    await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
   }
 
-  alert("3000 tickets gemaakt");
+  alert("Klaar");
 };
 
+// SCAN
 async function processScan(code){
-  let ref = doc(db,"tickets",code.trim().toUpperCase());
-  let status = document.getElementById("status");
+  let ref=doc(db,"tickets",code.trim().toUpperCase());
+  let status=document.getElementById("status");
 
   try{
-    await runTransaction(db, async (t)=>{
-      let snap = await t.get(ref);
+    await runTransaction(db,async(t)=>{
+      let snap=await t.get(ref);
       if(!snap.exists()) throw "fout";
-      let r = snap.data().remaining;
+      let r=snap.data().remaining;
       if(r<=0) throw "op";
       t.update(ref,{remaining:r-1});
       status.className="ok";
@@ -259,14 +249,12 @@ async function processScan(code){
 
   }catch(e){
     status.className="fout";
-    status.innerText = e==="op"?"OP":"ONGELDIG";
+    status.innerText=e==="op"?"OP":"ONGELDIG";
     beep();
   }
 }
 
-function startCamera(){
-  new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
-}
+new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
 
 document.getElementById("scanInput").addEventListener("change",function(){
   processScan(this.value);
