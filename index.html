@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Systeem</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+body { font-family: Arial; text-align:center; background:#f5f5f5; }
+#reader { width:320px; margin:20px auto; }
+#status { font-size:22px; padding:15px; border-radius:10px; margin-top:20px; }
+.ok { background:green; color:white; }
+.fout { background:red; color:white; }
+button { padding:10px 20px; margin:5px; }
+</style>
+</head>
+
+<body>
+
+<h1>🎟️ Ticket Scanner</h1>
+
+<div id="reader"></div>
+<div id="status">Wacht op scan...</div>
+
+<hr>
+
+<h2>➕ Nieuwe kaart maken</h2>
+<input id="code" placeholder="Bijv TICKET-0001"><br><br>
+<input id="aantal" type="number" placeholder="Aantal strippen"><br><br>
+<button onclick="maakTicket()">Maak ticket</button>
+
+<script type="module">
+
+// 🔥 Firebase (JOUW GEGEVENS)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB8rljH8WmRih061v56YFjl60SXhgJBYfc",
+  authDomain: "ticket-systeem-18a08.firebaseapp.com",
+  projectId: "ticket-systeem-18a08",
+  storageBucket: "ticket-systeem-18a08.firebasestorage.app",
+  messagingSenderId: "362244462895",
+  appId: "1:362244462895:web:5d258fe9195831216ce9da"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ➕ ticket maken
+window.maakTicket = async function() {
+  let code = document.getElementById("code").value;
+  let aantal = parseInt(document.getElementById("aantal").value);
+
+  await setDoc(doc(db, "tickets", code), {
+    remaining: aantal
+  });
+
+  alert("Ticket aangemaakt!");
+}
+
+// 📷 scan
+async function onScanSuccess(code) {
+
+  let status = document.getElementById("status");
+
+  let ref = doc(db, "tickets", code);
+  let snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    status.className = "fout";
+    status.innerText = "❌ Ongeldig";
+    return;
+  }
+
+  let data = snap.data();
+
+  if (data.remaining <= 0) {
+    status.className = "fout";
+    status.innerText = "⛔ Op";
+    return;
+  }
+
+  await updateDoc(ref, {
+    remaining: data.remaining - 1
+  });
+
+  status.className = "ok";
+  status.innerText = "✅ OK! Resterend: " + (data.remaining - 1);
+}
+
+// 🚀 scanner starten
+new Html5QrcodeScanner("reader", {
+  fps: 10,
+  qrbox: 250
+}).render(onScanSuccess);
+
+</script>
+
+</body>
+</html>
