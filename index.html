@@ -9,6 +9,7 @@
 
 <style>
 body { font-family: Arial; text-align:center; background:#111; color:white; }
+
 #reader { width:320px; margin:20px auto; }
 
 #status {
@@ -24,9 +25,7 @@ body { font-family: Arial; text-align:center; background:#111; color:white; }
 button { padding:12px 20px; margin:5px; font-size:16px; }
 input { padding:10px; margin:5px; font-size:16px; }
 
-#admin, #reader, #scanInput { display:none; }
-
-#loginScreen, #modeScreen {
+.screen {
   position:fixed;
   top:0; left:0;
   width:100%; height:100%;
@@ -48,10 +47,20 @@ input { padding:10px; margin:5px; font-size:16px; }
 
 <h1 id="title">🎟️ Ticket Systeem</h1>
 
-<div id="modeScreen">
+<!-- MODUS -->
+<div id="modeScreen" class="screen">
   <h2>Kies modus</h2>
   <button onclick="startKassa()">📱 KASSA</button>
-  <button onclick="startPoort()">🚪 POORT</button>
+  <button onclick="showPoorten()">🚪 POORT</button>
+</div>
+
+<!-- POORT SELECT -->
+<div id="poortScreen" class="screen" style="display:none;">
+  <h2>Kies poort</h2>
+  <button onclick="startPoort(1)">Poort 1</button>
+  <button onclick="startPoort(2)">Poort 2</button>
+  <button onclick="startPoort(3)">Poort 3</button>
+  <button onclick="startPoort(4)">Poort 4</button>
 </div>
 
 <div id="reader"></div>
@@ -59,10 +68,19 @@ input { padding:10px; margin:5px; font-size:16px; }
 
 <div id="status">Wacht op scan...</div>
 
+<!-- 🚨 NOODKNOPPEN -->
+<div id="noodPanel" style="display:none;">
+  <h2>🚨 NOOD OPEN</h2>
+  <button onclick="noodOpen(1)">Poort 1</button>
+  <button onclick="noodOpen(2)">Poort 2</button>
+  <button onclick="noodOpen(3)">Poort 3</button>
+  <button onclick="noodOpen(4)">Poort 4</button>
+</div>
+
 <br>
 <button onclick="openLogin()">🔒 Admin</button>
 
-<div id="admin">
+<div id="admin" style="display:none;">
 <h2>Event</h2>
 <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
 
@@ -75,7 +93,8 @@ input { padding:10px; margin:5px; font-size:16px; }
 <button onclick="genereerTickets()">Genereer 3000</button>
 </div>
 
-<div id="loginScreen" style="display:none;">
+<!-- LOGIN -->
+<div id="loginScreen" class="screen" style="display:none;">
   <h2>Voer pincode in</h2>
   <input type="password" id="pinInput"><br><br>
   <button onclick="checkPin()">OK</button>
@@ -84,7 +103,7 @@ input { padding:10px; margin:5px; font-size:16px; }
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8rljH8WmRih061v56YFjl60SXhgJBYfc",
@@ -94,6 +113,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// 🔥 VASTE IP's PER POORT
+const POORTEN = {
+  1: "192.168.1.50",
+  2: "192.168.1.51",
+  3: "192.168.1.52",
+  4: "192.168.1.53"
+};
 
 let MODE = "";
 let RELAIS_IP = "";
@@ -107,10 +134,12 @@ function beep() {
 window.openLogin = () => document.getElementById("loginScreen").style.display = "flex";
 
 window.checkPin = () => {
-  if (document.getElementById("pinInput").value === "8760") {
+  let pin = document.getElementById("pinInput").value.trim();
+  if (pin === "8760") {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("admin").style.display = "block";
-  } else alert("Foute code");
+  } else alert("❌ Verkeerde pincode");
+  document.getElementById("pinInput").value = "";
 };
 
 // 🎯 modus
@@ -118,15 +147,39 @@ window.startKassa = () => {
   MODE = "kassa";
   document.getElementById("modeScreen").style.display = "none";
   document.getElementById("reader").style.display = "block";
+  document.getElementById("noodPanel").style.display = "none";
   startCamera();
 };
 
-window.startPoort = () => {
-  MODE = "poort";
-  RELAIS_IP = prompt("IP adres relais (bijv 192.168.1.50)");
+window.showPoorten = () => {
   document.getElementById("modeScreen").style.display = "none";
+  document.getElementById("poortScreen").style.display = "flex";
+};
+
+window.startPoort = (nr) => {
+  MODE = "poort";
+  RELAIS_IP = POORTEN[nr];
+
+  document.getElementById("poortScreen").style.display = "none";
   document.getElementById("scanInput").style.display = "block";
+  document.getElementById("noodPanel").style.display = "block";
+
   document.getElementById("scanInput").focus();
+  document.getElementById("title").innerText = "🚪 Poort " + nr;
+};
+
+// 🚨 NOOD OPEN PER POORT
+window.noodOpen = function(nr) {
+
+  let ip = POORTEN[nr];
+
+  fetch("http://" + ip + "/relay/0?turn=on&timer=1")
+    .then(() => {
+      let status = document.getElementById("status");
+      status.className = "ok";
+      status.innerText = "🚨 Poort " + nr + " geopend";
+    })
+    .catch(() => alert("Relais fout bij poort " + nr));
 };
 
 // ➕ ticket
@@ -152,7 +205,7 @@ window.genereerTickets = async () => {
   alert("3000 tickets gemaakt");
 };
 
-// 🔐 veilige scan (werkt voor beide)
+// 🔐 veilige scan
 async function processScan(code) {
 
   code = code.trim().toUpperCase();
@@ -176,7 +229,6 @@ async function processScan(code) {
 
     beep();
 
-    // 🚪 alleen in poort modus
     if (MODE === "poort" && RELAIS_IP) {
       fetch("http://" + RELAIS_IP + "/relay/0?turn=on&timer=1");
     }
