@@ -3,99 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Systeem</title>
+<title>PRO Ticket Systeem</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body { font-family: Arial; text-align:center; background:#f5f5f5; }
+body { font-family: Arial; text-align:center; background:#111; color:white; }
 #reader { width:320px; margin:20px auto; }
-#status { font-size:22px; padding:15px; border-radius:10px; margin-top:20px; }
-.ok { background:green; color:white; }
-.fout { background:red; color:white; }
-button { padding:10px 20px; margin:5px; }
+
+#status {
+  font-size:30px;
+  padding:20px;
+  border-radius:10px;
+  margin-top:20px;
+}
+
+.ok { background:green; }
+.fout { background:red; }
+
+button { padding:12px 20px; margin:5px; font-size:16px; }
+input { padding:10px; margin:5px; font-size:16px; }
+
+#admin, #reader, #scanInput { display:none; }
+
+#loginScreen, #modeScreen {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#scanInput {
+  opacity:0;
+  position:absolute;
+}
 </style>
 </head>
 
 <body>
 
-<h1>🎟️ Ticket Scanner</h1>
+<h1 id="title">🎟️ Ticket Systeem</h1>
+
+<div id="modeScreen">
+  <h2>Kies modus</h2>
+  <button onclick="startKassa()">📱 KASSA</button>
+  <button onclick="startPoort()">🚪 POORT</button>
+</div>
 
 <div id="reader"></div>
+<input id="scanInput" autofocus>
+
 <div id="status">Wacht op scan...</div>
 
-<hr>
+<br>
+<button onclick="openLogin()">🔒 Admin</button>
 
-<h2>➕ Nieuwe kaart maken</h2>
-<input id="code" placeholder="Bijv TICKET-0001"><br><br>
-<input id="aantal" type="number" placeholder="Aantal strippen"><br><br>
-<button onclick="maakTicket()">Maak ticket</button>
+<div id="admin">
+<h2>Event</h2>
+<input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
+
+<h2>Ticket</h2>
+<input id="code" placeholder="Code"><br>
+<input id="aantal" type="number" placeholder="Aantal"><br>
+<button onclick="maakTicket()">Opslaan</button>
+
+<h2>Bulk</h2>
+<button onclick="genereerTickets()">Genereer 3000</button>
+</div>
+
+<div id="loginScreen" style="display:none;">
+  <h2>Voer pincode in</h2>
+  <input type="password" id="pinInput"><br><br>
+  <button onclick="checkPin()">OK</button>
+</div>
 
 <script type="module">
 
-// 🔥 Firebase (JOUW GEGEVENS)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8rljH8WmRih061v56YFjl60SXhgJBYfc",
   authDomain: "ticket-systeem-18a08.firebaseapp.com",
   projectId: "ticket-systeem-18a08",
-  storageBucket: "ticket-systeem-18a08.firebasestorage.app",
-  messagingSenderId: "362244462895",
-  appId: "1:362244462895:web:5d258fe9195831216ce9da"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ➕ ticket maken
-window.maakTicket = async function() {
-  let code = document.getElementById("code").value;
-  let aantal = parseInt(document.getElementById("aantal").value);
+let MODE = "";
+let RELAIS_IP = "";
 
-  await setDoc(doc(db, "tickets", code), {
-    remaining: aantal
-  });
-
-  alert("Ticket aangemaakt!");
+// 🔊 geluid
+function beep() {
+  new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 }
 
-// 📷 scan
-async function onScanSuccess(code) {
+// 🔒 login
+window.openLogin = () => document.getElementById("loginScreen").style.display = "flex";
 
+window.checkPin = () => {
+  if (document.getElementById("pinInput").value === "8760") {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("admin").style.display = "block";
+  } else alert("Foute code");
+};
+
+// 🎯 modus
+window.startKassa = () => {
+  MODE = "kassa";
+  document.getElementById("modeScreen").style.display = "none";
+  document.getElementById("reader").style.display = "block";
+  startCamera();
+};
+
+window.startPoort = () => {
+  MODE = "poort";
+  RELAIS_IP = prompt("IP adres relais (bijv 192.168.1.50)");
+  document.getElementById("modeScreen").style.display = "none";
+  document.getElementById("scanInput").style.display = "block";
+  document.getElementById("scanInput").focus();
+};
+
+// ➕ ticket
+window.maakTicket = async () => {
+  let code = document.getElementById("code").value.trim().toUpperCase();
+  let aantal = parseInt(document.getElementById("aantal").value, 10);
+
+  await setDoc(doc(db, "tickets", code), { remaining: aantal });
+  alert("Opgeslagen");
+};
+
+// ⚡ bulk
+window.genereerTickets = async () => {
+  let event = document.getElementById("eventnaam").value.trim().toUpperCase();
+  if (!event) return alert("Voer event naam in");
+
+  for (let i = 1; i <= 3000; i++) {
+    let nr = String(i).padStart(6, '0');
+    let code = "TOILETBEZOEK " + event + "-" + nr;
+    await setDoc(doc(db, "tickets", code), { remaining: 10 });
+  }
+
+  alert("3000 tickets gemaakt");
+};
+
+// 🔐 veilige scan (werkt voor beide)
+async function processScan(code) {
+
+  code = code.trim().toUpperCase();
   let status = document.getElementById("status");
-
   let ref = doc(db, "tickets", code);
-  let snap = await getDoc(ref);
 
-  if (!snap.exists()) {
+  try {
+    await runTransaction(db, async (transaction) => {
+      let snap = await transaction.get(ref);
+
+      if (!snap.exists()) throw "ongeldig";
+
+      let remaining = Number(snap.data().remaining);
+      if (remaining <= 0) throw "op";
+
+      transaction.update(ref, { remaining: remaining - 1 });
+
+      status.className = "ok";
+      status.innerText = "✅ OK - " + (remaining - 1);
+    });
+
+    beep();
+
+    // 🚪 alleen in poort modus
+    if (MODE === "poort" && RELAIS_IP) {
+      fetch("http://" + RELAIS_IP + "/relay/0?turn=on&timer=1");
+    }
+
+  } catch (e) {
     status.className = "fout";
-    status.innerText = "❌ Ongeldig";
-    return;
+    status.innerText = e === "op" ? "⛔ Op" : "❌ Ongeldig";
+    beep();
   }
 
-  let data = snap.data();
-
-  if (data.remaining <= 0) {
-    status.className = "fout";
-    status.innerText = "⛔ Op";
-    return;
-  }
-
-  await updateDoc(ref, {
-    remaining: data.remaining - 1
-  });
-
-  status.className = "ok";
-  status.innerText = "✅ OK! Resterend: " + (data.remaining - 1);
+  setTimeout(() => {
+    status.innerText = "Wacht op scan...";
+    status.className = "";
+  }, 2000);
 }
 
-// 🚀 scanner starten
-new Html5QrcodeScanner("reader", {
-  fps: 10,
-  qrbox: 250
-}).render(onScanSuccess);
+// 📷 camera
+function startCamera() {
+  new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 })
+    .render(processScan);
+}
+
+// ⌨️ Delock scanner
+document.getElementById("scanInput").addEventListener("change", function() {
+  processScan(this.value);
+  this.value = "";
+});
 
 </script>
 
