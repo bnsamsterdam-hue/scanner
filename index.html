@@ -3,139 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO Ticket Systeem</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
+<title>PRO Scanner</title>
 
 <style>
-body { font-family: Arial; text-align:center; background:#111; color:white; }
-
-#reader { width:320px; margin:20px auto; }
-
-#status {
-  font-size:26px;
-  padding:15px;
-  border-radius:10px;
-  margin-top:20px;
-}
-
+body { background:#111; color:white; text-align:center; font-family:Arial; }
+#status { font-size:40px; margin-top:20px; padding:20px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
-
-button { padding:12px 20px; margin:5px; font-size:16px; }
-
-.screen {
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  z-index:1000;
-}
-
-.noodBtn { background:red; color:white; }
-.noodBtn.open { background:green; }
-
-#topbar {
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#222;
-  padding:10px;
-  z-index:999;
-}
-
-#content { margin-top:90px; }
-
-input { padding:10px; margin:5px; font-size:16px; }
+#scanInput { opacity:0; position:absolute; }
+button { padding:15px; font-size:18px; margin:5px; }
 </style>
 </head>
 
 <body>
 
-<!-- TOPBAR -->
-<div id="topbar">
-  <button onclick="location.reload()">⬅ Terug</button>
-  <button onclick="openLogin()">🔒 Admin</button>
+<h1>🎟️ Scanner</h1>
 
-  <div>
-    Poorten:
-    <span id="p1">🔴</span>1
-    <span id="p2">🔴</span>2
-    <span id="p3">🔴</span>3
-    <span id="p4">🔴</span>4
-  </div>
-</div>
-
-<div id="content">
-
-<h1>🎟️ Ticket Systeem</h1>
-
-<!-- MODUS -->
-<div id="modeScreen" class="screen">
-  <h2>Kies modus</h2>
+<div id="menu">
   <button onclick="startKassa()">📱 KASSA</button>
-  <button onclick="showPoorten()">🚪 POORT</button>
+  <button onclick="startPoort(1)">🚪 POORT</button>
 </div>
-
-<!-- POORT SELECT -->
-<div id="poortScreen" class="screen" style="display:none;">
-  <h2>Kies poort</h2>
-  <button onclick="startPoort(1)">Poort 1</button>
-  <button onclick="startPoort(2)">Poort 2</button>
-  <button onclick="startPoort(3)">Poort 3</button>
-  <button onclick="startPoort(4)">Poort 4</button>
-</div>
-
-<div id="reader"></div>
-<input id="scanInput" style="opacity:0; position:absolute;">
 
 <div id="status">Wacht op scan...</div>
 
-<!-- 🚨 NOOD ALTIJD ZICHTBAAR -->
-<div id="noodPanel">
-  <h2>🚨 NOOD OPEN</h2>
-  <button id="btn1" class="noodBtn" onclick="noodOpen(1)">Poort 1</button>
-  <button id="btn2" class="noodBtn" onclick="noodOpen(2)">Poort 2</button>
-  <button id="btn3" class="noodBtn" onclick="noodOpen(3)">Poort 3</button>
-  <button id="btn4" class="noodBtn" onclick="noodOpen(4)">Poort 4</button>
-</div>
+<input id="scanInput" autofocus>
 
-<!-- ADMIN -->
-<div id="admin" style="display:none;">
-  <h2>Admin</h2>
-
-  <h3>Event naam</h3>
-  <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
-
-  <h3>Handmatig ticket maken</h3>
-  <input id="code" placeholder="Bijv WC-000001"><br>
-  <input id="aantal" type="number" placeholder="Aantal strippen"><br>
-  <button onclick="maakTicket()">Opslaan</button>
-
-  <h3>Bulk tickets maken</h3>
-  <button onclick="genereerTickets()">Genereer 3000 tickets</button>
-</div>
-
-<!-- LOGIN -->
-<div id="loginScreen" class="screen" style="display:none;">
-  <h2>Voer pincode in</h2>
-  <input type="password" id="pinInput"><br><br>
-  <button onclick="checkPin()">OK</button>
-</div>
-
+<div id="nood" style="display:none;">
+  <h2>🚨 NOOD</h2>
+  <button onclick="openPoort(1)">Poort 1</button>
+  <button onclick="openPoort(2)">Poort 2</button>
+  <button onclick="openPoort(3)">Poort 3</button>
+  <button onclick="openPoort(4)">Poort 4</button>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyB8rljH8WmRih061v56YFjl60SXhgJBYfc",
   authDomain: "ticket-systeem-18a08.firebaseapp.com",
   projectId: "ticket-systeem-18a08",
 };
@@ -143,119 +50,97 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// 🔥 POORT IP'S
 const POORTEN = {
-  1:"192.168.1.50",
-  2:"192.168.1.51",
-  3:"192.168.1.52",
-  4:"192.168.1.53"
+  1: "192.168.1.50",
+  2: "192.168.1.51",
+  3: "192.168.1.52",
+  4: "192.168.1.53"
 };
 
-let MODE="", RELAIS_IP="";
+// 🔥 URL AUTO MODE
+const params = new URLSearchParams(window.location.search);
+const autoPoort = params.get("poort");
 
-// geluid
-function beep(){ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play(); }
+let MODE = "";
+let RELAIS_IP = "";
 
-// MODES
-window.startKassa=()=>{
-  MODE="kassa";
-  document.getElementById("modeScreen").style.display="none";
+// 🔊 geluid
+function beep() {
+  new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+}
+
+// 🚪 START POORT
+window.startPoort = (nr) => {
+  MODE = "poort";
+  RELAIS_IP = POORTEN[nr];
+
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("nood").style.display = "block";
+
+  setTimeout(() => {
+    document.getElementById("scanInput").focus();
+  }, 300);
 };
 
-window.showPoorten=()=>{
-  document.getElementById("modeScreen").style.display="none";
-  document.getElementById("poortScreen").style.display="flex";
+// 📱 KASSA
+window.startKassa = () => {
+  MODE = "kassa";
+  document.getElementById("menu").style.display = "none";
 };
 
-window.startPoort=(nr)=>{
-  MODE="poort";
-  RELAIS_IP=POORTEN[nr];
-  document.getElementById("poortScreen").style.display="none";
+// 🚨 NOOD OPEN
+window.openPoort = (nr) => {
+  fetch("http://" + POORTEN[nr] + "/relay/0?turn=on&timer=1");
 };
 
-// NOOD
-window.noodOpen=(nr)=>{
-  let btn=document.getElementById("btn"+nr);
-  btn.classList.add("open");
+// 🔍 SCAN
+document.getElementById("scanInput").addEventListener("change", async function(){
 
-  fetch("http://"+POORTEN[nr]+"/relay/0?turn=on&timer=5");
+  let code = this.value.trim().toUpperCase();
+  this.value = "";
 
-  setTimeout(()=>btn.classList.remove("open"),5000);
-};
-
-// ADMIN
-window.openLogin=()=>{
-  document.getElementById("loginScreen").style.display="flex";
-};
-
-window.checkPin=()=>{
-  let pin=document.getElementById("pinInput").value;
-
-  if(pin==="8760"){
-    document.getElementById("admin").style.display="block";
-    document.getElementById("loginScreen").style.display="none";
-  } else {
-    alert("Foute code");
-  }
-
-  document.getElementById("pinInput").value="";
-};
-
-// TICKETS
-window.maakTicket=async()=>{
-  let code=document.getElementById("code").value.toUpperCase();
-  let aantal=parseInt(document.getElementById("aantal").value);
-
-  await setDoc(doc(db,"tickets",code),{remaining:aantal});
-  alert("Ticket opgeslagen");
-};
-
-window.genereerTickets=async()=>{
-  let event=document.getElementById("eventnaam").value.toUpperCase();
-
-  for(let i=1;i<=3000;i++){
-    let nr=String(i).padStart(6,"0");
-    let code="TOILETBEZOEK "+event+"-"+nr;
-    await setDoc(doc(db,"tickets",code),{remaining:10});
-  }
-
-  alert("3000 tickets gemaakt");
-};
-
-// SCAN
-async function processScan(code){
-  let ref=doc(db,"tickets",code.trim().toUpperCase());
-  let status=document.getElementById("status");
+  let status = document.getElementById("status");
 
   try{
-    await runTransaction(db,async(t)=>{
-      let snap=await t.get(ref);
+    await runTransaction(db, async (t)=>{
+      let ref = doc(db,"tickets",code);
+      let snap = await t.get(ref);
+
       if(!snap.exists()) throw "fout";
-      let r=snap.data().remaining;
+
+      let r = snap.data().remaining;
       if(r<=0) throw "op";
+
       t.update(ref,{remaining:r-1});
+
       status.className="ok";
-      status.innerText="OK "+(r-1);
+      status.innerText="OK - "+(r-1);
     });
 
     beep();
 
     if(MODE==="poort"){
-      fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=5");
+      fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
     }
 
   }catch(e){
     status.className="fout";
-    status.innerText=e==="op"?"OP":"ONGELDIG";
+    status.innerText = e==="op"?"OP":"ONGELDIG";
     beep();
   }
-}
 
-new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
+  setTimeout(()=>{
+    status.innerText="Wacht op scan...";
+    status.className="";
+  },2000);
 
-document.getElementById("scanInput").addEventListener("change",function(){
-  processScan(this.value);
-  this.value="";
 });
+
+// 🔥 AUTO START POORT
+if(autoPoort){
+  window.onload = () => startPoort(Number(autoPoort));
+}
 
 </script>
 
