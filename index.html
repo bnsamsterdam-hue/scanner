@@ -3,73 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO Ticket Systeem</title>
+
+<title>PRO Ticket Systeem v3</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body { font-family: Arial; text-align:center; background:#111; color:white; }
+body { background:#111; color:white; font-family:Arial; text-align:center; }
 
-#status { font-size:30px; padding:20px; border-radius:10px; margin-top:20px; }
 .ok { background:green; }
 .fout { background:red; }
 
-button { padding:12px 20px; margin:5px; font-size:16px; }
+#status { font-size:30px; padding:20px; margin-top:20px; }
 
-.noodBtn { background:red; color:white; }
+.noodBtn { background:red; }
 .noodBtn.open { background:green; }
 
-#scanInput { opacity:0; position:absolute; }
+.blink { animation: blink 1s infinite; }
 
-.screen {
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
+@keyframes blink {
+50% { opacity:0.3; }
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎟️ Ticket Systeem</h1>
+<h1>🎟️ Ticket Systeem PRO</h1>
 
-<!-- 🔥 POORT STATUS -->
+<!-- STATUS -->
 <div id="poortStatus">
-Poorten:
-<span id="s1">🔴</span>1
-<span id="s2">🔴</span>2
-<span id="s3">🔴</span>3
-<span id="s4">🔴</span>4
+<div id="p1">🔴 Poort 1</div>
+<div id="p2">🔴 Poort 2</div>
+<div id="p3">🔴 Poort 3</div>
+<div id="p4">🔴 Poort 4</div>
 </div>
 
+<!-- TELLER -->
+<h2>Totaal scans: <span id="teller">0</span></h2>
+
 <!-- MENU -->
-<div id="menu" class="screen">
+<div id="menu">
 <button onclick="startKassa()">📱 KASSA</button>
 </div>
 
-<!-- KASSA -->
-<div id="kassa" style="display:none;">
 <div id="reader"></div>
 
-<button onclick="gaTerug()">⬅ Terug</button>
-
-<div id="nood">
-<h2>🚨 NOOD</h2>
-<button id="b1" class="noodBtn" onclick="nood(1)">Poort 1</button>
-<button id="b2" class="noodBtn" onclick="nood(2)">Poort 2</button>
-<button id="b3" class="noodBtn" onclick="nood(3)">Poort 3</button>
-<button id="b4" class="noodBtn" onclick="nood(4)">Poort 4</button>
-</div>
-</div>
-
-<!-- POORT -->
 <input id="scanInput" autofocus>
 <div id="status">Wacht op scan...</div>
+
+<!-- NOOD -->
+<div id="nood">
+<button class="noodBtn" onclick="nood(1)">Poort 1</button>
+<button class="noodBtn" onclick="nood(2)">Poort 2</button>
+<button class="noodBtn" onclick="nood(3)">Poort 3</button>
+<button class="noodBtn" onclick="nood(4)">Poort 4</button>
+</div>
 
 <!-- ADMIN -->
 <button onclick="openLogin()">🔒 Admin</button>
@@ -78,17 +67,20 @@ Poorten:
 <h2>Event</h2>
 <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
 
-<h2>Handmatig ticket</h2>
+<h2>Ticket</h2>
 <input id="code" placeholder="Bijv VIP-001"><br>
 <input id="aantal" type="number" placeholder="Bijv 10"><br>
 <button onclick="maakTicket()">Opslaan</button>
 
 <h2>Bulk</h2>
 <button onclick="genereerTickets()">Genereer 3000</button>
+
+<h2>Teller</h2>
+<button onclick="resetTeller()">Reset teller</button>
 </div>
 
-<div id="loginScreen" class="screen" style="display:none;">
-<input type="password" id="pinInput"><br>
+<div id="loginScreen" style="display:none;">
+<input type="password" id="pinInput">
 <button onclick="checkPin()">OK</button>
 </div>
 
@@ -97,13 +89,12 @@ Poorten:
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-apiKey: "AIza...",
-authDomain: "ticket-systeem-18a08.firebaseapp.com",
-projectId: "ticket-systeem-18a08",
-};
+const app = initializeApp({
+apiKey:"AIza...",
+authDomain:"ticket-systeem-18a08.firebaseapp.com",
+projectId:"ticket-systeem-18a08"
+});
 
-const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const POORTEN = {
@@ -113,26 +104,33 @@ const POORTEN = {
 4:"192.168.1.53"
 };
 
+let teller = 0;
+let MODE="";
+let RELAIS_IP="";
+
 // 🔥 STATUS CHECK
 async function checkPoorten(){
 for(let i=1;i<=4;i++){
+let el=document.getElementById("p"+i);
+
 try{
-let r=await fetch("http://"+POORTEN[i]+"/status");
-document.getElementById("s"+i).innerText = r.ok?"🟢":"🔴";
+let r=await fetch("http://"+POORTEN[i]+"/status",{timeout:1000});
+
+if(r.ok){
+el.innerText="🟢 Poort "+i+" OK";
+el.classList.remove("blink");
+}else{
+throw "error";
+}
+
 }catch{
-document.getElementById("s"+i).innerText="🔴";
+el.innerText="🔴 Poort "+i+" STORING";
+el.classList.add("blink");
 }
 }
 }
-setInterval(checkPoorten,5000);
+setInterval(checkPoorten,3000);
 checkPoorten();
-
-// 🔥 URL AUTO
-const params=new URLSearchParams(window.location.search);
-const autoPoort=params.get("poort");
-
-let MODE="";
-let RELAIS_IP="";
 
 // 🔊 geluid
 function beep(){
@@ -142,38 +140,33 @@ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").p
 // 📱 KASSA
 window.startKassa=()=>{
 MODE="kassa";
-document.getElementById("menu").style.display="none";
-document.getElementById("kassa").style.display="block";
-
 new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
 };
 
-// 🚪 POORT
+// 🚪 POORT AUTO
 function startPoort(nr){
 MODE="poort";
 RELAIS_IP=POORTEN[nr];
-document.getElementById("menu").style.display="none";
 setTimeout(()=>document.getElementById("scanInput").focus(),300);
 }
 
 // 🚨 NOOD
 window.nood=(nr)=>{
-let b=document.getElementById("b"+nr);
+let b=event.target;
 b.classList.add("open");
-
 fetch("http://"+POORTEN[nr]+"/relay/0?turn=on&timer=2");
-
 setTimeout(()=>b.classList.remove("open"),2000);
 };
 
-// 🔍 SCAN INPUT
+// 🔍 SCAN
 document.getElementById("scanInput").addEventListener("change",function(){
 processScan(this.value);
 this.value="";
 });
 
-// 🔍 SCAN
+// 🔍 SCAN FUNCTION
 async function processScan(code){
+
 code=code.trim().toUpperCase();
 let status=document.getElementById("status");
 
@@ -193,6 +186,9 @@ status.className="ok";
 status.innerText="OK "+(r-1);
 });
 
+teller++;
+document.getElementById("teller").innerText=teller;
+
 beep();
 
 if(MODE==="poort"){
@@ -211,11 +207,8 @@ status.className="";
 },2000);
 }
 
-// 🔙 TERUG
-window.gaTerug=()=>location.reload();
-
 // 🔒 ADMIN
-window.openLogin=()=>document.getElementById("loginScreen").style.display="flex";
+window.openLogin=()=>document.getElementById("loginScreen").style.display="block";
 
 window.checkPin=()=>{
 if(document.getElementById("pinInput").value==="8760"){
@@ -229,7 +222,6 @@ window.maakTicket=async()=>{
 let code=document.getElementById("code").value.toUpperCase();
 let aantal=parseInt(document.getElementById("aantal").value);
 await setDoc(doc(db,"tickets",code),{remaining:aantal});
-alert("Opgeslagen");
 };
 
 // ⚡ BULK
@@ -239,12 +231,18 @@ for(let i=1;i<=3000;i++){
 let nr=String(i).padStart(6,"0");
 await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
 }
-alert("3000 tickets gemaakt");
+};
+
+// 🔄 RESET
+window.resetTeller=()=>{
+teller=0;
+document.getElementById("teller").innerText="0";
 };
 
 // 🔥 AUTO START
-if(autoPoort){
-window.onload=()=>startPoort(Number(autoPoort));
+const params=new URLSearchParams(window.location.search);
+if(params.get("poort")){
+window.onload=()=>startPoort(Number(params.get("poort")));
 }
 
 </script>
