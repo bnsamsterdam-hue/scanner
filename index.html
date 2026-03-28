@@ -282,34 +282,15 @@ await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
 }
 
 /* STORING */
+/* STORING */
 async function check(){
 for(let i=1;i<=6;i++){
+
 let el=document.getElementById("p"+i);
 if(!el) continue;
 
 try{
-let res=await fetch("http://"+POORTEN[i]+"/status");
-if(res.ok){
-el.style.background="green";
-el.innerText="🟢 Poort "+i+" ONLINE";
-}else{
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
-}
-}catch{
-el.style.background="red";
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-}
-}
-}
-setInterval(check,3000);
 
-/* POORT MODE */
-async function check(){
-for(let i=1;i<=4;i++){
-let el=document.getElementById("p"+i);
-
-try{
 let controller = new AbortController();
 let timeout = setTimeout(()=>controller.abort(),1500);
 
@@ -323,6 +304,53 @@ el.innerText="🟢 Poort "+i+" ONLINE";
 el.style.background="orange";
 el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
 }
+
+}catch(e){
+
+if(e.name==="AbortError"){
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+}else{
+el.style.background="red";
+el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+}
+
+}
+
+}
+}
+
+setInterval(check,3000);
+
+/* POORT MODE */
+async function check(){
+for(let i=1;i<=6;i++){
+
+let el=document.getElementById("p"+i);
+if(!el) continue;
+
+try{
+
+let controller = new AbortController();
+let timeout = setTimeout(()=>controller.abort(),1500);
+
+let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+clearTimeout(timeout);
+
+if(res.ok){
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+}else{
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+}else{
+el.style.background="red";
+el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+}
+
+}catch(e){
+
+if(e.name
 
 }catch(e){
 
