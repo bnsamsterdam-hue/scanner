@@ -13,63 +13,29 @@
 
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
-#tabs button { width:20%; padding:10px; }
+
+#tabs button { width:20%; padding:10px; font-size:14px; }
+
 .tab { display:none; padding:10px; }
 .active { display:block; }
+
 #status { font-size:28px; padding:10px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
+
 #reader { max-width:300px; margin:auto; }
-.noodBtn { background:red; padding:12px; margin:5px; color:white; }
+
+.noodBtn { background:red; padding:12px; margin:5px; font-size:16px; color:white; }
 .noodBtn.open { background:green; }
+
 .led { padding:10px; margin:5px; }
-input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
- /* 🔥 MOBIEL FIX */
-@media (max-width: 600px){
 
-  /* MENU BALK */
-  #tabs button {
-    width:100%;
-    font-size:18px;
-    padding:14px;
-  }
-
-  /* STATUS */
-  #status {
-    font-size:32px;
-  }
-
-  /* CAMERA */
-  #reader {
-    max-width:100%;
-  }
-
-  /* NOOD KNOPPEN */
-  .noodBtn {
-    width:95%;
-    font-size:18px;
-    padding:16px;
-  }
-
-  /* STORING BLOKKEN */
-  .led {
-    font-size:16px;
-    padding:12px;
-  }
-
-  /* INPUT */
-  input {
-    width:95%;
-    font-size:16px;
-    padding:12px;
-  }
-
-  /* ALGEMENE KNOPPEN */
-  button {
-    font-size:16px;
-    padding:12px;
-  }
-
+input {
+  background:#222;
+  color:white;
+  border:1px solid #555;
+  padding:8px;
+  margin:5px;
 }
 </style>
 </head>
@@ -84,12 +50,14 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <button onclick="showTab('admin')">Admin</button>
 </div>
 
+<!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
 <div id="reader"></div>
 <button onclick="switchCamera()">🔄 Camera</button>
 </div>
 
+<!-- NOOD -->
 <div id="nood" class="tab">
 <button class="noodBtn" onclick="nood(1,this)">Poort 1</button>
 <button class="noodBtn" onclick="nood(2,this)">Poort 2</button>
@@ -120,6 +88,7 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 </div>
 
+<!-- STORING -->
 <div id="storing" class="tab">
 <div id="p1" class="led">Poort 1</div>
 <div id="p2" class="led">Poort 2</div>
@@ -129,15 +98,18 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <div id="p6" class="led">Poort 6</div>
 </div>
 
+<!-- ADMIN -->
 <div id="admin" class="tab">
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
 </div>
+
 <div id="adminPanel" style="display:none;">
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
-<input id="code" placeholder="Code bv TOILET-001 (HOOFDLETTERS)"><br>
-<input id="aantal" placeholder="Aantal bv 10 ritten"><br>
+<input id="code" placeholder="Code bv TOILET-001"><br>
+<input id="aantal" placeholder="Aantal bv 10"><br>
+
 <button onclick="maakTicket()">Opslaan</button>
 <button onclick="bulk()">Bulk</button>
 <button onclick="logout()">Terug</button>
@@ -267,7 +239,7 @@ s.className="";
 
 }
 
-/* 🔥 TELLER FUNCTIES */
+/* TELLER */
 function updatePoortTellers(){
 let html="Kassa: "+tellerPoort[0]+"<br><br>";
 for(let i=1;i<=6;i++){
