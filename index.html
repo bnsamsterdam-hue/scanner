@@ -47,7 +47,7 @@ input {
 <button onclick="showTab('scan')">Scan QR code</button>
 <button onclick="showTab('nood')">Bij nood poort openen</button>
 <button onclick="showTab('teller')">Teller QR scans</button>
-<button onclick="showTab('storing')">Storingen/ status poorten</button>
+<button onclick="showTab('storing')">Storingen / status</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
 
@@ -70,7 +70,12 @@ input {
 
 <!-- TELLER -->
 <div id="teller" class="tab">
+<h2>Totaal scans</h2>
 <h1 id="tellerWaarde">0</h1>
+
+<h3>Per poort</h3>
+<div id="poortTellers"></div>
+
 <button onclick="resetTeller()">Reset</button>
 </div>
 
@@ -79,13 +84,13 @@ input {
 <div id="p1" class="led">Poort 1</div>
 <div id="p2" class="led">Poort 2</div>
 <div id="p3" class="led">Poort 3</div>
+<div id="p4" class="led">Poort 4</div>
 <div id="p5" class="led">Poort 5</div>
 <div id="p6" class="led">Poort 6</div>
 </div>
 
 <!-- ADMIN -->
 <div id="admin" class="tab">
-
 <div id="login">
 <input id="pin" type="password" placeholder="Voer pincode in">
 <button onclick="login()">OK</button>
@@ -94,13 +99,12 @@ input {
 <div id="adminPanel" style="display:none;">
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
 <input id="code" placeholder="Code bv TOILET-001"><br>
-<input id="aantal" placeholder="Aantal bv 10 ritten"><br>
+<input id="aantal" placeholder="Aantal bv 10"><br>
 
 <button onclick="maakTicket()">Opslaan</button>
 <button onclick="bulk()">Bulk 3000</button>
 <button onclick="logout()">Terug</button>
 </div>
-
 </div>
 
 <input id="scanInput" autofocus>
@@ -115,7 +119,7 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-/* INSTELLINGEN */
+/* POORTEN */
 const POORTEN={
 1:"192.168.1.50",
 2:"192.168.1.51",
@@ -126,11 +130,13 @@ const POORTEN={
 };
 
 let teller=0;
+let tellerPoort={1:0,2:0,3:0,4:0,5:0,6:0};
+
 let MODE="kassa";
 let RELAIS_IP="";
+let POORT_NR=null;
 
-/* 🔥 NIEUWE SCAN LOCK */
-let scanLock = false;
+let scanLock=false;
 
 /* TABS */
 function showTab(id){
@@ -144,33 +150,23 @@ let cameras=[];
 let currentCam=0;
 
 Html5Qrcode.getCameras().then(cam=>{
-  cameras=cam;
-  if(cameras.length){
-    startCamera(cameras.length-1);
-  }
+cameras=cam;
+if(cameras.length){
+startCamera(cameras.length-1);
+}
 });
 
 async function startCamera(i){
-
-  if(scanner){
-    try{
-      await scanner.stop();
-      await scanner.clear();
-    }catch(e){}
-  }
-
-  scanner = new Html5Qrcode("reader");
-
-  scanner.start(
-    cameras[i].id,
-    { fps:10, qrbox:200 },
-    code => processScan(code)
-  );
+if(scanner){
+try{ await scanner.stop(); await scanner.clear(); }catch(e){}
+}
+scanner=new Html5Qrcode("reader");
+scanner.start(cameras[i].id,{fps:10,qrbox:200},code=>processScan(code));
 }
 
 function switchCamera(){
-  currentCam=(currentCam+1)%cameras.length;
-  startCamera(currentCam);
+currentCam=(currentCam+1)%cameras.length;
+startCamera(currentCam);
 }
 
 /* USB */
@@ -183,11 +179,10 @@ this.value="";
 async function processScan(code){
 
 if(scanLock){ return; }
+scanLock=true;
 
-scanLock = true;
-
-code = code.trim().toUpperCase();
-let s = document.getElementById("status");
+code=code.trim().toUpperCase();
+let s=document.getElementById("status");
 
 try{
 
@@ -196,7 +191,6 @@ let ref=db.collection("tickets").doc(code);
 let doc=await t.get(ref);
 
 if(!doc.exists) throw "invalid";
-
 let r=doc.data().remaining;
 if(r<=0) throw "empty";
 
@@ -207,7 +201,9 @@ s.innerText="✔ TOEGANG ("+(r-1)+")";
 });
 
 teller++;
-document.getElementById("tellerWaarde").innerText=teller;
+if(POORT_NR){ tellerPoort[POORT_NR]++; }
+
+updatePoortTellers();
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
@@ -218,47 +214,49 @@ fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 }catch(e){
 
 s.className="fout";
-
-if(e==="empty"){
-s.innerText="❌ GEEN BEURTEN";
-}else{
 s.innerText="❌ ONGELDIG";
-}
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
-/* 🔥 STOP SCANNER VEILIG */
+/* STOP + RESTART */
 if(scanner){
-  try{
-    await scanner.stop();
-    await scanner.clear();
-  }catch(e){}
+try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 
-/* 🔥 RESET TEKST */
 setTimeout(()=>{
-  s.innerText="SCAN KLAAR";
-  s.className="";
-},1500);
-
-/* 🔥 HERSTART NA 3 SEC */
-setTimeout(()=>{
-  scanLock = false;
-
-  // extra zekerheid dat camera terugkomt
-  if(cameras.length){
-    startCamera(currentCam);
-  }
-
+scanLock=false;
+if(cameras.length){ startCamera(currentCam); }
 },3000);
 
+setTimeout(()=>{
+s.innerText="SCAN KLAAR";
+s.className="";
+},1500);
+
 }
+
 /* NOOD */
 function nood(n,btn){
 btn.classList.add("open");
 fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=3");
 setTimeout(()=>btn.classList.remove("open"),3000);
+}
+
+/* TELLER */
+function updatePoortTellers(){
+let html="";
+for(let i=1;i<=6;i++){
+html += "Poort "+i+": "+tellerPoort[i]+"<br>";
+}
+document.getElementById("poortTellers").innerHTML=html;
+}
+
+function resetTeller(){
+teller=0;
+for(let i=1;i<=6;i++){ tellerPoort[i]=0; }
+document.getElementById("tellerWaarde").innerText=0;
+updatePoortTellers();
 }
 
 /* ADMIN */
@@ -285,16 +283,12 @@ await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
 
 /* STORING */
 async function check(){
-for(let i=1;i<=6;i++)
+for(let i=1;i<=6;i++){
 let el=document.getElementById("p"+i);
+if(!el) continue;
 
 try{
-let controller = new AbortController();
-let timeout = setTimeout(()=>controller.abort(),1500);
-
-let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
-clearTimeout(timeout);
-
+let res=await fetch("http://"+POORTEN[i]+"/status");
 if(res.ok){
 el.style.background="green";
 el.innerText="🟢 Poort "+i+" ONLINE";
@@ -302,17 +296,9 @@ el.innerText="🟢 Poort "+i+" ONLINE";
 el.style.background="orange";
 el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
 }
-
-}catch(e){
-
-if(e.name==="AbortError"){
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" TIMEOUT";
-}else{
+}catch{
 el.style.background="red";
 el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-}
-
 }
 }
 }
@@ -322,9 +308,14 @@ setInterval(check,3000);
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 MODE="poort";
-RELAIS_IP=POORTEN[params.get("poort")];
-document.getElementById("tabs").style.display="none";
-document.getElementById("reader").style.display="none";
+POORT_NR=params.get("poort");
+RELAIS_IP=POORTEN[POORT_NR];
+
+let tabs=document.getElementById("tabs");
+if(tabs) tabs.remove();
+
+let reader=document.getElementById("reader");
+if(reader) reader.remove();
 }
 
 </script>
