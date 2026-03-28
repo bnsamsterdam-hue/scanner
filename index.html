@@ -22,32 +22,27 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 
 #reader { max-width:300px; margin:auto; }
 
-/* NOOD */
-.noodBtn {
-  background:red;
-  padding:12px;
-  margin:5px;
-  font-size:16px;
-  color:white;
-}
+.noodBtn { background:red; padding:12px; margin:5px; color:white; }
 .noodBtn.open { background:green; }
 
-/* STORING */
-.led {
-  padding:10px;
-  margin:5px;
-}
+.led { padding:10px; margin:5px; }
 .blink { animation: blink 1s infinite; }
 @keyframes blink { 50% { opacity:0.3; } }
 
+input {
+  background:#222;
+  color:white;
+  border:1px solid #555;
+  padding:8px;
+  margin:5px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- TABS -->
 <div id="tabs">
-<button onclick="showTab('scan QR code')">Scan</button>
+<button onclick="showTab('scan')">Scan</button>
 <button onclick="showTab('nood')">Nood</button>
 <button onclick="showTab('teller')">Teller</button>
 <button onclick="showTab('storing')">Storingen</button>
@@ -58,7 +53,7 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
 <div id="reader"></div> 
-<button onclick="switchCamera()">🔄 Camera achter</button>  
+<button onclick="switchCamera()">🔄 Camera</button>
 </div>
 
 <!-- NOOD -->
@@ -94,33 +89,17 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 </div>
 
 <div id="adminPanel" style="display:none;">
-
-<h3>Event</h3>
 <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
-
-<h3>Ticket</h3>
-<input id="code" placeholder="Bijv TOILET-001 altijd hoofdletters"><br>
+<input id="code" placeholder="Bijv TOILET-001"><br>
 <input id="aantal" placeholder="Bijv 10"><br>
-
 <button onclick="maakTicket()">Opslaan</button>
-
-<h3>Bulk</h3>
-<p>Maakt codes zoals: EVENT-000001</p>
-<button onclick="bulk()">Genereer 3000</button>
-
+<button onclick="bulk()">Bulk</button>
 <button onclick="logout()">⬅ Terug</button>
-
 </div>
 </div>
 
 <input id="scanInput" autofocus>
-input {
-  background:#222;
-  color:white;
-  border:1px solid #555;
-  padding:8px;
-  margin:5px;
-}
+
 <script>
 
 const POORTEN={
@@ -145,26 +124,18 @@ let scanner;
 let cameras=[];
 let currentCam=0;
 
-let scanner;
-let cameras=[];
-let currentCam=0;
-
 Html5Qrcode.getCameras().then(cam=>{
   cameras = cam;
-
   if(cameras.length){
-    startCamera(0);
+    startCamera(cameras.length - 1); // achtercamera direct
   }
 });
 
 function startCamera(index){
-
   if(scanner){
     scanner.stop();
   }
-
   scanner = new Html5Qrcode("reader");
-
   scanner.start(
     cameras[index].id,
     { fps:10, qrbox:200 },
@@ -172,7 +143,7 @@ function startCamera(index){
   );
 }
 
-  function switchCamera(){
+function switchCamera(){
   currentCam = (currentCam + 1) % cameras.length;
   startCamera(currentCam);
 }
@@ -184,23 +155,14 @@ this.value="";
 });
 
 /* SCAN */
-async function processScan(code){
-
+function processScan(code){
 let s=document.getElementById("status");
 
-try{
-let r=10;
-
 s.className="ok";
-s.innerText="✔ TOEGANG ("+(r-1)+")";
+s.innerText="✔ TOEGANG";
 
 teller++;
 document.getElementById("tellerWaarde").innerText=teller;
-
-}catch{
-s.className="fout";
-s.innerText="❌ ONGELDIG";
-}
 
 setTimeout(()=>{
 s.innerText="SCAN KLAAR";
@@ -211,16 +173,8 @@ s.className="";
 /* NOOD */
 function nood(n,btn){
 btn.classList.add("open");
-
 fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=3");
-
 setTimeout(()=>btn.classList.remove("open"),3000);
-}
-
-/* TELLER */
-function resetTeller(){
-teller=0;
-document.getElementById("tellerWaarde").innerText=0;
 }
 
 /* ADMIN */
@@ -231,32 +185,19 @@ document.getElementById("adminPanel").style.display="block";
 }
 }
 
-function logout(){
-location.reload();
-}
-
-function maakTicket(){ alert("Koppel Firebase"); }
-function bulk(){ alert("Bulk maken"); }
+function logout(){ location.reload(); }
 
 /* STORING */
 async function check(){
 for(let i=1;i<=4;i++){
 let el=document.getElementById("p"+i);
-
 try{
-let r=await fetch("http://"+POORTEN[i]+"/status");
-
-if(r.ok){
-el.innerText="🟢 Poort "+i+" OK";
+await fetch("http://"+POORTEN[i]+"/status");
 el.style.background="green";
-}else{
-throw "fout";
-}
-
-}catch(e){
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+el.innerText="Poort "+i+" OK";
+}catch{
 el.style.background="red";
-el.classList.add("blink");
+el.innerText="Poort "+i+" STORING";
 }
 }
 }
@@ -266,8 +207,8 @@ setInterval(check,3000);
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 MODE="poort";
-RELAIS_IP=POORTEN[params.get("poort")];
 document.getElementById("tabs").style.display="none";
+document.getElementById("reader").style.display="none";
 }
 
 </script>
