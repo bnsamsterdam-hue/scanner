@@ -4,14 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Scanner PRO FINAL</title>
+<title>Ticket Scanner PRO</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
 
-#tabs button { width:20%; padding:10px; font-size:14px; }
+#tabs button { width:20%; padding:10px; }
 
 .tab { display:none; padding:10px; }
 .active { display:block; }
@@ -26,8 +30,6 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 .noodBtn.open { background:green; }
 
 .led { padding:10px; margin:5px; }
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity:0.3; } }
 
 input {
   background:#222;
@@ -52,13 +54,12 @@ input {
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
-<div id="reader"></div> 
+<div id="reader"></div>
 <button onclick="switchCamera()">🔄 Camera</button>
 </div>
 
 <!-- NOOD -->
 <div id="nood" class="tab">
-<h2>🚨 NOOD OPEN</h2>
 <button class="noodBtn" onclick="nood(1,this)">Poort 1</button>
 <button class="noodBtn" onclick="nood(2,this)">Poort 2</button>
 <button class="noodBtn" onclick="nood(3,this)">Poort 3</button>
@@ -67,14 +68,12 @@ input {
 
 <!-- TELLER -->
 <div id="teller" class="tab">
-<h2>Totaal scans</h2>
 <h1 id="tellerWaarde">0</h1>
 <button onclick="resetTeller()">Reset</button>
 </div>
 
 <!-- STORING -->
 <div id="storing" class="tab">
-<h2>Poorten status</h2>
 <div id="p1" class="led">Poort 1</div>
 <div id="p2" class="led">Poort 2</div>
 <div id="p3" class="led">Poort 3</div>
@@ -83,25 +82,39 @@ input {
 
 <!-- ADMIN -->
 <div id="admin" class="tab">
+
 <div id="login">
 <input id="pin" type="password" placeholder="Voer pincode in">
 <button onclick="login()">OK</button>
 </div>
 
 <div id="adminPanel" style="display:none;">
-<input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
-<input id="code" placeholder="Bijv TOILET-001"><br>
-<input id="aantal" placeholder="Bijv 10"><br>
+
+<input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
+<input id="code" placeholder="Code bv VIP-001"><br>
+<input id="aantal" placeholder="Aantal bv 10"><br>
+
 <button onclick="maakTicket()">Opslaan</button>
-<button onclick="bulk()">Bulk</button>
-<button onclick="logout()">⬅ Terug</button>
+<button onclick="bulk()">Bulk 3000</button>
+<button onclick="logout()">Terug</button>
+
 </div>
+
 </div>
 
 <input id="scanInput" autofocus>
 
 <script>
 
+/* FIREBASE */
+firebase.initializeApp({
+  apiKey:"AIza...",
+  authDomain:"ticket-systeem-18a08.firebaseapp.com",
+  projectId:"ticket-systeem-18a08"
+});
+const db = firebase.firestore();
+
+/* INSTELLINGEN */
 const POORTEN={
 1:"192.168.1.50",
 2:"192.168.1.51",
@@ -125,44 +138,73 @@ let cameras=[];
 let currentCam=0;
 
 Html5Qrcode.getCameras().then(cam=>{
-  cameras = cam;
+  cameras=cam;
   if(cameras.length){
-    startCamera(cameras.length - 1); // achtercamera direct
+    startCamera(cameras.length-1);
   }
 });
 
-function startCamera(index){
-  if(scanner){
-    scanner.stop();
-  }
-  scanner = new Html5Qrcode("reader");
-  scanner.start(
-    cameras[index].id,
-    { fps:10, qrbox:200 },
-    code => processScan(code)
-  );
+function startCamera(i){
+  if(scanner){ scanner.stop(); }
+  scanner=new Html5Qrcode("reader");
+  scanner.start(cameras[i].id,{fps:10,qrbox:200},code=>processScan(code));
 }
 
 function switchCamera(){
-  currentCam = (currentCam + 1) % cameras.length;
+  currentCam=(currentCam+1)%cameras.length;
   startCamera(currentCam);
 }
 
-/* USB scanner */
+/* USB */
 document.getElementById("scanInput").addEventListener("change",function(){
 processScan(this.value);
 this.value="";
 });
 
 /* SCAN */
-function processScan(code){
+async function processScan(code){
+
+code=code.trim().toUpperCase();
 let s=document.getElementById("status");
 
+try{
+
+await db.runTransaction(async (t)=>{
+let ref=db.collection("tickets").doc(code);
+let doc=await t.get(ref);
+
+if(!doc.exists) throw "invalid";
+
+let r=doc.data().remaining;
+if(r<=0) throw "empty";
+
+t.update(ref,{remaining:r-1});
+
 s.className="ok";
-s.innerText="✔ TOEGANG";
+s.innerText="✔ TOEGANG ("+(r-1)+")";
+});
 
 teller++;
 document.getElementById("tellerWaarde").innerText=teller;
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+
+if(MODE==="poort"){
+fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
+}
+
+}catch(e){
+
+s.className="fout";
+
+if(e==="empty"){
+s.innerText="❌ GEEN BEURTEN";
+}else{
+s.innerText="❌ ONGELDIG";
+}
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
+}
 
 setTimeout(()=>{
 s.innerText="SCAN KLAAR";
@@ -184,8 +226,20 @@ document.getElementById("login").style.display="none";
 document.getElementById("adminPanel").style.display="block";
 }
 }
-
 function logout(){ location.reload(); }
+
+function maakTicket(){
+db.collection("tickets").doc(document.getElementById("code").value.toUpperCase())
+.set({remaining:parseInt(document.getElementById("aantal").value)});
+}
+
+async function bulk(){
+let e=document.getElementById("eventnaam").value.toUpperCase();
+for(let i=1;i<=3000;i++){
+let nr=String(i).padStart(6,"0");
+await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
+}
+}
 
 /* STORING */
 async function check(){
@@ -207,6 +261,7 @@ setInterval(check,3000);
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 MODE="poort";
+RELAIS_IP=POORTEN[params.get("poort")];
 document.getElementById("tabs").style.display="none";
 document.getElementById("reader").style.display="none";
 }
