@@ -124,9 +124,8 @@ let teller=0;
 let MODE="kassa";
 let RELAIS_IP="";
 
-/* 🔥 SCAN BEVEILIGING */
-let lastScanTime = {};
-let SCAN_COOLDOWN = 5000;
+/* 🔥 NIEUWE SCAN LOCK */
+let scanLock = false;
 
 /* TABS */
 function showTab(id){
@@ -166,19 +165,10 @@ this.value="";
 /* SCAN */
 async function processScan(code){
 
+if(scanLock){ return; }
+
 code = code.trim().toUpperCase();
 let s = document.getElementById("status");
-
-/* 🔥 ANTI DUBBEL SCAN */
-let now = Date.now();
-
-if(lastScanTime[code] && (now - lastScanTime[code]) < SCAN_COOLDOWN){
-s.className="fout";
-s.innerText="⏳ EVEN WACHTEN";
-return;
-}
-
-lastScanTime[code] = now;
 
 try{
 
@@ -201,6 +191,18 @@ teller++;
 document.getElementById("tellerWaarde").innerText=teller;
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+
+/* 🔥 STOP SCANNER + LOCK */
+scanLock = true;
+
+if(scanner){
+  await scanner.stop();
+}
+
+setTimeout(()=>{
+  scanLock = false;
+  startCamera(currentCam);
+},5000);
 
 if(MODE==="poort"){
 fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
