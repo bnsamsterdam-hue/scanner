@@ -47,7 +47,7 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 
 <!-- TABS -->
 <div id="tabs">
-<button onclick="showTab('scan')">Scan</button>
+<button onclick="showTab('scan QR code')">Scan</button>
 <button onclick="showTab('nood')">Nood</button>
 <button onclick="showTab('teller')">Teller</button>
 <button onclick="showTab('storing')">Storingen</button>
@@ -57,7 +57,8 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
-<div id="reader"></div>
+<div id="reader"></div> 
+<button onclick="switchCamera()">🔄 Camera achter</button>  
 </div>
 
 <!-- NOOD -->
@@ -88,7 +89,7 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 <!-- ADMIN -->
 <div id="admin" class="tab">
 <div id="login">
-<input id="pin" placeholder="PIN (8760)">
+<input id="pin" type="password" placeholder="Voer pincode in">
 <button onclick="login()">OK</button>
 </div>
 
@@ -98,7 +99,7 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
 
 <h3>Ticket</h3>
-<input id="code" placeholder="Bijv VIP-001"><br>
+<input id="code" placeholder="Bijv TOILET-001 altijd hoofdletters"><br>
 <input id="aantal" placeholder="Bijv 10"><br>
 
 <button onclick="maakTicket()">Opslaan</button>
@@ -113,7 +114,13 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 </div>
 
 <input id="scanInput" autofocus>
-
+input {
+  background:#222;
+  color:white;
+  border:1px solid #555;
+  padding:8px;
+  margin:5px;
+}
 <script>
 
 const POORTEN={
@@ -134,13 +141,41 @@ document.getElementById(id).classList.add('active');
 }
 
 /* CAMERA */
-let scanner=new Html5Qrcode("reader");
+let scanner;
+let cameras=[];
+let currentCam=0;
 
-Html5Qrcode.getCameras().then(cameras=>{
-if(cameras.length){
-scanner.start(cameras[0].id,{fps:10,qrbox:200},code=>processScan(code));
-}
+let scanner;
+let cameras=[];
+let currentCam=0;
+
+Html5Qrcode.getCameras().then(cam=>{
+  cameras = cam;
+
+  if(cameras.length){
+    startCamera(0);
+  }
 });
+
+function startCamera(index){
+
+  if(scanner){
+    scanner.stop();
+  }
+
+  scanner = new Html5Qrcode("reader");
+
+  scanner.start(
+    cameras[index].id,
+    { fps:10, qrbox:200 },
+    code => processScan(code)
+  );
+}
+
+  function switchCamera(){
+  currentCam = (currentCam + 1) % cameras.length;
+  startCamera(currentCam);
+}
 
 /* USB scanner */
 document.getElementById("scanInput").addEventListener("change",function(){
