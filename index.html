@@ -4,141 +4,109 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PRO ULTRA Scanner</title>
+<title>Scanner PRO Tabs</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body { background:#000; color:white; font-family:Arial; text-align:center; margin:0; }
+body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
+
+#tabs button {
+  width:24%;
+  padding:10px;
+  font-size:14px;
+}
+
+.tab { display:none; padding:10px; }
+
+.active { display:block; }
 
 /* STATUS */
 #status {
-  font-size:40px;
-  padding:15px;
-  margin:10px;
+  font-size:30px;
+  padding:10px;
   border-radius:10px;
 }
-.ok { background:#00c853; }
-.fout { background:#d50000; }
 
-.flash-green { background:#003300 !important; }
-.flash-red { background:#330000 !important; }
+.ok { background:green; }
+.fout { background:red; }
 
-#reader {
-  width:100%;
-  max-width:260px;
-  margin:10px auto;
-}
-
-/* mobiel optimalisatie */
-@media (max-width: 600px) {
-
-  #status {
-    font-size:28px;
-    position:sticky;
-    top:0;
-    z-index:10;
-  }
-
-  #reader {
-    max-width:220px;
-  }
-
-  h2 {
-    font-size:20px;
-  }
-}
-
-#scanInput { opacity:0; position:absolute; }
+/* CAMERA */
+#reader { max-width:300px; margin:auto; }
 
 /* NOOD */
-#nood {
-  position:fixed;
-  bottom:10px;
-  width:100%;
-}
 .noodBtn { background:red; padding:10px; margin:5px; }
 .noodBtn.open { background:green; }
 
-/* STATUS POORTEN */
-#poortStatus div { margin:5px; }
+/* STORING */
 .blink { animation: blink 1s infinite; }
 @keyframes blink { 50% { opacity:0.3; } }
-
-button { padding:10px 15px; margin:5px; }
-
-/* MENU */
-#menu {
-  position:fixed;
-  top:0;
-  width:100%;
-  height:100%;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
 </style>
 </head>
 
 <body>
 
-<h2>🎟️ Scanner</h2>
+<!-- TABS -->
+<div id="tabs">
+<button onclick="showTab('scan')">Scanner</button>
+<button onclick="showTab('teller')">Teller</button>
+<button onclick="showTab('storing')">Storingen</button>
+<button onclick="showTab('admin')">Admin</button>
+</div>
 
+<!-- SCANNER -->
+<div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
+<div id="reader"></div>
 
-<!-- POORT STATUS -->
-<div id="poortStatus">
+<div>
+<button class="noodBtn" onclick="nood(1)">P1</button>
+<button class="noodBtn" onclick="nood(2)">P2</button>
+<button class="noodBtn" onclick="nood(3)">P3</button>
+<button class="noodBtn" onclick="nood(4)">P4</button>
+</div>
+</div>
+
+<!-- TELLER -->
+<div id="teller" class="tab">
+<h2>Aantal scans</h2>
+<h1 id="tellerWaarde">0</h1>
+<button onclick="resetTeller()">Reset</button>
+</div>
+
+<!-- STORING -->
+<div id="storing" class="tab">
+<h2>Poort status</h2>
 <div id="p1">🔴 Poort 1</div>
 <div id="p2">🔴 Poort 2</div>
 <div id="p3">🔴 Poort 3</div>
 <div id="p4">🔴 Poort 4</div>
 </div>
 
-<!-- CAMERA -->
-<div id="reader"></div>
-
-<!-- NOOD -->
-<div id="nood" style="display:none;">
-<button class="noodBtn" onclick="nood(1)">Poort 1</button>
-<button class="noodBtn" onclick="nood(2)">Poort 2</button>
-<button class="noodBtn" onclick="nood(3)">Poort 3</button>
-<button class="noodBtn" onclick="nood(4)">Poort 4</button>
-</div>
-
-<!-- MENU -->
-<div id="menu">
-<button onclick="startKassa()">📱 KASSA</button>
-</div>
-
-<input id="scanInput" autofocus>
-
 <!-- ADMIN -->
-<button onclick="openLogin()">🔒 Admin</button>
+<div id="admin" class="tab">
+<div id="login">
+<input type="password" id="pin" placeholder="PIN">
+<button onclick="login()">OK</button>
+</div>
 
-<div id="admin" style="display:none;">
+<div id="adminPanel" style="display:none;">
 <h3>Event</h3>
-<input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
+<input id="eventnaam"><br>
 
 <h3>Ticket</h3>
-<input id="code" placeholder="Bijv TOILET-001"><br>
-<input id="aantal" placeholder="Bijv 10"><br>
+<input id="code"><br>
+<input id="aantal"><br>
 <button onclick="maakTicket()">Opslaan</button>
 
 <h3>Bulk</h3>
-<button onclick="genereerTickets()">Genereer 3000</button>
+<button onclick="bulk()">3000 maken</button>
 
-<h3>Teller</h3>
-<span id="teller">0</span><br>
-<button onclick="resetTeller()">Reset</button>
-
-<button onclick="gaTerug()">⬅ Terug</button>
+<button onclick="logout()">Terug</button>
+</div>
 </div>
 
-<div id="loginScreen" style="display:none;">
-<input type="password" id="pinInput">
-<button onclick="checkPin()">OK</button>
-</div>
+<input id="scanInput" autofocus>
 
 <script type="module">
 
@@ -153,7 +121,7 @@ projectId:"ticket-systeem-18a08"
 
 const db = getFirestore(app);
 
-const POORTEN = {
+const POORTEN={
 1:"192.168.1.50",
 2:"192.168.1.51",
 3:"192.168.1.52",
@@ -161,67 +129,34 @@ const POORTEN = {
 };
 
 let teller=0;
-let MODE="";
+let MODE="kassa";
 let RELAIS_IP="";
 
-// 🔊 geluid
-function beep(){
-new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+function showTab(id){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 }
 
-// 🔥 flash
-function flash(type){
-let b=document.body;
-if(type==="ok"){
-b.classList.add("flash-green");
-setTimeout(()=>b.classList.remove("flash-green"),200);
-}else{
-b.classList.add("flash-red");
-setTimeout(()=>b.classList.remove("flash-red"),200);
+/* SCANNER */
+let scanner=new Html5Qrcode("reader");
+
+Html5Qrcode.getCameras().then(cameras=>{
+if(cameras.length){
+scanner.start(cameras[0].id,{fps:10,qrbox:200},code=>processScan(code));
 }
-}
+});
 
-// 📱 KASSA
-window.startKassa=()=>{
-MODE="kassa";
-
-document.getElementById("menu").style.display="none";
-document.getElementById("nood").style.display="block";
-
-new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
-};
-
-// 🚪 POORT
-function startPoort(nr){
-MODE="poort";
-RELAIS_IP=POORTEN[nr];
-
-document.getElementById("menu").style.display="none";
-
-setTimeout(()=>document.getElementById("scanInput").focus(),200);
-}
-
-// 🚨 NOOD
-window.nood=(nr)=>{
-let b=event.target;
-b.classList.add("open");
-
-fetch("http://"+POORTEN[nr]+"/relay/0?turn=on&timer=2");
-
-setTimeout(()=>b.classList.remove("open"),2000);
-};
-
-// 🔍 scan input
+/* USB SCANNER */
 document.getElementById("scanInput").addEventListener("change",function(){
 processScan(this.value);
 this.value="";
 });
 
-// 🔍 scan
+/* SCAN */
 async function processScan(code){
 
 code=code.trim().toUpperCase();
-let status=document.getElementById("status");
+let s=document.getElementById("status");
 
 try{
 await runTransaction(db, async (t)=>{
@@ -229,84 +164,64 @@ let ref=doc(db,"tickets",code);
 let snap=await t.get(ref);
 
 if(!snap.exists()) throw "fout";
-
 let r=snap.data().remaining;
 if(r<=0) throw "op";
 
 t.update(ref,{remaining:r-1});
 
-status.className="ok";
-status.innerText="✔ TOEGANG ("+(r-1)+" over)";
+s.className="ok";
+s.innerText="✔ TOEGANG ("+(r-1)+")";
 });
 
 teller++;
-document.getElementById("teller").innerText=teller;
-
-beep();
-flash("ok");
-
-if(MODE==="poort"){
-fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
-}
+document.getElementById("tellerWaarde").innerText=teller;
 
 }catch(e){
-status.className="fout";
-status.innerText=e==="op"
-  ? "❌ GEEN BEURTEN MEER"
-  : "❌ ONGELDIGE KAART";
-
-beep();
-flash("fout");
+s.className="fout";
+s.innerText=e==="op"?"❌ OP":"❌ ONGELDIG";
 }
 
 setTimeout(()=>{
-status.innerText="SCAN KLAAR";
-status.className="";
+s.innerText="SCAN KLAAR";
+s.className="";
 },1500);
 }
 
-// 🔒 admin
-window.openLogin=()=>document.getElementById("loginScreen").style.display="block";
+/* NOOD */
+window.nood=(n)=>fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=2");
 
-window.checkPin=()=>{
-if(document.getElementById("pinInput").value==="8760"){
-document.getElementById("admin").style.display="block";
-document.getElementById("loginScreen").style.display="none";
+/* TELLER */
+window.resetTeller=()=>{teller=0;document.getElementById("tellerWaarde").innerText=0;}
+
+/* ADMIN */
+window.login=()=>{
+if(document.getElementById("pin").value==="8760"){
+document.getElementById("login").style.display="none";
+document.getElementById("adminPanel").style.display="block";
 }
 };
+window.logout=()=>location.reload();
 
-// ➕ ticket
 window.maakTicket=async()=>{
-let code=document.getElementById("code").value.toUpperCase();
-let aantal=parseInt(document.getElementById("aantal").value);
-await setDoc(doc(db,"tickets",code),{remaining:aantal});
+await setDoc(doc(db,"tickets",document.getElementById("code").value.toUpperCase()),{
+remaining:parseInt(document.getElementById("aantal").value)
+});
 };
 
-// ⚡ bulk
-window.genereerTickets=async()=>{
-let event=document.getElementById("eventnaam").value.toUpperCase();
+window.bulk=async()=>{
+let e=document.getElementById("eventnaam").value.toUpperCase();
 for(let i=1;i<=3000;i++){
-let nr=String(i).padStart(6,"0");
-await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
+await setDoc(doc(db,"tickets","EV-"+e+"-"+i),{remaining:10});
 }
 };
 
-// 🔄 reset
-window.resetTeller=()=>{
-teller=0;
-document.getElementById("teller").innerText="0";
-};
-
-// 🔙 terug
-window.gaTerug=()=>location.reload();
-
-// 🔥 status check
-async function checkPoorten(){
+/* STORING */
+async function check(){
 for(let i=1;i<=4;i++){
 let el=document.getElementById("p"+i);
 try{
 let r=await fetch("http://"+POORTEN[i]+"/status");
-el.innerText=r.ok?"🟢 Poort "+i+" OK":"🔴 Poort "+i;
+el.innerText="🟢 Poort "+i;
 el.classList.remove("blink");
 }catch{
 el.innerText="🔴 STORING "+i;
@@ -314,13 +229,7 @@ el.classList.add("blink");
 }
 }
 }
-setInterval(checkPoorten,3000);
-
-// 🔥 auto poort
-const params=new URLSearchParams(window.location.search);
-if(params.get("poort")){
-window.onload=()=>startPoort(Number(params.get("poort")));
-}
+setInterval(check,3000);
 
 </script>
 
