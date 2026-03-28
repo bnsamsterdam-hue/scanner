@@ -164,6 +164,20 @@ this.value="";
 });
 
 /* SCAN */
+code = code.trim().toUpperCase();
+let now = Date.now();
+
+// 🚫 Anti dubbel scan
+if(lastScanTime[code] && (now - lastScanTime[code]) < SCAN_COOLDOWN){
+
+let s = document.getElementById("status");
+s.className="fout";
+s.innerText="⏳ EVEN WACHTEN";
+
+return;
+}
+
+lastScanTime[code] = now;  
 async function processScan(code){
 
 code=code.trim().toUpperCase();
