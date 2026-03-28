@@ -167,6 +167,8 @@ async function processScan(code){
 
 if(scanLock){ return; }
 
+scanLock = true;
+
 code = code.trim().toUpperCase();
 let s = document.getElementById("status");
 
@@ -192,18 +194,6 @@ document.getElementById("tellerWaarde").innerText=teller;
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
-/* 🔥 STOP SCANNER + LOCK */
-scanLock = true;
-
-if(scanner){
-  await scanner.stop();
-}
-
-setTimeout(()=>{
-  scanLock = false;
-  startCamera(currentCam);
-},5000);
-
 if(MODE==="poort"){
 fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 }
@@ -221,12 +211,24 @@ s.innerText="❌ ONGELDIG";
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
+/* 🔥 ALTIJD STOPPEN NA SCAN */
+if(scanner){
+  await scanner.stop();
+}
+
+/* 🔥 5 SEC PAUZE */
+setTimeout(()=>{
+  scanLock = false;
+  startCamera(currentCam);
+},5000);
+
+/* tekst reset */
 setTimeout(()=>{
 s.innerText="SCAN KLAAR";
 s.className="";
 },1500);
-}
 
+}
 /* NOOD */
 function nood(n,btn){
 btn.classList.add("open");
