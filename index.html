@@ -4,55 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Ticket Systeem PRO</title>
+<title>PRO ULTRA Scanner</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body {
-  background:#111;
-  color:white;
-  font-family:Arial;
-  text-align:center;
-  margin:0;
-}
+body { background:#000; color:white; font-family:Arial; text-align:center; margin:0; }
 
-/* STATUS GROOT EN BOVEN */
+/* STATUS */
 #status {
-  font-size:32px;
+  font-size:40px;
   padding:15px;
   margin:10px;
   border-radius:10px;
 }
+.ok { background:#00c853; }
+.fout { background:#d50000; }
 
-.ok { background:green; }
-.fout { background:red; }
+.flash-green { background:#00ff00 !important; }
+.flash-red { background:#ff0000 !important; }
 
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity:0.3; } }
+#reader { width:100%; max-width:350px; margin:auto; }
 
-#reader {
-  width:100%;
-  max-width:350px;
-  margin:auto;
-}
+#scanInput { opacity:0; position:absolute; }
 
-/* NOOD ONDERAAN */
+/* NOOD */
 #nood {
   position:fixed;
   bottom:10px;
   width:100%;
 }
-
-.noodBtn {
-  background:red;
-  padding:10px;
-  margin:5px;
-  color:white;
-  border:none;
-}
-
+.noodBtn { background:red; padding:10px; margin:5px; }
 .noodBtn.open { background:green; }
+
+/* STATUS POORTEN */
+#poortStatus div { margin:5px; }
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity:0.3; } }
+
+button { padding:10px 15px; margin:5px; }
 
 /* MENU */
 #menu {
@@ -65,11 +55,6 @@ body {
   justify-content:center;
   align-items:center;
 }
-
-button {
-  padding:10px 20px;
-  margin:5px;
-}
 </style>
 </head>
 
@@ -77,13 +62,20 @@ button {
 
 <h2>🎟️ Scanner</h2>
 
-<!-- STATUS DIRECT BOVEN -->
-<div id="status">Wacht op scan...</div>
+<div id="status">SCAN KLAAR</div>
+
+<!-- POORT STATUS -->
+<div id="poortStatus">
+<div id="p1">🔴 Poort 1</div>
+<div id="p2">🔴 Poort 2</div>
+<div id="p3">🔴 Poort 3</div>
+<div id="p4">🔴 Poort 4</div>
+</div>
 
 <!-- CAMERA -->
 <div id="reader"></div>
 
-<!-- NOOD ONDER -->
+<!-- NOOD -->
 <div id="nood" style="display:none;">
 <button class="noodBtn" onclick="nood(1)">Poort 1</button>
 <button class="noodBtn" onclick="nood(2)">Poort 2</button>
@@ -98,10 +90,37 @@ button {
 
 <input id="scanInput" autofocus>
 
+<!-- ADMIN -->
+<button onclick="openLogin()">🔒 Admin</button>
+
+<div id="admin" style="display:none;">
+<h3>Event</h3>
+<input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
+
+<h3>Ticket</h3>
+<input id="code" placeholder="Bijv VIP-001"><br>
+<input id="aantal" placeholder="Bijv 10"><br>
+<button onclick="maakTicket()">Opslaan</button>
+
+<h3>Bulk</h3>
+<button onclick="genereerTickets()">Genereer 3000</button>
+
+<h3>Teller</h3>
+<span id="teller">0</span><br>
+<button onclick="resetTeller()">Reset</button>
+
+<button onclick="gaTerug()">⬅ Terug</button>
+</div>
+
+<div id="loginScreen" style="display:none;">
+<input type="password" id="pinInput">
+<button onclick="checkPin()">OK</button>
+</div>
+
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
 apiKey:"AIza...",
@@ -118,12 +137,25 @@ const POORTEN = {
 4:"192.168.1.53"
 };
 
+let teller=0;
 let MODE="";
 let RELAIS_IP="";
 
 // 🔊 geluid
 function beep(){
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+}
+
+// 🔥 flash
+function flash(type){
+let b=document.body;
+if(type==="ok"){
+b.classList.add("flash-green");
+setTimeout(()=>b.classList.remove("flash-green"),200);
+}else{
+b.classList.add("flash-red");
+setTimeout(()=>b.classList.remove("flash-red"),200);
+}
 }
 
 // 📱 KASSA
@@ -156,53 +188,110 @@ fetch("http://"+POORTEN[nr]+"/relay/0?turn=on&timer=2");
 setTimeout(()=>b.classList.remove("open"),2000);
 };
 
-// 🔍 SCAN INPUT
+// 🔍 scan input
 document.getElementById("scanInput").addEventListener("change",function(){
 processScan(this.value);
 this.value="";
 });
 
-// 🔍 SCAN FUNCTION
+// 🔍 scan
 async function processScan(code){
 
-code = code.trim().toUpperCase();
-let status = document.getElementById("status");
+code=code.trim().toUpperCase();
+let status=document.getElementById("status");
 
 try{
 await runTransaction(db, async (t)=>{
-let ref = doc(db,"tickets",code);
-let snap = await t.get(ref);
+let ref=doc(db,"tickets",code);
+let snap=await t.get(ref);
 
 if(!snap.exists()) throw "fout";
 
-let r = snap.data().remaining;
+let r=snap.data().remaining;
 if(r<=0) throw "op";
 
 t.update(ref,{remaining:r-1});
 
 status.className="ok";
-status.innerText="OK "+(r-1);
+status.innerText="✔ OK ("+(r-1)+")";
 });
 
+teller++;
+document.getElementById("teller").innerText=teller;
+
 beep();
+flash("ok");
 
 if(MODE==="poort"){
 fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 }
 
 }catch(e){
-status.className="fout blink";
-status.innerText = e==="op"?"OP":"ONGELDIG";
+status.className="fout";
+status.innerText=e==="op"?"❌ OP":"❌ ONGELDIG";
+
 beep();
+flash("fout");
 }
 
 setTimeout(()=>{
-status.innerText="Wacht op scan...";
+status.innerText="SCAN KLAAR";
 status.className="";
-},2000);
+},1500);
 }
 
-// 🔥 AUTO POORT
+// 🔒 admin
+window.openLogin=()=>document.getElementById("loginScreen").style.display="block";
+
+window.checkPin=()=>{
+if(document.getElementById("pinInput").value==="8760"){
+document.getElementById("admin").style.display="block";
+document.getElementById("loginScreen").style.display="none";
+}
+};
+
+// ➕ ticket
+window.maakTicket=async()=>{
+let code=document.getElementById("code").value.toUpperCase();
+let aantal=parseInt(document.getElementById("aantal").value);
+await setDoc(doc(db,"tickets",code),{remaining:aantal});
+};
+
+// ⚡ bulk
+window.genereerTickets=async()=>{
+let event=document.getElementById("eventnaam").value.toUpperCase();
+for(let i=1;i<=3000;i++){
+let nr=String(i).padStart(6,"0");
+await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
+}
+};
+
+// 🔄 reset
+window.resetTeller=()=>{
+teller=0;
+document.getElementById("teller").innerText="0";
+};
+
+// 🔙 terug
+window.gaTerug=()=>location.reload();
+
+// 🔥 status check
+async function checkPoorten(){
+for(let i=1;i<=4;i++){
+let el=document.getElementById("p"+i);
+try{
+let r=await fetch("http://"+POORTEN[i]+"/status");
+el.innerText=r.ok?"🟢 Poort "+i+" OK":"🔴 Poort "+i;
+el.classList.remove("blink");
+}catch{
+el.innerText="🔴 STORING "+i;
+el.classList.add("blink");
+}
+}
+}
+setInterval(checkPoorten,3000);
+
+// 🔥 auto poort
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 window.onload=()=>startPoort(Number(params.get("poort")));
