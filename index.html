@@ -3,33 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>PRO Ticket Systeem v3</title>
+<title>Ticket Systeem PRO</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
 body { background:#111; color:white; font-family:Arial; text-align:center; }
 
+#status { font-size:30px; padding:20px; margin-top:20px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
-
-#status { font-size:30px; padding:20px; margin-top:20px; }
 
 .noodBtn { background:red; }
 .noodBtn.open { background:green; }
 
 .blink { animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity:0.3; } }
 
-@keyframes blink {
-50% { opacity:0.3; }
-}
+#scanInput { opacity:0; position:absolute; }
+
+button { padding:10px 20px; margin:5px; font-size:16px; }
 </style>
 </head>
 
 <body>
 
-<h1>🎟️ Ticket Systeem PRO</h1>
+<h1>🎟️ Ticket Systeem</h1>
 
 <!-- STATUS -->
 <div id="poortStatus">
@@ -39,43 +38,44 @@ body { background:#111; color:white; font-family:Arial; text-align:center; }
 <div id="p4">🔴 Poort 4</div>
 </div>
 
-<!-- TELLER -->
-<h2>Totaal scans: <span id="teller">0</span></h2>
-
 <!-- MENU -->
 <div id="menu">
 <button onclick="startKassa()">📱 KASSA</button>
 </div>
 
+<!-- KASSA -->
+<div id="kassa" style="display:none;">
 <div id="reader"></div>
+<button onclick="gaTerug()">⬅ Terug</button>
 
-<input id="scanInput" autofocus>
-<div id="status">Wacht op scan...</div>
-
-<!-- NOOD -->
 <div id="nood">
 <button class="noodBtn" onclick="nood(1)">Poort 1</button>
 <button class="noodBtn" onclick="nood(2)">Poort 2</button>
 <button class="noodBtn" onclick="nood(3)">Poort 3</button>
 <button class="noodBtn" onclick="nood(4)">Poort 4</button>
 </div>
+</div>
+
+<!-- POORT -->
+<input id="scanInput" autofocus>
+<div id="status">Wacht op scan...</div>
 
 <!-- ADMIN -->
 <button onclick="openLogin()">🔒 Admin</button>
 
 <div id="admin" style="display:none;">
-<h2>Event</h2>
+<h3>Event</h3>
 <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
 
-<h2>Ticket</h2>
+<h3>Ticket</h3>
 <input id="code" placeholder="Bijv VIP-001"><br>
-<input id="aantal" type="number" placeholder="Bijv 10"><br>
+<input id="aantal" placeholder="Bijv 10"><br>
 <button onclick="maakTicket()">Opslaan</button>
 
-<h2>Bulk</h2>
+<h3>Bulk</h3>
 <button onclick="genereerTickets()">Genereer 3000</button>
 
-<h2>Teller</h2>
+<h3>Teller</h3>
 <button onclick="resetTeller()">Reset teller</button>
 </div>
 
@@ -105,32 +105,17 @@ const POORTEN = {
 };
 
 let teller = 0;
-let MODE="";
-let RELAIS_IP="";
+let MODE = "";
+let RELAIS_IP = "";
 
-// 🔥 STATUS CHECK
-async function checkPoorten(){
-for(let i=1;i<=4;i++){
-let el=document.getElementById("p"+i);
+// 🔥 URL CHECK
+const params = new URLSearchParams(window.location.search);
+const autoPoort = params.get("poort");
 
-try{
-let r=await fetch("http://"+POORTEN[i]+"/status",{timeout:1000});
-
-if(r.ok){
-el.innerText="🟢 Poort "+i+" OK";
-el.classList.remove("blink");
-}else{
-throw "error";
+// 🔥 ALS POORT → MENU WEG
+if(autoPoort){
+document.getElementById("menu").style.display="none";
 }
-
-}catch{
-el.innerText="🔴 Poort "+i+" STORING";
-el.classList.add("blink");
-}
-}
-}
-setInterval(checkPoorten,3000);
-checkPoorten();
 
 // 🔊 geluid
 function beep(){
@@ -140,6 +125,9 @@ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").p
 // 📱 KASSA
 window.startKassa=()=>{
 MODE="kassa";
+document.getElementById("menu").style.display="none";
+document.getElementById("kassa").style.display="block";
+
 new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
 };
 
@@ -147,14 +135,16 @@ new Html5QrcodeScanner("reader",{fps:10,qrbox:250}).render(processScan);
 function startPoort(nr){
 MODE="poort";
 RELAIS_IP=POORTEN[nr];
-setTimeout(()=>document.getElementById("scanInput").focus(),300);
+setTimeout(()=>document.getElementById("scanInput").focus(),200);
 }
 
 // 🚨 NOOD
 window.nood=(nr)=>{
 let b=event.target;
 b.classList.add("open");
+
 fetch("http://"+POORTEN[nr]+"/relay/0?turn=on&timer=2");
+
 setTimeout(()=>b.classList.remove("open"),2000);
 };
 
@@ -167,17 +157,17 @@ this.value="";
 // 🔍 SCAN FUNCTION
 async function processScan(code){
 
-code=code.trim().toUpperCase();
-let status=document.getElementById("status");
+code = code.trim().toUpperCase();
+let status = document.getElementById("status");
 
 try{
 await runTransaction(db, async (t)=>{
-let ref=doc(db,"tickets",code);
-let snap=await t.get(ref);
+let ref = doc(db,"tickets",code);
+let snap = await t.get(ref);
 
 if(!snap.exists()) throw "fout";
 
-let r=snap.data().remaining;
+let r = snap.data().remaining;
 if(r<=0) throw "op";
 
 t.update(ref,{remaining:r-1});
@@ -187,8 +177,6 @@ status.innerText="OK "+(r-1);
 });
 
 teller++;
-document.getElementById("teller").innerText=teller;
-
 beep();
 
 if(MODE==="poort"){
@@ -196,8 +184,8 @@ fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 }
 
 }catch(e){
-status.className="fout";
-status.innerText=e==="op"?"OP":"ONGELDIG";
+status.className="fout blink";
+status.innerText = e==="op"?"OP":"ONGELDIG";
 beep();
 }
 
@@ -206,6 +194,9 @@ status.innerText="Wacht op scan...";
 status.className="";
 },2000);
 }
+
+// 🔙 TERUG
+window.gaTerug=()=>location.reload();
 
 // 🔒 ADMIN
 window.openLogin=()=>document.getElementById("loginScreen").style.display="block";
@@ -236,13 +227,11 @@ await setDoc(doc(db,"tickets","TOILETBEZOEK "+event+"-"+nr),{remaining:10});
 // 🔄 RESET
 window.resetTeller=()=>{
 teller=0;
-document.getElementById("teller").innerText="0";
 };
 
-// 🔥 AUTO START
-const params=new URLSearchParams(window.location.search);
-if(params.get("poort")){
-window.onload=()=>startPoort(Number(params.get("poort")));
+// 🔥 AUTO START POORT
+if(autoPoort){
+window.onload=()=>startPoort(Number(autoPoort));
 }
 
 </script>
