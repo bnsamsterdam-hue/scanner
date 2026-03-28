@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -13,11 +12,7 @@
 
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
-#tabs button {
-  width:100%;
-  padding:12px;
-  font-size:18px;
-}
+#tabs button { width:20%; padding:10px; }
 .tab { display:none; padding:10px; }
 .active { display:block; }
 #status { font-size:28px; padding:10px; border-radius:10px; }
@@ -28,53 +23,6 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 .noodBtn.open { background:green; }
 .led { padding:10px; margin:5px; }
 input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
- /* 🔥 MOBIEL FIX */
-@media (max-width: 600px){
-
-  /* MENU BALK */
-  #tabs button {
-    width:100%;
-    font-size:18px;
-    padding:14px;
-  }
-
-  /* STATUS */
-  #status {
-    font-size:32px;
-  }
-
-  /* CAMERA */
-  #reader {
-    max-width:100%;
-  }
-
-  /* NOOD KNOPPEN */
-  .noodBtn {
-    width:95%;
-    font-size:18px;
-    padding:16px;
-  }
-
-  /* STORING BLOKKEN */
-  .led {
-    font-size:16px;
-    padding:12px;
-  }
-
-  /* INPUT */
-  input {
-    width:95%;
-    font-size:16px;
-    padding:12px;
-  }
-
-  /* ALGEMENE KNOPPEN */
-  button {
-    font-size:16px;
-    padding:12px;
-  }
-
-}
 </style>
 </head>
 
@@ -103,25 +51,12 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <button class="noodBtn" onclick="nood(6,this)">Poort 6</button>
 </div>
 
-<!-- 🔥 TELLER MET PIN -->
 <div id="teller" class="tab">
-
-<div id="tellerLogin">
-<input id="tellerPin" type="password" placeholder="Pincode">
-<button onclick="openTeller()">OK</button>
-</div>
-
-<div id="tellerPanel" style="display:none;">
 <h2>Totaal</h2>
 <h1 id="tellerWaarde">0</h1>
-
 <h3>Per poort</h3>
 <div id="poortTellers"></div>
-
 <button onclick="resetTeller()">Reset</button>
-<button onclick="closeTeller()">Terug</button>
-</div>
-
 </div>
 
 <div id="storing" class="tab">
@@ -171,13 +106,11 @@ const POORTEN={
 };
 
 let teller=0;
-
-/* 🔥 KASSA = 0 */
-let tellerPoort={0:0,1:0,2:0,3:0,4:0,5:0,6:0};
+let tellerPoort={1:0,2:0,3:0,4:0,5:0,6:0};
 
 let MODE="kassa";
 let RELAIS_IP="";
-let POORT_NR=0;
+let POORT_NR=null;
 
 let scanLock=false;
 
@@ -236,7 +169,7 @@ s.innerText="✔ TOEGANG ("+(r-1)+")";
 });
 
 teller++;
-tellerPoort[POORT_NR]++;
+if(POORT_NR){ tellerPoort[POORT_NR]++; }
 
 updatePoortTellers();
 
@@ -271,40 +204,20 @@ s.className="";
 
 }
 
-/* 🔥 TELLER FUNCTIES */
-function updatePoortTellers(){
-let html="Kassa: "+tellerPoort[0]+"<br><br>";
-for(let i=1;i<=6;i++){
-html += "Poort "+i+": "+tellerPoort[i]+"<br>";
-}
-document.getElementById("poortTellers").innerHTML=html;
-}
-
-function resetTeller(){
-teller=0;
-for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
-document.getElementById("tellerWaarde").innerText=0;
-updatePoortTellers();
-}
-
-function openTeller(){
-if(document.getElementById("tellerPin").value==="9990"){
-document.getElementById("tellerLogin").style.display="none";
-document.getElementById("tellerPanel").style.display="block";
-updatePoortTellers();
-}
-}
-
-function closeTeller(){
-document.getElementById("tellerLogin").style.display="block";
-document.getElementById("tellerPanel").style.display="none";
-}
-
 /* NOOD */
 function nood(n,btn){
 btn.classList.add("open");
 fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=3");
 setTimeout(()=>btn.classList.remove("open"),3000);
+}
+
+/* TELLER */
+function updatePoortTellers(){
+let html="";
+for(let i=1;i<=6;i++){
+html += "Poort "+i+": "+tellerPoort[i]+"<br>";
+}
+document.getElementById("poortTellers").innerHTML=html;
 }
 
 /* STORING */
@@ -349,6 +262,19 @@ document.getElementById("adminPanel").style.display="block";
 }
 }
 function logout(){ location.reload(); }
+
+function maakTicket(){
+db.collection("tickets").doc(document.getElementById("code").value.toUpperCase())
+.set({remaining:parseInt(document.getElementById("aantal").value)});
+}
+
+async function bulk(){
+let e=document.getElementById("eventnaam").value.toUpperCase();
+for(let i=1;i<=3000;i++){
+let nr=String(i).padStart(6,"0");
+await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
+}
+}
 
 /* POORT MODE */
 const params=new URLSearchParams(window.location.search);
