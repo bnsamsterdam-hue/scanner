@@ -64,6 +64,8 @@ input {
 <button class="noodBtn" onclick="nood(2,this)">Poort 2</button>
 <button class="noodBtn" onclick="nood(3,this)">Poort 3</button>
 <button class="noodBtn" onclick="nood(4,this)">Poort 4</button>
+<button class="noodBtn" onclick="nood(5,this)">Poort 5</button>
+<button class="noodBtn" onclick="nood(6,this)">Poort 6</button>
 </div>
 
 <!-- TELLER -->
@@ -77,7 +79,8 @@ input {
 <div id="p1" class="led">Poort 1</div>
 <div id="p2" class="led">Poort 2</div>
 <div id="p3" class="led">Poort 3</div>
-<div id="p4" class="led">Poort 4</div>
+<div id="p5" class="led">Poort 5</div>
+<div id="p6" class="led">Poort 6</div>
 </div>
 
 <!-- ADMIN -->
@@ -117,7 +120,9 @@ const POORTEN={
 1:"192.168.1.50",
 2:"192.168.1.51",
 3:"192.168.1.52",
-4:"192.168.1.53"
+4:"192.168.1.53",
+5:"192.168.1.54",
+6:"192.168.1.55"
 };
 
 let teller=0;
@@ -280,7 +285,7 @@ await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
 
 /* STORING */
 async function check(){
-for(let i=1;i<=4;i++){
+for(let i=1;i<=6;i++)
 let el=document.getElementById("p"+i);
 
 try{
