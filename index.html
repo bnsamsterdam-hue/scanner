@@ -44,10 +44,10 @@ input {
 <body>
 
 <div id="tabs">
-<button onclick="showTab('scan')">Scan</button>
-<button onclick="showTab('nood')">Nood</button>
-<button onclick="showTab('teller')">Teller</button>
-<button onclick="showTab('storing')">Storingen</button>
+<button onclick="showTab('scan')">Scan QR code</button>
+<button onclick="showTab('nood')">Bij nood poort openen</button>
+<button onclick="showTab('teller ')">Teller QR scans</button>
+<button onclick="showTab('storing')">Storingen/ status poorten</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
 
@@ -91,7 +91,7 @@ input {
 <div id="adminPanel" style="display:none;">
 
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
-<input id="code" placeholder="Code bv TOILET-001"><br>
+<input id="code QR" placeholder="Code bv TOILET-001"><br>
 <input id="aantal" placeholder="Aantal bv 10 ritten"><br>
 
 <button onclick="maakTicket()">Opslaan</button>
@@ -161,7 +161,7 @@ processScan(this.value);
 this.value="";
 });
 
-/* SCAN QR CODE */
+/* SCAN */
 async function processScan(code){
 
 code=code.trim().toUpperCase();
@@ -212,7 +212,7 @@ s.className="";
 },1500);
 }
 
-/* VOOR NOOD POORTEN BEDIENEN  */
+/* NOOD */
 function nood(n,btn){
 btn.classList.add("open");
 fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=3");
@@ -241,7 +241,7 @@ await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
 }
 }
 
-/* STORING/ STATUS POORTEN */
+/* STORING */
 async function check(){
 for(let i=1;i<=4;i++){
 let el=document.getElementById("p"+i);
