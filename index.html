@@ -145,10 +145,22 @@ Html5Qrcode.getCameras().then(cam=>{
   }
 });
 
-function startCamera(i){
-  if(scanner){ scanner.stop(); }
-  scanner=new Html5Qrcode("reader");
-  scanner.start(cameras[i].id,{fps:10,qrbox:200},code=>processScan(code));
+async function startCamera(i){
+
+  if(scanner){
+    try{
+      await scanner.stop();
+      await scanner.clear();
+    }catch(e){}
+  }
+
+  scanner = new Html5Qrcode("reader");
+
+  scanner.start(
+    cameras[i].id,
+    { fps:10, qrbox:200 },
+    code => processScan(code)
+  );
 }
 
 function switchCamera(){
