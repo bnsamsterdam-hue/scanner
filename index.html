@@ -21,10 +21,33 @@ body { background:#000; color:white; font-family:Arial; text-align:center; margi
 .ok { background:#00c853; }
 .fout { background:#d50000; }
 
-.flash-green { background:#00ff00 !important; }
-.flash-red { background:#ff0000 !important; }
+.flash-green { background:#003300 !important; }
+.flash-red { background:#330000 !important; }
 
-#reader { width:100%; max-width:350px; margin:auto; }
+#reader {
+  width:100%;
+  max-width:260px;
+  margin:10px auto;
+}
+
+/* mobiel optimalisatie */
+@media (max-width: 600px) {
+
+  #status {
+    font-size:28px;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+
+  #reader {
+    max-width:220px;
+  }
+
+  h2 {
+    font-size:20px;
+  }
+}
 
 #scanInput { opacity:0; position:absolute; }
 
@@ -98,7 +121,7 @@ button { padding:10px 15px; margin:5px; }
 <input id="eventnaam" placeholder="Bijv PRIDE2026"><br>
 
 <h3>Ticket</h3>
-<input id="code" placeholder="Bijv VIP-001"><br>
+<input id="code" placeholder="Bijv TOILET-001"><br>
 <input id="aantal" placeholder="Bijv 10"><br>
 <button onclick="maakTicket()">Opslaan</button>
 
@@ -213,7 +236,7 @@ if(r<=0) throw "op";
 t.update(ref,{remaining:r-1});
 
 status.className="ok";
-status.innerText="✔ OK ("+(r-1)+")";
+status.innerText="✔ TOEGANG ("+(r-1)+" over)";
 });
 
 teller++;
@@ -228,7 +251,9 @@ fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 
 }catch(e){
 status.className="fout";
-status.innerText=e==="op"?"❌ OP":"❌ ONGELDIG";
+status.innerText=e==="op"
+  ? "❌ GEEN BEURTEN MEER"
+  : "❌ ONGELDIGE KAART";
 
 beep();
 flash("fout");
