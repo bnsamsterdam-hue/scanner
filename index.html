@@ -46,7 +46,7 @@ input {
 <div id="tabs">
 <button onclick="showTab('scan')">Scan QR code</button>
 <button onclick="showTab('nood')">Bij nood poort openen</button>
-<button onclick="showTab('teller ')">Teller QR scans</button>
+<button onclick="showTab('teller')">Teller QR scans</button>
 <button onclick="showTab('storing')">Storingen/ status poorten</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
@@ -89,15 +89,13 @@ input {
 </div>
 
 <div id="adminPanel" style="display:none;">
-
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
-<input id="code QR" placeholder="Code bv TOILET-001"><br>
+<input id="code" placeholder="Code bv TOILET-001"><br>
 <input id="aantal" placeholder="Aantal bv 10 ritten"><br>
 
 <button onclick="maakTicket()">Opslaan</button>
 <button onclick="bulk()">Bulk 3000</button>
 <button onclick="logout()">Terug</button>
-
 </div>
 
 </div>
@@ -125,8 +123,10 @@ const POORTEN={
 let teller=0;
 let MODE="kassa";
 let RELAIS_IP="";
+
+/* 🔥 SCAN BEVEILIGING */
 let lastScanTime = {};
-let SCAN_COOLDOWN = 5000; // 5 seconden
+let SCAN_COOLDOWN = 5000;
 
 /* TABS */
 function showTab(id){
@@ -164,24 +164,21 @@ this.value="";
 });
 
 /* SCAN */
+async function processScan(code){
+
 code = code.trim().toUpperCase();
+let s = document.getElementById("status");
+
+/* 🔥 ANTI DUBBEL SCAN */
 let now = Date.now();
 
-// 🚫 Anti dubbel scan
 if(lastScanTime[code] && (now - lastScanTime[code]) < SCAN_COOLDOWN){
-
-let s = document.getElementById("status");
 s.className="fout";
 s.innerText="⏳ EVEN WACHTEN";
-
 return;
 }
 
-lastScanTime[code] = now;  
-async function processScan(code){
-
-code=code.trim().toUpperCase();
-let s=document.getElementById("status");
+lastScanTime[code] = now;
 
 try{
 
@@ -263,42 +260,31 @@ for(let i=1;i<=4;i++){
 let el=document.getElementById("p"+i);
 
 try{
-
 let controller = new AbortController();
 let timeout = setTimeout(()=>controller.abort(),1500);
 
 let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
-
 clearTimeout(timeout);
 
 if(res.ok){
-
 el.style.background="green";
 el.innerText="🟢 Poort "+i+" ONLINE";
-
 }else{
-
 el.style.background="orange";
 el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
-
 }
 
 }catch(e){
 
 if(e.name==="AbortError"){
-
 el.style.background="orange";
 el.innerText="🟠 Poort "+i+" TIMEOUT";
-
 }else{
-
 el.style.background="red";
 el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-
 }
 
 }
-
 }
 }
 setInterval(check,3000);
