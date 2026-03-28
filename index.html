@@ -211,22 +211,30 @@ s.innerText="❌ ONGELDIG";
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
-/* 🔥 ALTIJD STOPPEN NA SCAN */
+/* 🔥 STOP SCANNER VEILIG */
 if(scanner){
-  await scanner.stop();
+  try{
+    await scanner.stop();
+    await scanner.clear();
+  }catch(e){}
 }
 
-/* 🔥 5 SEC PAUZE */
+/* 🔥 RESET TEKST */
+setTimeout(()=>{
+  s.innerText="SCAN KLAAR";
+  s.className="";
+},1500);
+
+/* 🔥 HERSTART NA 3 SEC */
 setTimeout(()=>{
   scanLock = false;
-  startCamera(currentCam);
-},5000);
 
-/* tekst reset */
-setTimeout(()=>{
-s.innerText="SCAN KLAAR";
-s.className="";
-},1500);
+  // extra zekerheid dat camera terugkomt
+  if(cameras.length){
+    startCamera(currentCam);
+  }
+
+},3000);
 
 }
 /* NOOD */
