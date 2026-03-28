@@ -125,6 +125,8 @@ const POORTEN={
 let teller=0;
 let MODE="kassa";
 let RELAIS_IP="";
+let lastScanTime = {};
+let SCAN_COOLDOWN = 5000; // 5 seconden
 
 /* TABS */
 function showTab(id){
