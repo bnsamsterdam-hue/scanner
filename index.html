@@ -305,17 +305,47 @@ el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
 setInterval(check,3000);
 
 /* POORT MODE */
+async function check(){
+for(let i=1;i<=4;i++){
+let el=document.getElementById("p"+i);
+
+try{
+let controller = new AbortController();
+let timeout = setTimeout(()=>controller.abort(),1500);
+
+let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+clearTimeout(timeout);
+
+if(res.ok){
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+}else{
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
+}
+
+}catch(e){
+
+if(e.name==="AbortError"){
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+}else{
+el.style.background="red";
+el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+}
+
+}
+}
+}
+setInterval(check,3000);
+
+/* POORT MODE */
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 MODE="poort";
-POORT_NR=params.get("poort");
-RELAIS_IP=POORTEN[POORT_NR];
-
-let tabs=document.getElementById("tabs");
-if(tabs) tabs.remove();
-
-let reader=document.getElementById("reader");
-if(reader) reader.remove();
+RELAIS_IP=POORTEN[params.get("poort")];
+document.getElementById("tabs").style.display="none";
+document.getElementById("reader").style.display="none";
 }
 
 </script>
