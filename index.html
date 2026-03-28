@@ -45,7 +45,6 @@ input {
 <div id="tabs">
 <button onclick="showTab('scan')">Scan QR code</button>
 <button onclick="showTab('nood')">Poort open</button>
-<button onclick="showTab('teller')">Aantal QR scans</button>
 <button onclick="showTab('storing')">Status poorten</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
@@ -68,7 +67,7 @@ input {
 </div>
 
 <!-- 🔥 TELLER MET PIN -->
-<div id="teller" class="tab">
+<div id="teller" style="display:none;">
 
 <div id="tellerLogin">
 <input id="tellerPin" type="password" placeholder="Pincode">
@@ -99,6 +98,7 @@ input {
 </div>
 
 <!-- ADMIN -->
+<button onclick="showTab('teller')">Aantal QR scans</button>
 <div id="admin" class="tab">
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
@@ -256,16 +256,16 @@ updatePoortTellers();
 }
 
 function openTeller(){
-if(document.getElementById("tellerPin").value==="9990"){
-document.getElementById("tellerLogin").style.display="none";
-document.getElementById("tellerPanel").style.display="block";
-updatePoortTellers();
-}
-}
-
-function closeTeller(){
+document.getElementById("teller").style.display="block";
 document.getElementById("tellerLogin").style.display="block";
 document.getElementById("tellerPanel").style.display="none";
+}
+
+}  
+}
+function closeTeller(){
+document.getElementById("teller").style.display="none";
+}
 }
 
 /* NOOD */
