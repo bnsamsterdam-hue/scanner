@@ -8,57 +8,41 @@
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
-
 #tabs button { width:20%; padding:10px; }
-
 .tab { display:none; padding:10px; }
 .active { display:block; }
-
 #status { font-size:28px; padding:10px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
-
 #reader { max-width:300px; margin:auto; }
-
 .noodBtn { background:red; padding:12px; margin:5px; color:white; }
 .noodBtn.open { background:green; }
-
 .led { padding:10px; margin:5px; }
-
-input {
-  background:#222;
-  color:white;
-  border:1px solid #555;
-  padding:8px;
-  margin:5px;
-}
+input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
 </style>
 </head>
 
 <body>
 
 <div id="tabs">
-<button onclick="showTab('scan')">Scan QR code</button>
-<button onclick="showTab('nood')">Bij nood poort openen</button>
-<button onclick="showTab('teller')">Teller QR scans</button>
-<button onclick="showTab('storing')">Storingen / status</button>
+<button onclick="showTab('scan')">Scan</button>
+<button onclick="showTab('nood')">Nood</button>
+<button onclick="showTab('teller')">Teller</button>
+<button onclick="showTab('storing')">Storingen</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
 
-<!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
 <div id="reader"></div>
 <button onclick="switchCamera()">🔄 Camera</button>
 </div>
 
-<!-- NOOD -->
 <div id="nood" class="tab">
 <button class="noodBtn" onclick="nood(1,this)">Poort 1</button>
 <button class="noodBtn" onclick="nood(2,this)">Poort 2</button>
@@ -68,18 +52,14 @@ input {
 <button class="noodBtn" onclick="nood(6,this)">Poort 6</button>
 </div>
 
-<!-- TELLER -->
 <div id="teller" class="tab">
-<h2>Totaal scans</h2>
+<h2>Totaal</h2>
 <h1 id="tellerWaarde">0</h1>
-
 <h3>Per poort</h3>
 <div id="poortTellers"></div>
-
 <button onclick="resetTeller()">Reset</button>
 </div>
 
-<!-- STORING -->
 <div id="storing" class="tab">
 <div id="p1" class="led">Poort 1</div>
 <div id="p2" class="led">Poort 2</div>
@@ -89,20 +69,17 @@ input {
 <div id="p6" class="led">Poort 6</div>
 </div>
 
-<!-- ADMIN -->
 <div id="admin" class="tab">
 <div id="login">
-<input id="pin" type="password" placeholder="Voer pincode in">
+<input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
 </div>
-
 <div id="adminPanel" style="display:none;">
-<input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
-<input id="code" placeholder="Code bv TOILET-001"><br>
-<input id="aantal" placeholder="Aantal bv 10"><br>
-
+<input id="eventnaam" placeholder="Event"><br>
+<input id="code" placeholder="Code"><br>
+<input id="aantal" placeholder="Aantal"><br>
 <button onclick="maakTicket()">Opslaan</button>
-<button onclick="bulk()">Bulk 3000</button>
+<button onclick="bulk()">Bulk</button>
 <button onclick="logout()">Terug</button>
 </div>
 </div>
@@ -113,9 +90,9 @@ input {
 
 /* FIREBASE */
 firebase.initializeApp({
-  apiKey:"AIza...",
-  authDomain:"ticket-systeem-18a08.firebaseapp.com",
-  projectId:"ticket-systeem-18a08"
+apiKey:"AIza...",
+authDomain:"ticket-systeem-18a08.firebaseapp.com",
+projectId:"ticket-systeem-18a08"
 });
 const db = firebase.firestore();
 
@@ -151,9 +128,7 @@ let currentCam=0;
 
 Html5Qrcode.getCameras().then(cam=>{
 cameras=cam;
-if(cameras.length){
-startCamera(cameras.length-1);
-}
+if(cameras.length){ startCamera(cameras.length-1); }
 });
 
 async function startCamera(i){
@@ -168,12 +143,6 @@ function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
 }
-
-/* USB */
-document.getElementById("scanInput").addEventListener("change",function(){
-processScan(this.value);
-this.value="";
-});
 
 /* SCAN */
 async function processScan(code){
@@ -219,14 +188,14 @@ s.innerText="❌ ONGELDIG";
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
-/* STOP + RESTART */
+/* STOP / RESTART */
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 
 setTimeout(()=>{
 scanLock=false;
-if(cameras.length){ startCamera(currentCam); }
+startCamera(currentCam);
 },3000);
 
 setTimeout(()=>{
@@ -252,12 +221,39 @@ html += "Poort "+i+": "+tellerPoort[i]+"<br>";
 document.getElementById("poortTellers").innerHTML=html;
 }
 
-function resetTeller(){
-teller=0;
-for(let i=1;i<=6;i++){ tellerPoort[i]=0; }
-document.getElementById("tellerWaarde").innerText=0;
-updatePoortTellers();
+/* STORING */
+async function check(){
+for(let i=1;i<=6;i++){
+let el=document.getElementById("p"+i);
+if(!el) continue;
+
+try{
+let controller=new AbortController();
+let timeout=setTimeout(()=>controller.abort(),1500);
+
+let res=await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+clearTimeout(timeout);
+
+if(res.ok){
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+}else{
+el.style.background="orange";
+el.innerText="🟠 GEEN ANTWOORD";
 }
+
+}catch(e){
+if(e.name==="AbortError"){
+el.style.background="orange";
+el.innerText="🟠 TIMEOUT";
+}else{
+el.style.background="red";
+el.innerText="🔴 GEEN VERBINDING";
+}
+}
+}
+}
+setInterval(check,3000);
 
 /* ADMIN */
 function login(){
@@ -281,99 +277,15 @@ await db.collection("tickets").doc(e+"-"+nr).set({remaining:10});
 }
 }
 
-/* STORING */
-/* STORING */
-async function check(){
-for(let i=1;i<=6;i++){
-
-let el=document.getElementById("p"+i);
-if(!el) continue;
-
-try{
-
-let controller = new AbortController();
-let timeout = setTimeout(()=>controller.abort(),1500);
-
-let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
-clearTimeout(timeout);
-
-if(res.ok){
-el.style.background="green";
-el.innerText="🟢 Poort "+i+" ONLINE";
-}else{
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
-}
-
-}catch(e){
-
-if(e.name==="AbortError"){
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" TIMEOUT";
-}else{
-el.style.background="red";
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-}
-
-}
-
-}
-}
-
-setInterval(check,3000);
-
-/* POORT MODE */
-async function check(){
-for(let i=1;i<=6;i++){
-
-let el=document.getElementById("p"+i);
-if(!el) continue;
-
-try{
-
-let controller = new AbortController();
-let timeout = setTimeout(()=>controller.abort(),1500);
-
-let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
-clearTimeout(timeout);
-
-if(res.ok){
-el.style.background="green";
-el.innerText="🟢 Poort "+i+" ONLINE";
-}else{
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" TIMEOUT";
-}else{
-el.style.background="red";
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-}
-
-}catch(e){
-
-if(e.name
-
-}catch(e){
-
-if(e.name==="AbortError"){
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" TIMEOUT";
-}else{
-el.style.background="red";
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-}
-
-}
-}
-}
-setInterval(check,3000);
-
 /* POORT MODE */
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 MODE="poort";
-RELAIS_IP=POORTEN[params.get("poort")];
-document.getElementById("tabs").style.display="none";
-document.getElementById("reader").style.display="none";
+POORT_NR=params.get("poort");
+RELAIS_IP=POORTEN[POORT_NR];
+
+let tabs=document.getElementById("tabs");
+if(tabs) tabs.remove();
 }
 
 </script>
