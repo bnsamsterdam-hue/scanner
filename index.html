@@ -23,6 +23,9 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 .noodBtn.open { background:green; }
 .led { padding:10px; margin:5px; }
 input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
+
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity:0.3; } }
 </style>
 </head>
 
@@ -53,12 +56,10 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <button class="noodBtn" onclick="nood(6,this)">Poort 6</button>
 </div>
 
-<!-- 🔥 TELLER -->
+<!-- TELLER -->
 <div id="teller" class="tab">
-
 <div id="tellerLogin">
-<input id="tellerPin" type="password" placeholder="Pincode">
-<br>
+<input id="tellerPin" type="password" placeholder="Pincode"><br>
 <button onclick="checkTeller()">OK</button>
 <button onclick="terugNaarMenu()">⬅ Terug</button>
 </div>
@@ -70,11 +71,9 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <h3>Per poort</h3>
 <div id="poortTellers"></div>
 
-<br>
 <button onclick="resetTeller()">Reset</button>
 <button onclick="terugNaarMenu()">⬅ Terug</button>
 </div>
-
 </div>
 
 <!-- STORING -->
@@ -89,6 +88,7 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 <!-- ADMIN -->
 <div id="admin" class="tab">
+
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
@@ -100,9 +100,18 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <input id="aantal" placeholder="Aantal bv 10"><br>
 
 <button onclick="maakTicket()">Opslaan</button>
-<button onclick="bulk()">Bulk</button>
+
+<br><br>
+
+<button onclick="bulk(1000)">Bulk 1000</button>
+<button onclick="bulk(2000)">Bulk 2000</button>
+<button onclick="bulk(3000)">Bulk 3000</button>
+
+<br><br>
+
 <button onclick="logout()">Terug</button>
 </div>
+
 </div>
 
 <script>
@@ -190,135 +199,50 @@ s.innerText="✔ TOEGANG ("+(r-1)+")";
 
 teller++;
 tellerPoort[POORT_NR]++;
-
 updatePoortTellers();
-
-new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
 if(MODE==="poort"){
 fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 }
 
-}catch(e){
-
+}catch{
 s.className="fout";
 s.innerText="❌ ONGELDIG";
-
-new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
-/* RESTART */
+/* restart */
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 
-setTimeout(()=>{
-scanLock=false;
-startCamera(currentCam);
-},3000);
-
-setTimeout(()=>{
-s.innerText="SCAN KLAAR";
-s.className="";
-},1500);
+setTimeout(()=>{ scanLock=false; startCamera(currentCam); },3000);
+setTimeout(()=>{ s.innerText="SCAN KLAAR"; s.className=""; },1500);
 
 }
 
-/* TELLER */
-function updatePoortTellers(){
-let html="Kassa: "+tellerPoort[0]+"<br><br>";
-for(let i=1;i<=6;i++){
-html += "Poort "+i+": "+tellerPoort[i]+"<br>";
-}
-document.getElementById("poortTellers").innerHTML=html;
-}
+/* 🔥 BULK */
+async function bulk(aantal){
 
-function resetTeller(){
-teller=0;
-for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
-document.getElementById("tellerWaarde").innerText=0;
-updatePoortTellers();
+let event = document.getElementById("eventnaam").value.toUpperCase();
+
+if(!event){
+alert("Vul eerst een event naam in");
+return;
 }
 
-function checkTeller(){
-if(document.getElementById("tellerPin").value==="9990"){
-document.getElementById("tellerLogin").style.display="none";
-document.getElementById("tellerPanel").style.display="block";
-updatePoortTellers();
-}
-}
+for(let i=1;i<=aantal;i++){
 
-function terugNaarMenu(){
-document.getElementById("tellerLogin").style.display="block";
-document.getElementById("tellerPanel").style.display="none";
-showTab('scan');
-}
+let nr = String(i).padStart(6,"0");
+let code = event + "-TOILET-" + nr;
 
-/* NOOD */
-function nood(n,btn){
-btn.classList.add("open");
-fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=3");
-setTimeout(()=>btn.classList.remove("open"),3000);
-}
-
-/* STORING */
-/* 🔥 GEAVANCEERDE STORING CHECK */
-async function check(){
-
-for(let i=1;i<=6;i++){
-
-let el=document.getElementById("p"+i);
-if(!el) continue;
-
-try{
-
-let controller = new AbortController();
-let timeout = setTimeout(()=>controller.abort(),1500);
-
-let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
-
-clearTimeout(timeout);
-
-/* 🟢 ONLINE */
-if(res.ok){
-
-el.style.background="green";
-el.innerText="🟢 Poort "+i+" ONLINE";
-el.classList.remove("blink");
-
-/* 🟠 GEEN ANTWOORD */
-}else{
-
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
-el.classList.remove("blink");
+await db.collection("tickets").doc(code).set({
+remaining:10
+});
 
 }
 
-}catch(e){
-
-/* 🟠 TIMEOUT */
-if(e.name==="AbortError"){
-
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" TIMEOUT";
-el.classList.add("blink");
-
-/* 🔴 GEEN VERBINDING */
-}else{
-
-el.style.background="red";
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-el.classList.add("blink");
-
+alert(aantal+" tickets aangemaakt voor "+event);
 }
-
-}
-
-}
-}
-
-setInterval(check,3000);
 
 /* ADMIN */
 function login(){
@@ -328,15 +252,6 @@ document.getElementById("adminPanel").style.display="block";
 }
 }
 function logout(){ location.reload(); }
-
-/* POORT MODE */
-const params=new URLSearchParams(window.location.search);
-if(params.get("poort")){
-MODE="poort";
-POORT_NR=params.get("poort");
-RELAIS_IP=POORTEN[POORT_NR];
-document.getElementById("tabs").style.display="none";
-}
 
 </script>
 
