@@ -58,8 +58,9 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 <div id="tellerLogin">
 <input id="tellerPin" type="password" placeholder="Pincode">
+<br>
 <button onclick="checkTeller()">OK</button>
-<button onclick="terugNaarMenu()">⬅ Terug</button>  
+<button onclick="terugNaarMenu()">⬅ Terug</button>
 </div>
 
 <div id="tellerPanel" style="display:none;">
@@ -69,10 +70,9 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <h3>Per poort</h3>
 <div id="poortTellers"></div>
 
+<br>
 <button onclick="resetTeller()">Reset</button>
-
-
-}
+<button onclick="terugNaarMenu()">⬅ Terug</button>
 </div>
 
 </div>
@@ -104,8 +104,6 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <button onclick="logout()">Terug</button>
 </div>
 </div>
-
-<input id="scanInput" autofocus>
 
 <script>
 
@@ -248,6 +246,12 @@ document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
 updatePoortTellers();
 }
+}
+
+function terugNaarMenu(){
+document.getElementById("tellerLogin").style.display="block";
+document.getElementById("tellerPanel").style.display="none";
+showTab('scan');
 }
 
 /* NOOD */
