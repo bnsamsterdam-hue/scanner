@@ -23,9 +23,6 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 .noodBtn.open { background:green; }
 .led { padding:10px; margin:5px; }
 input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
-
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity:0.3; } }
 </style>
 </head>
 
@@ -58,8 +55,10 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 <!-- TELLER -->
 <div id="teller" class="tab">
+
 <div id="tellerLogin">
-<input id="tellerPin" type="password" placeholder="Pincode"><br>
+<input id="tellerPin" type="password" placeholder="Pincode">
+<br>
 <button onclick="checkTeller()">OK</button>
 <button onclick="terugNaarMenu()">⬅ Terug</button>
 </div>
@@ -71,9 +70,11 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <h3>Per poort</h3>
 <div id="poortTellers"></div>
 
+<br>
 <button onclick="resetTeller()">Reset</button>
 <button onclick="terugNaarMenu()">⬅ Terug</button>
 </div>
+
 </div>
 
 <!-- STORING -->
@@ -88,7 +89,6 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 <!-- ADMIN -->
 <div id="admin" class="tab">
-
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
@@ -111,7 +111,6 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 <button onclick="logout()">Terug</button>
 </div>
-
 </div>
 
 <script>
@@ -199,28 +198,40 @@ s.innerText="✔ TOEGANG ("+(r-1)+")";
 
 teller++;
 tellerPoort[POORT_NR]++;
+
 updatePoortTellers();
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
 if(MODE==="poort"){
 fetch("http://"+RELAIS_IP+"/relay/0?turn=on&timer=1");
 }
 
-}catch{
+}catch(e){
+
 s.className="fout";
 s.innerText="❌ ONGELDIG";
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
-/* restart */
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 
-setTimeout(()=>{ scanLock=false; startCamera(currentCam); },3000);
-setTimeout(()=>{ s.innerText="SCAN KLAAR"; s.className=""; },1500);
+setTimeout(()=>{
+scanLock=false;
+startCamera(currentCam);
+},3000);
+
+setTimeout(()=>{
+s.innerText="SCAN KLAAR";
+s.className="";
+},1500);
 
 }
 
-/* 🔥 BULK */
+/* 🔥 NIEUWE BULK (ENIGE WIJZIGING) */
 async function bulk(aantal){
 
 let event = document.getElementById("eventnaam").value.toUpperCase();
@@ -233,7 +244,7 @@ return;
 for(let i=1;i<=aantal;i++){
 
 let nr = String(i).padStart(6,"0");
-let code = event + "-TOILET-" + nr;
+let code = event + "-" + nr;
 
 await db.collection("tickets").doc(code).set({
 remaining:10
@@ -242,9 +253,78 @@ remaining:10
 }
 
 alert(aantal+" tickets aangemaakt voor "+event);
+
 }
 
-/* ADMIN */
+/* REST = ONGEWIJZIGD */
+function updatePoortTellers(){
+let html="Kassa: "+tellerPoort[0]+"<br><br>";
+for(let i=1;i<=6;i++){
+html += "Poort "+i+": "+tellerPoort[i]+"<br>";
+}
+document.getElementById("poortTellers").innerHTML=html;
+}
+
+function resetTeller(){
+teller=0;
+for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
+document.getElementById("tellerWaarde").innerText=0;
+updatePoortTellers();
+}
+
+function checkTeller(){
+if(document.getElementById("tellerPin").value==="9990"){
+document.getElementById("tellerLogin").style.display="none";
+document.getElementById("tellerPanel").style.display="block";
+updatePoortTellers();
+}
+}
+
+function terugNaarMenu(){
+document.getElementById("tellerLogin").style.display="block";
+document.getElementById("tellerPanel").style.display="none";
+showTab('scan');
+}
+
+function nood(n,btn){
+btn.classList.add("open");
+fetch("http://"+POORTEN[n]+"/relay/0?turn=on&timer=3");
+setTimeout(()=>btn.classList.remove("open"),3000);
+}
+
+async function check(){
+for(let i=1;i<=6;i++){
+let el=document.getElementById("p"+i);
+if(!el) continue;
+
+try{
+let controller = new AbortController();
+let timeout = setTimeout(()=>controller.abort(),1500);
+
+let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+clearTimeout(timeout);
+
+if(res.ok){
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+}else{
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
+}
+
+}catch(e){
+if(e.name==="AbortError"){
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+}else{
+el.style.background="red";
+el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+}
+}
+}
+}
+setInterval(check,3000);
+
 function login(){
 if(document.getElementById("pin").value==="8760"){
 document.getElementById("login").style.display="none";
@@ -252,6 +332,14 @@ document.getElementById("adminPanel").style.display="block";
 }
 }
 function logout(){ location.reload(); }
+
+const params=new URLSearchParams(window.location.search);
+if(params.get("poort")){
+MODE="poort";
+POORT_NR=params.get("poort");
+RELAIS_IP=POORTEN[POORT_NR];
+document.getElementById("tabs").style.display="none";
+}
 
 </script>
 
