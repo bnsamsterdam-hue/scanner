@@ -267,22 +267,61 @@ setTimeout(()=>btn.classList.remove("open"),3000);
 
 /* STATUS */
 async function check(){
+
 for(let i=1;i<=6;i++){
+
 let el=document.getElementById("p"+i);
+if(!el) continue;
+
 try{
-let res=await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0");
+
+let controller = new AbortController();
+let timeout = setTimeout(()=>controller.abort(),1500);
+
+let res = await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0",{signal:controller.signal});
+
+clearTimeout(timeout);
+
+/* ANTWOORD OK */
 if(res.ok){
+
+let data = await res.json();
+
 el.style.background="green";
 el.innerText="🟢 Poort "+i+" ONLINE";
-}else{
-el.style.background="orange";
+
+/* extra check */
+if(data.output === true){
+el.innerText="🟢 Poort "+i+" ACTIEF";
 }
-}catch{
+
+}else{
+
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
+
+}
+
+}catch(e){
+
+if(e.name==="AbortError"){
+
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+
+}else{
+
 el.style.background="red";
 el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+
 }
+
 }
+
 }
+
+}
+
 setInterval(check,3000);
 
 /* TELLER */
