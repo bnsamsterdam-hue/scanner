@@ -262,36 +262,62 @@ setTimeout(()=>btn.classList.remove("open"),3000);
 }
 
 /* STORING */
+/* 🔥 GEAVANCEERDE STORING CHECK */
 async function check(){
+
 for(let i=1;i<=6;i++){
+
 let el=document.getElementById("p"+i);
 if(!el) continue;
 
 try{
-let controller=new AbortController();
-let timeout=setTimeout(()=>controller.abort(),1500);
 
-let res=await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+let controller = new AbortController();
+let timeout = setTimeout(()=>controller.abort(),1500);
+
+let res = await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+
 clearTimeout(timeout);
 
+/* 🟢 ONLINE */
 if(res.ok){
+
 el.style.background="green";
 el.innerText="🟢 Poort "+i+" ONLINE";
+el.classList.remove("blink");
+
+/* 🟠 GEEN ANTWOORD */
 }else{
+
 el.style.background="orange";
-el.innerText="🟠 GEEN ANTWOORD";
+el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
+el.classList.remove("blink");
+
 }
 
 }catch(e){
+
+/* 🟠 TIMEOUT */
 if(e.name==="AbortError"){
+
 el.style.background="orange";
-el.innerText="🟠 TIMEOUT";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+el.classList.add("blink");
+
+/* 🔴 GEEN VERBINDING */
 }else{
+
 el.style.background="red";
-el.innerText="🔴 GEEN VERBINDING";
+el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+el.classList.add("blink");
+
+}
+
+}
+
 }
 }
-}
+
 setInterval(check,3000);
 
 /* ADMIN */
