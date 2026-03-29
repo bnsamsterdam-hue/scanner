@@ -142,6 +142,12 @@ let POORT_NR=0;
 
 let scanLock=false;
 
+/* TAB FUNCTIE (FIX) */
+function showTab(id){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+}
+
 /* MODE */
 const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
@@ -156,7 +162,6 @@ let scanner;
 let cameras=[];
 let currentCam=0;
 
-/* Alleen camera bij kassa */
 if(MODE !== "poort"){
 Html5Qrcode.getCameras().then(cam=>{
 cameras=cam;
@@ -167,23 +172,20 @@ document.getElementById("reader").style.display="none";
 document.getElementById("camBtn").style.display="none";
 }
 
-/* USB SCANNER (POORTEN) */
-let buffer = "";
+/* SCANNER (USB) */
+let buffer="";
 document.addEventListener("keydown", function(e){
-
 if(MODE !== "poort") return;
 
 if(e.key === "Enter"){
 processScan(buffer);
 buffer="";
-}else{
-if(e.key.length===1){
-buffer += e.key;
+}else if(e.key.length===1){
+buffer+=e.key;
 }
-}
-
 });
 
+/* CAMERA FUNCTIES */
 async function startCamera(i){
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
@@ -200,7 +202,7 @@ startCamera(currentCam);
 /* SCAN */
 async function processScan(code){
 
-if(scanLock){ return; }
+if(scanLock) return;
 scanLock=true;
 
 code=code.trim().toUpperCase();
@@ -217,7 +219,6 @@ let r=doc.data().remaining;
 if(r<=0) throw "empty";
 
 t.update(ref,{remaining:r-1});
-
 s.className="ok";
 s.innerText="✔ TOEGANG ("+(r-1)+")";
 });
@@ -241,14 +242,13 @@ s.innerText="❌ ONGELDIG";
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 }
 
-/* reset scanner */
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 
 setTimeout(()=>{
 scanLock=false;
-if(MODE !== "poort") startCamera(currentCam);
+if(MODE!=="poort") startCamera(currentCam);
 },3000);
 
 setTimeout(()=>{
@@ -265,12 +265,12 @@ fetch("http://"+POORTEN[n]+"/rpc/Switch.Set?id=0&on=true");
 setTimeout(()=>btn.classList.remove("open"),3000);
 }
 
-/* STORING */
+/* STATUS */
 async function check(){
 for(let i=1;i<=6;i++){
 let el=document.getElementById("p"+i);
 try{
-let res = await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0");
+let res=await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0");
 if(res.ok){
 el.style.background="green";
 el.innerText="🟢 Poort "+i+" ONLINE";
@@ -289,7 +289,7 @@ setInterval(check,3000);
 function updatePoortTellers(){
 let html="Kassa: "+tellerPoort[0]+"<br><br>";
 for(let i=1;i<=6;i++){
-html += "Poort "+i+": "+tellerPoort[i]+"<br>";
+html+="Poort "+i+": "+tellerPoort[i]+"<br>";
 }
 document.getElementById("poortTellers").innerHTML=html;
 }
@@ -332,12 +332,12 @@ alert("Ticket opgeslagen");
 }
 
 async function bulk(aantal){
-let event = document.getElementById("eventnaam").value.toUpperCase();
+let event=document.getElementById("eventnaam").value.toUpperCase();
 if(!event){ alert("Vul eerst event naam in"); return; }
 
 for(let i=1;i<=aantal;i++){
-let nr = String(i).padStart(6,"0");
-let code = event + "-" + nr;
+let nr=String(i).padStart(6,"0");
+let code=event+"-"+nr;
 await db.collection("tickets").doc(code).set({remaining:10});
 }
 
