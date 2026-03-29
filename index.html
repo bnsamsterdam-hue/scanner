@@ -268,15 +268,25 @@ let el=document.getElementById("p"+i);
 if(!el) continue;
 
 try{
-let res=await fetch("http://"+POORTEN[i]+"/status");
+let controller=new AbortController();
+let timeout=setTimeout(()=>controller.abort(),1500);
+
+let res=await fetch("http://"+POORTEN[i]+"/status",{signal:controller.signal});
+clearTimeout(timeout);
+
 if(res.ok){
 el.style.background="green";
-el.innerText="🟢 ONLINE";
+el.innerText="🟢 Poort "+i+" ONLINE";
 }else{
 el.style.background="orange";
 el.innerText="🟠 GEEN ANTWOORD";
 }
-}catch{
+
+}catch(e){
+if(e.name==="AbortError"){
+el.style.background="orange";
+el.innerText="🟠 TIMEOUT";
+}else{
 el.style.background="red";
 el.innerText="🔴 GEEN VERBINDING";
 }
