@@ -42,7 +42,6 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <div id="reader"></div>
 <button id="camBtn" onclick="switchCamera()">🔄 Camera</button>
 
-<!-- 🔥 NIEUW: handmatige invoer -->
 <div id="manualBox">
 <input id="manualInput" placeholder="Scan of typ code" autofocus>
 <button onclick="manualScan()">OK</button>
@@ -164,6 +163,17 @@ RELAIS_IP=POORTEN[POORT_NR];
 document.getElementById("tabs").style.display="none";
 }
 
+/* 🔥 NIEUW: REMOTE LISTENER */
+if(MODE==="poort"){
+db.collection("openPoort").doc("poort"+POORT_NR)
+.onSnapshot(doc=>{
+if(doc.exists && doc.data().trigger){
+fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
+}
+});
+}
+
 /* CAMERA */
 let scanner;
 let cameras=[];
@@ -179,7 +189,7 @@ document.getElementById("reader").style.display="none";
 document.getElementById("camBtn").style.display="none";
 }
 
-/* 🔥 NIEUW: handmatige scan */
+/* 🔥 handmatige scan */
 function manualScan(){
 let val = document.getElementById("manualInput").value;
 if(val){
@@ -199,7 +209,7 @@ manualScan();
 }
 });
 
-/* SCANNER (USB) */
+/* SCANNER */
 let buffer="";
 document.addEventListener("keydown", function(e){
 if(MODE !== "poort") return;
@@ -285,14 +295,19 @@ s.className="";
 
 }
 
-/* NOOD */
+/* 🔥 AANGEPAST */
 function nood(n,btn){
 btn.classList.add("open");
-fetch("http://"+POORTEN[n]+"/rpc/Switch.Set?id=0&on=true");
+
+db.collection("openPoort").doc("poort"+n).set({
+trigger:true,
+time:Date.now()
+});
+
 setTimeout(()=>btn.classList.remove("open"),3000);
 }
 
-/* STATUS */
+/* REST BLIJFT IDENTIEK */
 async function check(){
 for(let i=1;i<=6;i++){
 let el=document.getElementById("p"+i);
@@ -330,7 +345,6 @@ el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
 }
 setInterval(check,3000);
 
-/* TELLER */
 function updatePoortTellers(){
 let html="Kassa: "+tellerPoort[0]+"<br><br>";
 for(let i=1;i<=6;i++){
@@ -360,7 +374,6 @@ document.getElementById("tellerPanel").style.display="none";
 showTab('scan');
 }
 
-/* ADMIN */
 function login(){
 if(document.getElementById("pin").value==="8760"){
 document.getElementById("login").style.display="none";
