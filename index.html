@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<!-- 🔥 NIEUW QR LIB -->
+<!-- 🔥 NIEUW -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
@@ -180,7 +180,7 @@ RELAIS_IP=POORTEN[POORT_NR];
 document.getElementById("tabs").style.display="none";
 }
 
-/* 🔥 REMOTE LISTENER */
+/* 🔥 NIEUW: REMOTE LISTENER */
 if(MODE==="poort"){
 db.collection("openPoort").doc("poort"+POORT_NR)
 .onSnapshot(doc=>{
@@ -191,11 +191,10 @@ db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 });
 }
 
-/* 🔥 QR FUNCTIES */
+/* 🔥 NIEUW QR FUNCTIES */
 function toonQR(code){
 document.getElementById("adminPanel").style.display="none";
 document.getElementById("qrScreen").style.display="block";
-
 QRCode.toCanvas(document.getElementById("qrCanvas"), code, { width:300 });
 }
 
@@ -221,5 +220,3 @@ let win = window.open();
 win.document.write("<img src='"+canvas.toDataURL()+"'/>");
 win.print();
 }
-
-/* REST VAN JOUW CODE BLIJFT ONGEWIJZIGD */
