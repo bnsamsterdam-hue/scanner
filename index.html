@@ -41,6 +41,13 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <div id="status">SCAN KLAAR</div>
 <div id="reader"></div>
 <button id="camBtn" onclick="switchCamera()">🔄 Camera</button>
+
+<!-- 🔥 NIEUW: handmatige invoer -->
+<div id="manualBox">
+<input id="manualInput" placeholder="Scan of typ code" autofocus>
+<button onclick="manualScan()">OK</button>
+</div>
+
 </div>
 
 <!-- NOOD -->
@@ -142,7 +149,7 @@ let POORT_NR=0;
 
 let scanLock=false;
 
-/* TAB FUNCTIE (FIX) */
+/* TAB */
 function showTab(id){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
@@ -171,6 +178,26 @@ if(cameras.length){ startCamera(cameras.length-1); }
 document.getElementById("reader").style.display="none";
 document.getElementById("camBtn").style.display="none";
 }
+
+/* 🔥 NIEUW: handmatige scan */
+function manualScan(){
+let val = document.getElementById("manualInput").value;
+if(val){
+processScan(val);
+document.getElementById("manualInput").value="";
+}
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+let input = document.getElementById("manualInput");
+if(input){
+input.addEventListener("keydown", function(e){
+if(e.key==="Enter"){
+manualScan();
+}
+});
+}
+});
 
 /* SCANNER (USB) */
 let buffer="";
@@ -267,61 +294,40 @@ setTimeout(()=>btn.classList.remove("open"),3000);
 
 /* STATUS */
 async function check(){
-
 for(let i=1;i<=6;i++){
-
 let el=document.getElementById("p"+i);
 if(!el) continue;
 
 try{
-
 let controller = new AbortController();
 let timeout = setTimeout(()=>controller.abort(),1500);
 
 let res = await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0",{signal:controller.signal});
-
 clearTimeout(timeout);
 
-/* ANTWOORD OK */
 if(res.ok){
-
 let data = await res.json();
-
 el.style.background="green";
 el.innerText="🟢 Poort "+i+" ONLINE";
-
-/* extra check */
 if(data.output === true){
 el.innerText="🟢 Poort "+i+" ACTIEF";
 }
-
 }else{
-
 el.style.background="orange";
 el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
-
 }
 
 }catch(e){
-
 if(e.name==="AbortError"){
-
 el.style.background="orange";
 el.innerText="🟠 Poort "+i+" TIMEOUT";
-
 }else{
-
 el.style.background="red";
 el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
-
 }
-
 }
-
 }
-
 }
-
 setInterval(check,3000);
 
 /* TELLER */
