@@ -10,9 +10,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<!-- 🔥 NIEUW -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
 #tabs button { width:20%; padding:10px; }
@@ -116,24 +113,10 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <button onclick="bulk(2000)">Bulk 2000</button>
 <button onclick="bulk(3000)">Bulk 3000</button>
 
-<!-- 🔥 NIEUW -->
-<br><br>
-<button onclick="maakEnToonQR()">1 QR tonen</button>
-<button onclick="printLaatsteQR()">Print QR</button>
-
 <br><br>
 
 <button onclick="logout()">Terug</button>
 </div>
-
-<!-- 🔥 NIEUW QR SCHERM -->
-<div id="qrScreen" style="display:none;">
-<h2>QR Code</h2>
-<canvas id="qrCanvas"></canvas>
-<br><br>
-<button onclick="sluitQR()">Terug</button>
-</div>
-
 </div>
 
 <script>
@@ -191,32 +174,235 @@ db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 });
 }
 
-/* 🔥 NIEUW QR FUNCTIES */
-function toonQR(code){
-document.getElementById("adminPanel").style.display="none";
-document.getElementById("qrScreen").style.display="block";
-QRCode.toCanvas(document.getElementById("qrCanvas"), code, { width:300 });
+/* CAMERA */
+let scanner;
+let cameras=[];
+let currentCam=0;
+
+if(MODE !== "poort"){
+Html5Qrcode.getCameras().then(cam=>{
+cameras=cam;
+if(cameras.length){ startCamera(cameras.length-1); }
+});
+}else{
+document.getElementById("reader").style.display="none";
+document.getElementById("camBtn").style.display="none";
 }
 
-function sluitQR(){
-document.getElementById("qrScreen").style.display="none";
+/* 🔥 handmatige scan */
+function manualScan(){
+let val = document.getElementById("manualInput").value;
+if(val){
+processScan(val);
+document.getElementById("manualInput").value="";
+}
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+let input = document.getElementById("manualInput");
+if(input){
+input.addEventListener("keydown", function(e){
+if(e.key==="Enter"){
+manualScan();
+}
+});
+}
+});
+
+/* SCANNER */
+let buffer="";
+document.addEventListener("keydown", function(e){
+if(MODE !== "poort") return;
+
+if(e.key === "Enter"){
+processScan(buffer);
+buffer="";
+}else if(e.key.length===1){
+buffer+=e.key;
+}
+});
+
+/* CAMERA FUNCTIES */
+async function startCamera(i){
+if(scanner){
+try{ await scanner.stop(); await scanner.clear(); }catch(e){}
+}
+scanner=new Html5Qrcode("reader");
+scanner.start(cameras[i].id,{fps:10,qrbox:200},code=>processScan(code));
+}
+
+function switchCamera(){
+currentCam=(currentCam+1)%cameras.length;
+startCamera(currentCam);
+}
+
+/* SCAN */
+async function processScan(code){
+
+if(scanLock) return;
+scanLock=true;
+
+code=code.trim().toUpperCase();
+let s=document.getElementById("status");
+
+try{
+
+await db.runTransaction(async (t)=>{
+let ref=db.collection("tickets").doc(code);
+let doc=await t.get(ref);
+
+if(!doc.exists) throw "invalid";
+let r=doc.data().remaining;
+if(r<=0) throw "empty";
+
+t.update(ref,{remaining:r-1});
+s.className="ok";
+s.innerText="✔ TOEGANG ("+(r-1)+")";
+});
+
+teller++;
+
+if(MODE==="poort"){
+tellerPoort[POORT_NR]++;
+fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+}else{
+tellerPoort[0]++;
+}
+
+updatePoortTellers();
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+
+}catch(e){
+s.className="fout";
+s.innerText="❌ ONGELDIG";
+new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
+}
+
+if(scanner){
+try{ await scanner.stop(); await scanner.clear(); }catch(e){}
+}
+
+setTimeout(()=>{
+scanLock=false;
+if(MODE!=="poort") startCamera(currentCam);
+},3000);
+
+setTimeout(()=>{
+s.innerText="SCAN KLAAR";
+s.className="";
+},1500);
+
+}
+
+/* 🔥 AANGEPAST */
+function nood(n,btn){
+btn.classList.add("open");
+
+db.collection("openPoort").doc("poort"+n).set({
+trigger:true,
+time:Date.now()
+});
+
+setTimeout(()=>btn.classList.remove("open"),3000);
+}
+
+/* REST BLIJFT IDENTIEK */
+async function check(){
+for(let i=1;i<=6;i++){
+let el=document.getElementById("p"+i);
+if(!el) continue;
+
+try{
+let controller = new AbortController();
+let timeout = setTimeout(()=>controller.abort(),1500);
+
+let res = await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0",{signal:controller.signal});
+clearTimeout(timeout);
+
+if(res.ok){
+let data = await res.json();
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+if(data.output === true){
+el.innerText="🟢 Poort "+i+" ACTIEF";
+}
+}else{
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
+}
+
+}catch(e){
+if(e.name==="AbortError"){
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" TIMEOUT";
+}else{
+el.style.background="red";
+el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+}
+}
+}
+}
+setInterval(check,3000);
+
+function updatePoortTellers(){
+let html="Kassa: "+tellerPoort[0]+"<br><br>";
+for(let i=1;i<=6;i++){
+html+="Poort "+i+": "+tellerPoort[i]+"<br>";
+}
+document.getElementById("poortTellers").innerHTML=html;
+}
+
+function resetTeller(){
+teller=0;
+for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
+document.getElementById("tellerWaarde").innerText=0;
+updatePoortTellers();
+}
+
+function checkTeller(){
+if(document.getElementById("tellerPin").value==="9990"){
+document.getElementById("tellerLogin").style.display="none";
+document.getElementById("tellerPanel").style.display="block";
+updatePoortTellers();
+}
+}
+
+function terugNaarMenu(){
+document.getElementById("tellerLogin").style.display="block";
+document.getElementById("tellerPanel").style.display="none";
+showTab('scan');
+}
+
+function login(){
+if(document.getElementById("pin").value==="8760"){
+document.getElementById("login").style.display="none";
 document.getElementById("adminPanel").style.display="block";
 }
+}
+function logout(){ location.reload(); }
 
-async function maakEnToonQR(){
-let event = document.getElementById("eventnaam").value.toUpperCase();
-if(!event){ alert("Vul event naam in"); return; }
-
-let code = event+"-"+Date.now();
-
-await db.collection("tickets").doc(code).set({ remaining:1 });
-
-toonQR(code);
+async function maakTicket(){
+let code=document.getElementById("code").value.toUpperCase();
+let aantal=parseInt(document.getElementById("aantal").value);
+await db.collection("tickets").doc(code).set({remaining:aantal});
+alert("Ticket opgeslagen");
 }
 
-function printLaatsteQR(){
-let canvas = document.getElementById("qrCanvas");
-let win = window.open();
-win.document.write("<img src='"+canvas.toDataURL()+"'/>");
-win.print();
+async function bulk(aantal){
+let event=document.getElementById("eventnaam").value.toUpperCase();
+if(!event){ alert("Vul eerst event naam in"); return; }
+
+for(let i=1;i<=aantal;i++){
+let nr=String(i).padStart(6,"0");
+let code=event+"-"+nr;
+await db.collection("tickets").doc(code).set({remaining:10});
 }
+
+alert(aantal+" tickets aangemaakt");
+}
+
+</script>
+
+</body>
+</html>
