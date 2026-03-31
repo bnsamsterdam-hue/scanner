@@ -429,18 +429,25 @@ document.getElementById("adminPanel").style.display="block";
 
 async function maakEnToonQR(){
 let event = document.getElementById("eventnaam").value.toUpperCase();
-if(!event){
-alert("Vul event naam in");
+let codeInput = document.getElementById("code").value.toUpperCase();
+let aantal = parseInt(document.getElementById("aantal").value);
+
+if(!event || !codeInput || !aantal){
+alert("Vul alles in");
 return;
 }
 
-let code = event+"-"+Date.now();
+/* zelfde logica als oude systeem */
+let code = codeInput;
 
+/* opslaan met aantal beurten */
 await db.collection("tickets").doc(code).set({
-remaining:1
+remaining:aantal
 });
 
+/* QR tonen */
 toonQR(code);
+
 }
 
 function printLaatsteQR(){
