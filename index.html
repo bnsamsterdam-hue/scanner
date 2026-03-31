@@ -274,11 +274,11 @@ teller++;
 
 document.getElementById("tellerWaarde").innerText = teller;
 
+tellerPoort[0]++; // altijd kassa bijhouden
+
 if(MODE==="poort"){
     tellerPoort[POORT_NR]++;
     fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
-}else{
-    tellerPoort[0]++;
 }
 
 updatePoortTellers();
