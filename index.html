@@ -332,30 +332,55 @@ let timeout = setTimeout(()=>controller.abort(),1500);
 let res = await fetch("http://"+POORTEN[i]+"/rpc/Switch.GetStatus?id=0",{signal:controller.signal});
 clearTimeout(timeout);
 
-if(res.ok){
-let data = await res.json();
-el.style.background="green";
-el.innerText="🟢 Poort "+i+" ONLINE";
-if(data.output === true){
-el.innerText="🟢 Poort "+i+" ACTIEF";
-}
-}else{
-el.style.background="orange";
-el.innerText="🟠 Poort "+i+" GEEN ANTWOORD";
+function startStatusListener(){
+
+for(let i=1;i<=6;i++){
+
+let el = document.getElementById("p"+i);
+if(!el) continue;
+
+db.collection("status").doc("poort"+i)
+.onSnapshot(doc=>{
+
+if(!doc.exists){
+el.style.background="gray";
+el.innerText="⚪ Poort "+i+" GEEN DATA";
+return;
 }
 
-}catch(e){
-if(e.name==="AbortError"){
+let data = doc.data();
+let s = data.status;
+
+if(s==="ONLINE"){
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+}
+else if(s==="ACTIEF"){
+el.style.background="blue";
+el.innerText="🔵 Poort "+i+" ACTIEF";
+}
+else if(s==="GEEN_STROOM"){
+el.style.background="black";
+el.innerText="⚫ Poort "+i+" GEEN STROOM";
+}
+else if(s==="GEEN_INTERNET"){
 el.style.background="orange";
-el.innerText="🟠 Poort "+i+" TIMEOUT";
-}else{
+el.innerText="🟠 Poort "+i+" GEEN INTERNET";
+}
+else if(s==="RASPI_OFFLINE"){
 el.style.background="red";
-el.innerText="🔴 Poort "+i+" GEEN VERBINDING";
+el.innerText="🔴 Poort "+i+" RASPBERRY OFFLINE";
+}
+else{
+el.style.background="purple";
+el.innerText="🟣 ONBEKENDE STATUS";
+}
+
+});
 }
 }
-}
-}
-setInterval(check,3000);
+
+startStatusListener();
 
 function updatePoortTellers(){
 let html="Kassa: "+tellerPoort[0]+"<br><br>";
