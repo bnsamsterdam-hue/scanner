@@ -138,7 +138,7 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <div id="qrmaak" class="tab">
 
 <div id="qrLogin">
-<input id="qrPin" type="password" placeholder="Pincode">
+<input id="qrPin" type="password" placeholder="Pincode" autocomplete="new-password">
 <br>
 <button onclick="checkQRLogin()">OK</button>
 <button onclick="terugNaarMenuQR()">⬅ Terug</button>
@@ -205,6 +205,8 @@ projectId:"ticket-systeem-18a08"
 });
 const db = firebase.firestore();
 
+let qrLoggedIn = false;   // 👈 HIER toevoegen
+
 /* POORTEN */
 const POORTEN={
 1:"192.168.1.104",
@@ -230,10 +232,18 @@ function showTab(id){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 
-/* 🔥 FIX VOOR QR TAB */
+/* 🔥 QR LOGIN LOGICA */
 if(id === "qrmaak"){
+
+if(sessionStorage.getItem("qrLogin") === "true"){
+document.getElementById("qrLogin").style.display="none";
+document.getElementById("qrPanel").style.display="block";
+maakNieuweQR();
+} else {
 document.getElementById("qrLogin").style.display="block";
 document.getElementById("qrPanel").style.display="none";
+}
+
 }
 
 }
@@ -542,12 +552,15 @@ toonQR(code);
 function checkQRLogin(){
 if(document.getElementById("qrPin").value==="9990"){
 
+qrLoggedIn = true;
+sessionStorage.setItem("qrLogin","true");
+
+document.getElementById("qrPin").value=""; // leeg maken
+
 document.getElementById("qrLogin").style.display="none";
 document.getElementById("qrPanel").style.display="block";
 
-/* 🔥 meteen QR maken */
 maakNieuweQR();
-
 }
 }
 
