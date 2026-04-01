@@ -117,7 +117,7 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <input id="tellerPin" type="password" placeholder="Pincode">
 <br>
 <button onclick="checkTeller()">OK</button>
-<button onclick="terugNaarMenu()">⬅ Terug</button>
+<button onclick="terugNaarMenuTeller()">⬅ Terug</button>
 </div>
 
 <div id="tellerPanel" style="display:none;">
@@ -583,6 +583,14 @@ maakNieuweQR();
 }
 }
 
+function terugNaarMenuTeller(){
+
+document.getElementById("tellerLogin").style.display="block";
+document.getElementById("tellerPanel").style.display="none";
+
+showTab('scan');
+
+}    
 function terugNaarMenuQR(){
 document.getElementById("qrLogin").style.display="block";
 document.getElementById("qrPanel").style.display="none";
