@@ -598,9 +598,13 @@ document.getElementById("qrPanel").style.display="block";
 }
 
 async function maakNieuweQR(){
-if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen();
-}   
+try {
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    }
+} catch(e) {
+    console.log("fullscreen geblokkeerd");
+}
 let jaar = new Date().getFullYear();
 document.getElementById("qrText").innerText = "The PLEE'S TO BEE " + jaar;
 
