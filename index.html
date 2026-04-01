@@ -13,7 +13,24 @@
 
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
-#tabs button { width:20%; padding:10px; }
+#tabs button { 
+width:20%; 
+padding:10px; 
+color:white;
+border:none;
+font-weight:bold;
+}
+
+/* KLEUREN */
+.btn-scan { background:green; }
+.btn-nood { background:red; }
+.btn-teller { background:purple; }
+.btn-qr { background:blue; }
+
+/* hover effect (optioneel maar mooi) */
+#tabs button:hover {
+opacity:0.8;
+}
 .tab { display:none; padding:10px; }
 .active { display:block; }
 #status { font-size:28px; padding:10px; border-radius:10px; }
@@ -30,10 +47,10 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <body>
 
 <div id="tabs">
-<button onclick="showTab('scan')">Scan QR code</button>
-<button onclick="showTab('nood')">Poort open</button>
-<button onclick="showTab('teller')">Aantal QR scans</button>
-<button onclick="showTab('QRmaak')">1 QR tonen</button>
+<button class="btn-scan" onclick="showTab('scan')">Scan QR code</button>
+<button class="btn-nood" onclick="showTab('nood')">Poort open</button>
+<button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
+<button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
 
@@ -97,7 +114,7 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <div id="qrPanel" style="display:none;">
 <h2>Nieuwe QR (10 ritten)</h2>
 
-<canvas id="qrCanvasAuto" style="width:90%; max-width:400px;"></canvas>
+<canvas id="qrCanvasAuto" width="400" height="400"
 
 <h3 id="qrCodeText"></h3>
 
@@ -177,8 +194,16 @@ let scanLock=false;
 
 /* TAB */
 function showTab(id){
+
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
+
+/* 🔥 FIX VOOR QR TAB */
+if(id === "qrmaak"){
+document.getElementById("qrLogin").style.display="block";
+document.getElementById("qrPanel").style.display="none";
+}
+
 }
 
 /* MODE */
@@ -481,8 +506,6 @@ remaining:aantal
 toonQR(code);
 
 }
-
-function printLaatsteQR(){
 /* QR LOGIN */
 function checkQRLogin(){
 if(document.getElementById("qrPin").value==="9990"){
@@ -530,14 +553,17 @@ document.getElementById("qrCodeText").innerText = code;
 QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
 width:400
 });
+}
 
-}    
+/* OUDE FUNCTIE */
+function printLaatsteQR(){
 let canvas = document.getElementById("qrCanvas");
 
 let win = window.open();
 win.document.write("<img src='"+canvas.toDataURL()+"'/>");
 win.print();
 }
+
 </script>
 
 </body>
