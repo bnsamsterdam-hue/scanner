@@ -578,6 +578,9 @@ document.getElementById("qrPanel").style.display="block";
 
 async function maakNieuweQR(){
 
+let jaar = new Date().getFullYear();
+document.getElementById("qrText").innerText = "The PLEE'S TO BEE " + jaar;
+
 let ref = db.collection("qrCounter").doc("counter");
 
 let nieuwNummer = await db.runTransaction(async (t)=>{
@@ -591,8 +594,13 @@ t.set(ref,{value:next});
 
 return next;
 });
+function generateCode(){
+return Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
+       Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
+       Math.random().toString(36).substring(2,6).toUpperCase();
+}
 
-let code = "TOILET-" + String(nieuwNummer).padStart(5,"0");
+let code = generateCode();
 
 await db.collection("tickets").doc(code).set({
 remaining:10
@@ -617,7 +625,7 @@ async function wisAlles(){
 
 let code = prompt("⚠ VOER VERWIJDER CODE IN");
 
-if(code !== "9999"){
+if(code !== "8760"){
 alert("❌ Foute code");
 return;
 }
