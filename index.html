@@ -376,6 +376,7 @@ if(MODE==="poort"){
 
 updatePoortTellers();
 
+document.getElementById("tellerWaarde").innerText = teller;   
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
 }catch(e){
@@ -480,9 +481,14 @@ updatePoortTellers();
 
 function checkTeller(){
 if(document.getElementById("tellerPin").value==="9990"){
+
 document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
+
+/* 🔥 BELANGRIJK */
+document.getElementById("tellerWaarde").innerText = teller;
 updatePoortTellers();
+
 }
 }
 
