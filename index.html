@@ -33,7 +33,7 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <button onclick="showTab('scan')">Scan QR code</button>
 <button onclick="showTab('nood')">Poort open</button>
 <button onclick="showTab('teller')">Aantal QR scans</button>
-<button onclick="showTab('storing')">Status poorten</button>
+<button onclick="showTab('QRmaak')">1 QR tonen</button>
 <button onclick="showTab('admin')">Admin</button>
 </div>
 
@@ -83,15 +83,32 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 </div>
 
 </div>
+    
+<!-- QR MAKEN -->
+<div id="qrmaak" class="tab">
 
-<!-- STORING -->
-<div id="storing" class="tab">
-<div id="p1" class="led">Poort 1</div>
-<div id="p2" class="led">Poort 2</div>
-<div id="p3" class="led">Poort 3</div>
-<div id="p4" class="led">Poort 4</div>
-<div id="p5" class="led">Poort 5</div>
-<div id="p6" class="led">Poort 6</div>
+<div id="qrLogin">
+<input id="qrPin" type="password" placeholder="Pincode">
+<br>
+<button onclick="checkQRLogin()">OK</button>
+<button onclick="terugNaarMenuQR()">⬅ Terug</button>
+</div>
+
+<div id="qrPanel" style="display:none;">
+<h2>Nieuwe QR (10 ritten)</h2>
+
+<canvas id="qrCanvasAuto" style="width:90%; max-width:400px;"></canvas>
+
+<h3 id="qrCodeText"></h3>
+
+<br>
+
+<button onclick="maakNieuweQR()">🔄 Nieuwe QR</button>
+<br><br>
+
+<button onclick="sluitQRScherm()">⬅ Terug</button>
+</div>
+
 </div>
 
 <!-- ADMIN -->
@@ -368,7 +385,7 @@ el.innerText="🟣 ONBEKENDE STATUS";
 }
 }
 
-startStatusListener();
+// startStatusListener();
 
 function updatePoortTellers(){
 let html="Kassa: "+tellerPoort[0]+"<br><br>";
@@ -466,6 +483,55 @@ toonQR(code);
 }
 
 function printLaatsteQR(){
+/* QR LOGIN */
+function checkQRLogin(){
+if(document.getElementById("qrPin").value==="9990"){
+document.getElementById("qrLogin").style.display="none";
+document.getElementById("qrPanel").style.display="block";
+maakNieuweQR();
+}
+}
+
+function terugNaarMenuQR(){
+document.getElementById("qrLogin").style.display="block";
+document.getElementById("qrPanel").style.display="none";
+showTab('scan');
+}
+
+function sluitQRScherm(){
+document.getElementById("qrLogin").style.display="none";
+document.getElementById("qrPanel").style.display="block";
+}
+
+async function maakNieuweQR(){
+
+let ref = db.collection("qrCounter").doc("counter");
+
+let nieuwNummer = await db.runTransaction(async (t)=>{
+let doc = await t.get(ref);
+
+let current = 0;
+if(doc.exists){ current = doc.data().value || 0; }
+
+let next = current + 1;
+t.set(ref,{value:next});
+
+return next;
+});
+
+let code = "TOILET-" + String(nieuwNummer).padStart(5,"0");
+
+await db.collection("tickets").doc(code).set({
+remaining:10
+});
+
+document.getElementById("qrCodeText").innerText = code;
+
+QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
+width:400
+});
+
+}    
 let canvas = document.getElementById("qrCanvas");
 
 let win = window.open();
