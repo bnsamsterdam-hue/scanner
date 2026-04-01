@@ -234,7 +234,14 @@ function showTab(id){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 
-/* 🔥 QR LOGIN LOGICA */
+/* 🔥 QR = fullscreen modus */
+if(id === "qrmaak"){
+document.getElementById("tabs").style.display = "none";
+} else {
+document.getElementById("tabs").style.display = "block";
+}
+
+/* QR login */
 if(id === "qrmaak"){
 
 if(sessionStorage.getItem("qrLogin") === "true"){
@@ -244,6 +251,8 @@ maakNieuweQR();
 } else {
 document.getElementById("qrLogin").style.display="block";
 document.getElementById("qrPanel").style.display="none";
+}
+
 }
 
 }
@@ -479,9 +488,13 @@ updatePoortTellers();
 }
 }
 
-function terugNaarMenu(){
-document.getElementById("tellerLogin").style.display="block";
-document.getElementById("tellerPanel").style.display="none";
+function terugNaarMenuQR(){
+
+document.getElementById("tabs").style.display = "block";
+
+document.getElementById("qrLogin").style.display="block";
+document.getElementById("qrPanel").style.display="none";
+
 showTab('scan');
 }
 
@@ -578,6 +591,9 @@ document.getElementById("qrPanel").style.display="block";
 }
 
 async function maakNieuweQR(){
+if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen();
+}   
 let jaar = new Date().getFullYear();
 document.getElementById("qrText").innerText = "The PLEE'S TO BEE " + jaar;
 
