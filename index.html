@@ -153,6 +153,11 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 
 </div>
 
+</div> <!-- 🔥 DEZE TOEVOEGEN -->
+
+<!-- ADMIN -->
+<div id="admin" class="tab">
+
 <!-- ADMIN -->
 <div id="admin" class="tab">
 <div id="login">
@@ -576,8 +581,6 @@ let code = "TOILET-" + String(nieuwNummer).padStart(5,"0");
 await db.collection("tickets").doc(code).set({
 remaining:10
 });
-
-document.getElementById("qrCodeText").innerText = code;
 
 QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
 width:400
