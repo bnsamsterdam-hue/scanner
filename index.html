@@ -54,6 +54,19 @@ background: white;
 color: black;
 }
 
+#pinPad button {
+padding:20px;
+font-size:20px;
+background:#222;
+color:white;
+border:none;
+border-radius:10px;
+}
+
+#pinPad button:active {
+background:#555;
+}
+    
 /* KLEUREN */
 .btn-scan { background:green; }
 .btn-nood { background:red; }
@@ -95,11 +108,27 @@ z-index:999999;
 
 <h2>🔒 Toegang</h2>
 
-<input id="appPin" type="password" placeholder="Voer pincode in" style="font-size:20px; padding:10px;">
+<div id="pinDisplay" style="font-size:30px; letter-spacing:10px; margin:20px;">----</div>
 
-<br><br>
+<div id="pinPad" style="display:grid; grid-template-columns:repeat(3,80px); gap:10px; justify-content:center;">
 
-<button onclick="checkAppLock()" style="padding:15px; font-size:18px;">OK</button>
+<button onclick="pressPin('1')">1</button>
+<button onclick="pressPin('2')">2</button>
+<button onclick="pressPin('3')">3</button>
+
+<button onclick="pressPin('4')">4</button>
+<button onclick="pressPin('5')">5</button>
+<button onclick="pressPin('6')">6</button>
+
+<button onclick="pressPin('7')">7</button>
+<button onclick="pressPin('8')">8</button>
+<button onclick="pressPin('9')">9</button>
+
+<button onclick="clearPin()">C</button>
+<button onclick="pressPin('0')">0</button>
+<button onclick="checkAppLock()">OK</button>
+
+</div>
 
 </div>
     
@@ -223,18 +252,63 @@ z-index:999999;
     
 <script>
 
+document.addEventListener("DOMContentLoaded", function(){
+
+/* 🔥 CHECK: is dit een poort? */
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("poort")){
+    document.getElementById("appLock").style.display = "none";
+    return;
+}
+
+/* 🔒 ANDERS = kassa → WEL lock */
+
+let lock = document.getElementById("appLock");
+
+if(lock){
+
+if(sessionStorage.getItem("appLock") === "open"){
+    lock.style.display = "none";
+} else {
+    lock.style.display = "flex";
+}
+
+/* ENTER SUPPORT */
+
+}
+
+});
+let enteredPin = "";
+
+function pressPin(num){
+enteredPin += num;
+
+if(enteredPin.length > 4){
+enteredPin = enteredPin.slice(0,4);
+}
+
+updateDisplay();
+}
+
+function clearPin(){
+enteredPin = "";
+updateDisplay();
+}
+
+function updateDisplay(){
+let display = document.getElementById("pinDisplay");
+display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
+}
+
 function checkAppLock(){
 
-let pin = document.getElementById("appPin").value;
-
-if(pin === "1726"){
-
-sessionStorage.setItem("appLock","open");   // 👈 deze toevoegen
-
+if(enteredPin === "1726"){
+sessionStorage.setItem("appLock","open");
 document.getElementById("appLock").style.display = "none";
-
 } else {
 alert("❌ Foute code");
+clearPin();
 }
 
 }
@@ -740,28 +814,8 @@ console.error(e);
 }
 
 }
-document.addEventListener("DOMContentLoaded", function(){
 
-let lock = document.getElementById("appLock");
-
-if(lock){
-
-if(sessionStorage.getItem("appLock") === "open"){
-    lock.style.display = "none";
-} else {
-    lock.style.display = "flex";
-}
-
- document.getElementById("appPin").addEventListener("keydown", function(e){
-if(e.key === "Enter"){
-checkAppLock();
-}
-});
-}
-
-});
     
 </script>
 
 </body>
-</html>
