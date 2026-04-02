@@ -190,6 +190,9 @@ z-index:999999;
 </div>
 
 <div id="tellerPanel" style="display:none;">
+  <hr>
+
+<br><br>  
 <h2>Totaal</h2>
 <h1 id="tellerWaarde">0</h1>
 
@@ -232,12 +235,25 @@ z-index:999999;
 
 <!-- ADMIN -->
 <div id="admin" class="tab">
+
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
 </div>
 
 <div id="adminPanel" style="display:none;">
+
+<h3>🔐 PIN BEHEER</h3>
+
+<input id="pin_app" type="password" placeholder="App PIN"><br>
+<input id="pin_teller" type="password" placeholder="Teller PIN"><br>
+<input id="pin_qr" type="password" placeholder="QR PIN"><br>
+<input id="pin_admin" type="password" placeholder="Admin PIN"><br>
+
+<button onclick="savePins()">💾 Opslaan</button>
+
+<br><br>
+
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
 <input id="code" placeholder="Code bv TOILET-001"><br>
 <input id="aantal" placeholder="Aantal bv 10"><br>
@@ -249,16 +265,20 @@ z-index:999999;
 <button onclick="bulk(1000)">Bulk 1000</button>
 <button onclick="bulk(2000)">Bulk 2000</button>
 <button onclick="bulk(3000)">Bulk 3000</button>
+
 <br><br>
+
 <button onclick="maakEnToonQR()">1 QR tonen</button>
 <button onclick="printLaatsteQR()">Print QR</button>
 
 <br><br>
-<br><br>
+
 <button style="background:red;color:white;" onclick="wisAlles()">⚠ Wis alle QR codes</button>
 <button onclick="logout()">Terug</button>
+
 </div>
 </div>
+    
 <div id="qrScreen" style="display:none;">
 <h2>QR Code</h2>
 <canvas id="qrCanvas"></canvas>
@@ -343,7 +363,19 @@ db.collection("settings").doc("pins")
 .onSnapshot(doc=>{
     if(doc.exists){
         PIN = doc.data();
+
         console.log("PIN geladen:", PIN);
+
+        /* 🔥 velden vullen in admin */
+        let a = document.getElementById("pin_app");
+        let t = document.getElementById("pin_teller");
+        let q = document.getElementById("pin_qr");
+        let ad = document.getElementById("pin_admin");
+
+        if(a) a.value = PIN.app || "";
+        if(t) t.value = PIN.teller || "";
+        if(q) q.value = PIN.qr || "";
+        if(ad) ad.value = PIN.admin || "";
     }
 });
     
@@ -628,7 +660,7 @@ updatePoortTellers();
 }
 
 function checkTeller(){
-if(document.getElementById("qrPin").value === PIN.qr){
+if(document.getElementById("tellerPin").value === PIN.teller){
 
 document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
@@ -842,6 +874,30 @@ console.error(e);
 }
 
     
+function savePins(){
+
+let nieuwePins = {
+    app: document.getElementById("pin_app").value,
+    teller: document.getElementById("pin_teller").value,
+    qr: document.getElementById("pin_qr").value,
+    admin: document.getElementById("pin_admin").value
+};
+
+if(!nieuwePins.app || !nieuwePins.admin){
+    alert("Vul minimaal app en admin PIN in");
+    return;
+}
+
+db.collection("settings").doc("pins").set(nieuwePins)
+.then(()=>{
+    alert("✅ PIN opgeslagen!");
+})
+.catch(e=>{
+    alert("❌ Fout bij opslaan");
+    console.error(e);
+});
+
+}    
 </script>
 
 </body>
