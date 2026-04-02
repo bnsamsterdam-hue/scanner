@@ -303,8 +303,15 @@ z-index:999999;
 </div> 
     
 <script>
-
 document.addEventListener("DOMContentLoaded", function(){
+
+    const params = new URLSearchParams(window.location.search);
+
+    if(params.get("poort")){
+        document.getElementById("tabs").style.display="none";
+        document.getElementById("appLock").style.display="none"; // 🔥 belangrijk!
+    }
+
     let input = document.getElementById("manualInput");
 
     if(input){
@@ -320,7 +327,12 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         });
     }
-}); // 👈 DEZE MIS JE
+
+});
+            }
+        });
+    }
+}); 
 
 /* ENTER SUPPORT */
 
@@ -392,7 +404,30 @@ db.collection("settings").doc("pins")
 });
 
 let qrLoggedIn = false;   // 👈 HIER toevoegen
+function checkQRLogin(){
 
+document.getElementById("qrError").innerText = "";
+
+let juistePin = PIN.qr || "9990";
+
+if(document.getElementById("qrPin").value === juistePin){
+
+    qrLoggedIn = true;
+    sessionStorage.setItem("qrLogin","true");
+
+    document.getElementById("qrPin").value="";
+
+    document.getElementById("qrLogin").style.display="none";
+    document.getElementById("qrPanel").style.display="block";
+
+    maakNieuweQR();
+
+} else {
+    document.getElementById("qrError").innerText = "❌ Foute code";
+}
+
+}
+    
 /* POORTEN */
 const POORTEN={
 1:"192.168.1.104",
@@ -409,6 +444,14 @@ let tellerPoort={0:0,1:0,2:0,3:0,4:0,5:0,6:0};
 let MODE="kassa";
 let RELAIS_IP="";
 let POORT_NR=0;
+
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("poort")){
+    MODE="poort";
+    POORT_NR = parseInt(params.get("poort"));
+    RELAIS_IP = POORTEN[POORT_NR];  
+}
 
 let scanLock=false;
 
@@ -442,12 +485,7 @@ document.getElementById("qrPanel").style.display="none";
 }
 
 /* MODE */
-const params=new URLSearchParams(window.location.search);
-if(params.get("poort")){
-MODE="poort";
-POORT_NR=parseInt(params.get("poort"));
-RELAIS_IP=POORTEN[POORT_NR];
-document.getElementById("tabs").style.display="none";
+
 }
 
 /* 🔥 NIEUW: REMOTE LISTENER */
@@ -755,16 +793,6 @@ toonQR(code);
 
 document.getElementById("qrError").innerText = "";
 
-    qrLoggedIn = true;
-    sessionStorage.setItem("qrLogin","true");
-
-    document.getElementById("qrPin").value="";
-
-    document.getElementById("qrLogin").style.display="none";
-    document.getElementById("qrPanel").style.display="block";
-
-    maakNieuweQR();
-
 }
 
 
@@ -794,8 +822,7 @@ let jaar = new Date().getFullYear();
 document.getElementById("qrText").innerText = "The PLEE'S TO BEE " + jaar;
 
 let ref = db.collection("qrCounter").doc("counter");
-
-let nieuwNummer = await db.runTransaction(async (t)=>{
+await db.runTransaction(async (t)=>{
 let doc = await t.get(ref);
 
 let current = 0;
@@ -951,6 +978,5 @@ db.collection("settings").doc("pins").set(standaard)
 
 }
 
-</script>
-
-</body
+</body>
+</html>
