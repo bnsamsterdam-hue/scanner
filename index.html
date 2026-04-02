@@ -339,12 +339,14 @@ display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
 
 function checkAppLock(){
 
-if(enteredPin === PIN.app){
-sessionStorage.setItem("appLock","open");
-document.getElementById("appLock").style.display = "none";
+let juistePin = PIN.app || "1726";
+
+if(enteredPin === juistePin){
+    sessionStorage.setItem("appLock","open");
+    document.getElementById("appLock").style.display = "none";
 } else {
-alert("❌ Foute code");
-clearPin();
+    alert("❌ Foute code");
+    clearPin();
 }
 
 }
@@ -660,16 +662,21 @@ updatePoortTellers();
 }
 
 function checkTeller(){
-if(document.getElementById("tellerPin").value === PIN.teller){
 
-document.getElementById("tellerLogin").style.display="none";
-document.getElementById("tellerPanel").style.display="block";
+let juistePin = PIN.teller || "9990";
 
-/* 🔥 BELANGRIJK */
-document.getElementById("tellerWaarde").innerText = teller;
-updatePoortTellers();
+if(document.getElementById("tellerPin").value === juistePin){
 
+    document.getElementById("tellerLogin").style.display="none";
+    document.getElementById("tellerPanel").style.display="block";
+
+    document.getElementById("tellerWaarde").innerText = teller;
+    updatePoortTellers();
+
+} else {
+    alert("❌ Foute code");
 }
+
 }
 
 function terugNaarMenuQR(){
@@ -683,10 +690,16 @@ showTab('scan');
 }
 
 function login(){
-if(document.getElementById("pin").value === PIN.admin){
-document.getElementById("login").style.display="none";
-document.getElementById("adminPanel").style.display="block";
+
+let juistePin = PIN.admin || "8760";
+
+if(document.getElementById("pin").value === juistePin){
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+    alert("❌ Foute code");
 }
+
 }
 function logout(){ location.reload(); }
 
@@ -749,19 +762,27 @@ toonQR(code);
 }
 /* QR LOGIN */
 function checkQRLogin(){
-if(document.getElementById("qrPin").value === PIN.qr){
 
-qrLoggedIn = true;
-sessionStorage.setItem("qrLogin","true");
+let juistePin = PIN.qr || "9990";
 
-document.getElementById("qrPin").value=""; // leeg maken
+if(document.getElementById("qrPin").value === juistePin){
 
-document.getElementById("qrLogin").style.display="none";
-document.getElementById("qrPanel").style.display="block";
+    qrLoggedIn = true;
+    sessionStorage.setItem("qrLogin","true");
 
-maakNieuweQR();
+    document.getElementById("qrPin").value="";
+
+    document.getElementById("qrLogin").style.display="none";
+    document.getElementById("qrPanel").style.display="block";
+
+    maakNieuweQR();
+
+} else {
+    alert("❌ Foute code");
 }
+
 }
+
 
 function terugNaarMenuTeller(){
 
@@ -832,13 +853,15 @@ async function wisAlles(){
 
 let code = prompt("⚠ Admin bevestiging nodig\nVoer je code in:");
 
-if(code !== PIN.admin){
+let juistePin = PIN.admin || "8760";
+
+if(code !== juistePin){
     alert("❌ Foute code");
     return;
 }
 
 if(!confirm("Weet je ZEKER dat je alles wilt verwijderen?")){
-return;
+    return;
 }
 
 try{
@@ -850,25 +873,25 @@ let count = 0;
 
 for (const doc of snapshot.docs){
 
-batch.delete(doc.ref);
-count++;
+    batch.delete(doc.ref);
+    count++;
 
-if(count === 400){
-await batch.commit();
-batch = db.batch();
-count = 0;
-}
+    if(count === 400){
+        await batch.commit();
+        batch = db.batch();
+        count = 0;
+    }
 }
 
 if(count > 0){
-await batch.commit();
+    await batch.commit();
 }
 
 alert("✅ Alle QR codes verwijderd");
 
 }catch(e){
-alert("❌ Fout bij verwijderen");
-console.error(e);
+    alert("❌ Fout bij verwijderen");
+    console.error(e);
 }
 
 }
