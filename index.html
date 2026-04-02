@@ -339,18 +339,25 @@ display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
 
 function checkAppLock(){
 
-let juistePin = PIN.app || "1726";
+try {
 
-if(enteredPin === juistePin){
-    sessionStorage.setItem("appLock","open");
-    document.getElementById("appLock").style.display = "none";
-} else {
-    alert("❌ Foute code");
-    clearPin();
+    let juistePin = (PIN && PIN.app) ? PIN.app : "1726";
+
+    if(enteredPin === juistePin){
+        sessionStorage.setItem("appLock","open");
+        document.getElementById("appLock").style.display = "none";
+    } else {
+        alert("❌ U bent niet bevoegd / foute code");
+        clearPin();
+    }
+
+} catch(e){
+    alert("❌ Systeem fout, probeer opnieuw");
+    console.error(e);
 }
 
 }
-    
+  
 /* FIREBASE */
 firebase.initializeApp({
 apiKey:"AIza...",
