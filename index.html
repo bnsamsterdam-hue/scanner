@@ -242,25 +242,30 @@ z-index:999999;
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
-
-<div id="adminError" style="color:red; margin-top:10px;"></div>
-
+<div id="adminError" style="color:red;"></div>
 </div>
 
 <div id="adminPanel" style="display:none;">
-<button style="background:red;color:white;" onclick="togglePins()">🔐 PIN BEHEER</button>
+
+<button id="pinBtn" style="background:red;color:white;" onclick="togglePins()">
+🔐 PIN BEHEER
+</button>
+
 <br><br>
+
 <div id="pinBeheer" style="display:none;">
-    
 
 <h3>🔐 PIN BEHEER</h3>
 
-<input id="pin_app" type="password" placeholder="App PIN"><br>
-<input id="pin_teller" type="password" placeholder="Teller PIN"><br>
-<input id="pin_qr" type="password" placeholder="QR PIN"><br>
-<input id="pin_admin" type="password" placeholder="Admin PIN"><br>
+<div id="currentPins"></div>
+
+<input id="pin_app" type="password" placeholder="Nieuwe App PIN"><br>
+<input id="pin_teller" type="password" placeholder="Nieuwe Teller PIN"><br>
+<input id="pin_qr" type="password" placeholder="Nieuwe QR PIN"><br>
+<input id="pin_admin" type="password" placeholder="Nieuwe Admin PIN"><br>
 
 <button onclick="savePins()">💾 Opslaan</button>
+<button onclick="resetPins()" style="background:orange;">♻ Reset standaard</button>
 
 </div>
 <br><br>
@@ -300,32 +305,25 @@ z-index:999999;
 <script>
 
 document.addEventListener("DOMContentLoaded", function(){
+    let input = document.getElementById("manualInput");
 
-/* 🔥 CHECK: is dit een poort? */
-const params = new URLSearchParams(window.location.search);
+    if(input){
+        input.addEventListener("keydown", function(e){
 
-if(params.get("poort")){
-    document.getElementById("appLock").style.display = "none";
-    return;
-}
+            let lock = document.getElementById("appLock");
+            if(lock && lock.style.display !== "none"){
+                return;
+            }
 
-/* 🔒 ANDERS = kassa → WEL lock */
-
-let lock = document.getElementById("appLock");
-
-if(lock){
-
-if(sessionStorage.getItem("appLock") === "open"){
-    lock.style.display = "none";
-} else {
-    lock.style.display = "flex";
-}
+            if(e.key==="Enter"){
+                manualScan();
+            }
+        });
+    }
+}); // 👈 DEZE MIS JE
 
 /* ENTER SUPPORT */
 
-}
-
-});
 let enteredPin = "";
 
 function pressPin(num){
@@ -390,20 +388,9 @@ db.collection("settings").doc("pins")
         PIN = doc.data();
 
         console.log("PIN geladen:", PIN);
-
-        /* 🔥 velden vullen in admin */
-        let a = document.getElementById("pin_app");
-        let t = document.getElementById("pin_teller");
-        let q = document.getElementById("pin_qr");
-        let ad = document.getElementById("pin_admin");
-
-        if(a) a.value = PIN.app || "";
-        if(t) t.value = PIN.teller || "";
-        if(q) q.value = PIN.qr || "";
-        if(ad) ad.value = PIN.admin || "";
     }
 });
-    
+
 let qrLoggedIn = false;   // 👈 HIER toevoegen
 
 /* POORTEN */
@@ -498,25 +485,6 @@ document.getElementById("manualInput").value="";
 }
 }
 
-document.addEventListener("DOMContentLoaded", function(){
-let input = document.getElementById("manualInput");
-
-if(input){
-input.addEventListener("keydown", function(e){
-
-/* 🔒 check: alleen scannen als lock weg is */
-let lock = document.getElementById("appLock");
-if(lock && lock.style.display !== "none"){
-return; // stop als lock actief is
-}
-
-if(e.key==="Enter"){
-manualScan();
-}
-});
-}
-
-});
 /* SCANNER */
 let buffer="";
 document.addEventListener("keydown", function(e){
@@ -925,28 +893,64 @@ if(el.style.display === "none"){
     
 function savePins(){
 
-let nieuwePins = {
-    app: document.getElementById("pin_app").value,
-    teller: document.getElementById("pin_teller").value,
-    qr: document.getElementById("pin_qr").value,
-    admin: document.getElementById("pin_admin").value
-};
+let updates = {};
 
-if(!nieuwePins.app || !nieuwePins.admin){
-    alert("Vul minimaal app en admin PIN in");
+let app = document.getElementById("pin_app").value.trim();
+let teller = document.getElementById("pin_teller").value.trim();
+let qr = document.getElementById("pin_qr").value.trim();
+let admin = document.getElementById("pin_admin").value.trim();
+
+if(app) updates.app = app;
+if(teller) updates.teller = teller;
+if(qr) updates.qr = qr;
+if(admin) updates.admin = admin;
+
+if(Object.keys(updates).length === 0){
+    alert("⚠️ Niets ingevuld");
     return;
 }
 
-db.collection("settings").doc("pins").set(nieuwePins)
+db.collection("settings").doc("pins").set(updates, { merge: true })
 .then(()=>{
-    alert("✅ PIN opgeslagen!");
+    alert("✅ PIN aangepast!");
+
+    document.getElementById("pin_app").value = "";
+    document.getElementById("pin_teller").value = "";
+    document.getElementById("pin_qr").value = "";
+    document.getElementById("pin_admin").value = "";
+
 })
 .catch(e=>{
     alert("❌ Fout bij opslaan");
     console.error(e);
 });
 
-}    
+}
+
+function resetPins(){
+
+if(!confirm("Weet je zeker dat je alle PINs wilt resetten?")){
+    return;
+}
+
+let standaard = {
+    app: "1726",
+    teller: "9990",
+    qr: "9990",
+    admin: "8760"
+};
+
+db.collection("settings").doc("pins").set(standaard)
+.then(()=>{
+    alert("✅ PINs gereset!");
+})
+.catch(e=>{
+    alert("❌ Fout bij reset");
+    console.error(e);
+});
+
+}
+
 </script>
 
-</body>
+</body
