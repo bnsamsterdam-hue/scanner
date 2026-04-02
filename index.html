@@ -319,7 +319,7 @@ display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
 
 function checkAppLock(){
 
-if(enteredPin === "1726"){
+if(enteredPin === PIN.app){
 sessionStorage.setItem("appLock","open");
 document.getElementById("appLock").style.display = "none";
 } else {
@@ -336,7 +336,17 @@ authDomain:"ticket-systeem-18a08.firebaseapp.com",
 projectId:"ticket-systeem-18a08"
 });
 const db = firebase.firestore();
+    
+let PIN = {};
 
+db.collection("settings").doc("pins")
+.onSnapshot(doc=>{
+    if(doc.exists){
+        PIN = doc.data();
+        console.log("PIN geladen:", PIN);
+    }
+});
+    
 let qrLoggedIn = false;   // 👈 HIER toevoegen
 
 /* POORTEN */
@@ -618,7 +628,7 @@ updatePoortTellers();
 }
 
 function checkTeller(){
-if(document.getElementById("tellerPin").value==="9990"){
+if(document.getElementById("qrPin").value === PIN.qr){
 
 document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
@@ -641,7 +651,7 @@ showTab('scan');
 }
 
 function login(){
-if(document.getElementById("pin").value==="8760"){
+if(document.getElementById("pin").value === PIN.admin){
 document.getElementById("login").style.display="none";
 document.getElementById("adminPanel").style.display="block";
 }
@@ -707,7 +717,7 @@ toonQR(code);
 }
 /* QR LOGIN */
 function checkQRLogin(){
-if(document.getElementById("qrPin").value==="9990"){
+if(document.getElementById("qrPin").value === PIN.qr){
 
 qrLoggedIn = true;
 sessionStorage.setItem("qrLogin","true");
@@ -788,11 +798,11 @@ win.print();
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
 
-let code = prompt("⚠ VOER VERWIJDER CODE IN");
+let code = prompt("⚠ Admin bevestiging nodig\nVoer je code in:");
 
-if(code !== "8760"){
-alert("❌ Foute code");
-return;
+if(code !== PIN.admin){
+    alert("❌ Foute code");
+    return;
 }
 
 if(!confirm("Weet je ZEKER dat je alles wilt verwijderen?")){
