@@ -78,7 +78,31 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 </head>
 
 <body>
+    
+<div id="appLock" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
 
+<h2>🔒 Toegang</h2>
+
+<input id="appPin" type="password" placeholder="Voer pincode in" style="font-size:20px; padding:10px;">
+
+<br><br>
+
+<button onclick="checkAppLock()" style="padding:15px; font-size:18px;">OK</button>
+
+</div>
+    
 <div id="tabs">
 <button class="btn-scan" onclick="showTab('scan')">Scan QR code</button>
 <button class="btn-nood" onclick="showTab('nood')">Poort open</button>
@@ -196,9 +220,25 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 <br><br>
 <button onclick="sluitQR()">Terug</button>
 </div> 
-
+    
 <script>
 
+function checkAppLock(){
+
+let pin = document.getElementById("appPin").value;
+
+if(pin === "1726"){
+
+sessionStorage.setItem("appLock","open");   // 👈 deze toevoegen
+
+document.getElementById("appLock").style.display = "none";
+
+} else {
+alert("❌ Foute code");
+}
+
+}
+    
 /* FIREBASE */
 firebase.initializeApp({
 apiKey:"AIza...",
@@ -303,15 +343,23 @@ document.getElementById("manualInput").value="";
 
 document.addEventListener("DOMContentLoaded", function(){
 let input = document.getElementById("manualInput");
+
 if(input){
 input.addEventListener("keydown", function(e){
+
+/* 🔒 check: alleen scannen als lock weg is */
+let lock = document.getElementById("appLock");
+if(lock && lock.style.display !== "none"){
+return; // stop als lock actief is
+}
+
 if(e.key==="Enter"){
 manualScan();
 }
 });
 }
-});
 
+});
 /* SCANNER */
 let buffer="";
 document.addEventListener("keydown", function(e){
@@ -692,7 +740,27 @@ console.error(e);
 }
 
 }
+document.addEventListener("DOMContentLoaded", function(){
 
+let lock = document.getElementById("appLock");
+
+if(lock){
+
+if(sessionStorage.getItem("appLock") === "open"){
+    lock.style.display = "none";
+} else {
+    lock.style.display = "flex";
+}
+
+ document.getElementById("appPin").addEventListener("keydown", function(e){
+if(e.key === "Enter"){
+checkAppLock();
+}
+});
+}
+
+});
+    
 </script>
 
 </body>
