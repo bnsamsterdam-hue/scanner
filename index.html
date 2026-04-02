@@ -125,7 +125,8 @@ z-index:999999;
 <div style="opacity:0.6;">Scanner System</div>
 
 <div id="pinDisplay" style="font-size:30px; letter-spacing:10px; margin:20px;">----</div>
-
+<div id="pinError" style="color:red; margin-top:10px; font-size:16px;"></div>
+    
 <div id="pinPad" style="display:grid; grid-template-columns:repeat(3,80px); gap:10px; justify-content:center;">
 
 <button onclick="pressPin('1')">1</button>
@@ -187,6 +188,7 @@ z-index:999999;
 <br>
 <button onclick="checkTeller()">OK</button>
 <button onclick="terugNaarMenuTeller()">⬅ Terug</button>
+<div id="tellerError" style="color:red; margin-top:10px;"></div>   
 </div>
 
 <div id="tellerPanel" style="display:none;">
@@ -214,6 +216,7 @@ z-index:999999;
 <br>
 <button onclick="checkQRLogin()">OK</button>
 <button onclick="terugNaarMenuQR()">⬅ Terug</button>
+<div id="qrError" style="color:red; margin-top:10px;"></div>    
 </div>
 
 <div id="qrPanel" style="display:none;">
@@ -239,9 +242,16 @@ z-index:999999;
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
+
+<div id="adminError" style="color:red; margin-top:10px;"></div>
+
 </div>
 
 <div id="adminPanel" style="display:none;">
+<button style="background:red;color:white;" onclick="togglePins()">🔐 PIN BEHEER</button>
+<br><br>
+<div id="pinBeheer" style="display:none;">
+    
 
 <h3>🔐 PIN BEHEER</h3>
 
@@ -252,6 +262,7 @@ z-index:999999;
 
 <button onclick="savePins()">💾 Opslaan</button>
 
+</div>
 <br><br>
 
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
@@ -318,11 +329,15 @@ if(sessionStorage.getItem("appLock") === "open"){
 let enteredPin = "";
 
 function pressPin(num){
+
 enteredPin += num;
 
 if(enteredPin.length > 4){
 enteredPin = enteredPin.slice(0,4);
 }
+
+/* 🔥 foutmelding resetten */
+document.getElementById("pinError").innerText = "";
 
 updateDisplay();
 }
@@ -347,8 +362,9 @@ try {
         sessionStorage.setItem("appLock","open");
         document.getElementById("appLock").style.display = "none";
     } else {
-        alert("❌ U bent niet bevoegd / foute code");
+        document.getElementById("pinError").innerText = "❌ U bent niet bevoegd / foute code";
         clearPin();
+document.getElementById("pinDisplay").innerText = "❌";
     }
 
 } catch(e){
@@ -667,8 +683,9 @@ for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
 document.getElementById("tellerWaarde").innerText=0;
 updatePoortTellers();
 }
-
 function checkTeller(){
+
+document.getElementById("tellerError").innerText = "";
 
 let juistePin = PIN.teller || "9990";
 
@@ -681,7 +698,7 @@ if(document.getElementById("tellerPin").value === juistePin){
     updatePoortTellers();
 
 } else {
-    alert("❌ Foute code");
+    document.getElementById("tellerError").innerText = "❌ Foute code";
 }
 
 }
@@ -704,10 +721,11 @@ if(document.getElementById("pin").value === juistePin){
     document.getElementById("login").style.display="none";
     document.getElementById("adminPanel").style.display="block";
 } else {
-    alert("❌ Foute code");
+    document.getElementById("adminError").innerText = "❌ Foute code";
 }
 
 }
+    
 function logout(){ location.reload(); }
 
 async function maakTicket(){
@@ -730,6 +748,7 @@ await db.collection("tickets").doc(code).set({remaining:10});
 alert(aantal+" tickets aangemaakt");
 }
 function toonQR(code){
+document.getElementById("qrError").innerText = "";    
 document.getElementById("adminPanel").style.display="none";
 document.getElementById("qrScreen").style.display="block";
 
@@ -766,13 +785,7 @@ remaining:aantal
 /* QR tonen */
 toonQR(code);
 
-}
-/* QR LOGIN */
-function checkQRLogin(){
-
-let juistePin = PIN.qr || "9990";
-
-if(document.getElementById("qrPin").value === juistePin){
+document.getElementById("qrError").innerText = "";
 
     qrLoggedIn = true;
     sessionStorage.setItem("qrLogin","true");
@@ -783,10 +796,6 @@ if(document.getElementById("qrPin").value === juistePin){
     document.getElementById("qrPanel").style.display="block";
 
     maakNieuweQR();
-
-} else {
-    alert("❌ Foute code");
-}
 
 }
 
@@ -863,7 +872,7 @@ let code = prompt("⚠ Admin bevestiging nodig\nVoer je code in:");
 let juistePin = PIN.admin || "8760";
 
 if(code !== juistePin){
-    alert("❌ Foute code");
+    document.getElementById("adminError").innerText = "❌ Foute code";
     return;
 }
 
@@ -902,7 +911,17 @@ alert("✅ Alle QR codes verwijderd");
 }
 
 }
+function togglePins(){
 
+let el = document.getElementById("pinBeheer");
+
+if(el.style.display === "none"){
+    el.style.display = "block";
+} else {
+    el.style.display = "none";
+}
+
+}
     
 function savePins(){
 
