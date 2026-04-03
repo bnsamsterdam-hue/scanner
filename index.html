@@ -784,8 +784,6 @@ win.print();
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
 
-let code = "8760"; // of haal check weg als je al admin bent
-
 try{
 
 let snapshot = await db.collection("tickets").get();
@@ -819,18 +817,6 @@ setTimeout(()=>{
 },1500);
 
 }catch(e){
-console.error(e);
-}
-}
-
-if(count > 0){
-await batch.commit();
-}
-
-alert("✅ Alle QR codes verwijderd");
-
-}catch(e){
-alert("❌ Fout bij verwijderen");
 console.error(e);
 }
 
