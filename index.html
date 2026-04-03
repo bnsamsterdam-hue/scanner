@@ -6,7 +6,8 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000"> 
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-<link rel="icon" type="image/png" href="logo.png">
+<link rel="icon" t
+ ype="image/png" href="logo.png">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="/scanner/manifest.json">
 <link rel="apple-touch-icon" href="/scanner/logo.png">
@@ -557,7 +558,6 @@ db.collection("teller").doc("main").set(updateData, {merge:true});
 
 updatePoortTellers();
 
-document.getElementById("tellerWaarde").innerText = teller;   
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
 }catch(e){
@@ -940,6 +940,7 @@ if(!doc.exists) return;
 
 let data = doc.data();
 
+ 
 let html = "Totaal: " + (data.totaal || 0) + "<br><br>";
 
 html += "Kassa: " + (data.kassa || 0) + "<br>";
@@ -952,5 +953,8 @@ document.getElementById("poortTellers").innerHTML = html;
 
 });
 }
+ 
+updatePoortTellers();
+ 
 </script>
 </body>
