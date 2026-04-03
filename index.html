@@ -939,7 +939,6 @@ db.collection("teller").doc("main")
 if(!doc.exists) return;
 
 let data = doc.data();
-
  
 let html = "Totaal: " + (data.totaal || 0) + "<br><br>";
 
