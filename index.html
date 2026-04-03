@@ -706,15 +706,6 @@ if(document.getElementById("tellerPin").value==="9990"){
     document.getElementById("tellerPin").value="";
 }
 }
-
-function login(){
-if(document.getElementById("pin").value==="8760"){
-    document.getElementById("login").style.display="none";
-    document.getElementById("adminPanel").style.display="block";
-} else {
-    alert("❌ Foute code");
-}
-}
     
 function terugNaarMenuQR(){
 
@@ -851,7 +842,6 @@ win.document.write("<img src='"+canvas.toDataURL()+"'/>");
 win.print();
 }
 
-/* 🔥 HIER TOEVOEGEN */
 function wisAlles(){
 
 let code = document.getElementById("pin").value;
@@ -871,8 +861,9 @@ if(code !== "8760"){
 }
 
 document.getElementById("confirmBox").style.display = "flex";
-
 }
+
+
 function login(){
 if(document.getElementById("pin").value==="8760"){
     document.getElementById("login").style.display="none";
@@ -891,6 +882,17 @@ if(document.getElementById("pin").value==="8760"){
     document.getElementById("pin").value = "";
 }
 }
+
+
+function bevestigWis(){
+document.getElementById("confirmBox").style.display = "none";
+doWisAlles();
+}
+
+function cancelWis(){
+document.getElementById("confirmBox").style.display = "none";
+}
+
 
 async function doWisAlles(){
 
@@ -913,15 +915,6 @@ for (const doc of snapshot.docs){
     }
 }
 
-function bevestigWis(){
-document.getElementById("confirmBox").style.display = "none";
-doWisAlles();
-}
-
-function cancelWis(){
-document.getElementById("confirmBox").style.display = "none";
-}
-    
 if(count > 0){
     await batch.commit();
 }
@@ -933,36 +926,6 @@ alert("✅ Alle QR codes verwijderd");
     console.error(e);
 }
 
-}
-    
-let code = prompt("⚠ ADMIN CODE NODIG\nVoer code in om ALLES te wissen:");
-
-if(code !== "8760"){
-    alert("❌ Foute code");
-    return;
-}
-
-if(!confirm("Weet je ZEKER dat je alles wilt verwijderen?")){
-    return;
-}
-
-try{
-
-let snapshot = await db.collection("tickets").get();
-
-let batch = db.batch();
-let count = 0;
-
-for (const doc of snapshot.docs){
-
-    batch.delete(doc.ref);
-    count++;
-
-    if(count === 400){
-        await batch.commit();
-        batch = db.batch();
-        count = 0;
-    }
 }
 
 if(count > 0){
