@@ -658,6 +658,15 @@ if(document.getElementById("tellerPin").value==="9990"){
     alert("❌ Foute code");
 }
 }
+
+function login(){
+if(document.getElementById("pin").value==="8760"){
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+    alert("❌ Foute code");
+}
+}
     
 function terugNaarMenuQR(){
 
@@ -796,6 +805,15 @@ win.print();
 
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
+
+function login(){
+if(document.getElementById("pin").value==="8760"){
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+    alert("❌ Foute code");
+}
+}    
 
 let code = prompt("⚠ ADMIN CODE NODIG\nVoer code in om ALLES te wissen:");
 
