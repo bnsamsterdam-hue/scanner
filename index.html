@@ -365,7 +365,8 @@ if(enteredPin === "1726"){
     document.getElementById("appLock").style.display = "none";
 } else {
     alert("❌ Foute code");
-    clearPin();
+    enteredPin = "";
+    updateDisplay();
 }
 
 }
