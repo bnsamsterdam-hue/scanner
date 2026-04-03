@@ -242,6 +242,34 @@ z-index:999999;
 </div>
 
 <div id="adminPanel" style="display:none;">
+<div id="confirmBox" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+color:white;
+z-index:99999;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+">
+
+<h2>⚠ Weet je het zeker?</h2>
+<p>Alle QR codes worden verwijderd</p>
+
+<br>
+
+<button onclick="bevestigWis()" style="padding:15px; background:red; color:white; border:none; border-radius:10px;">JA VERWIJDEREN</button>
+
+<br>
+
+<button onclick="cancelWis()" style="padding:15px; background:gray; color:white; border:none; border-radius:10px;">ANNULEREN</button>
+
+</div>    
 
 <br><br>
 
@@ -824,8 +852,27 @@ win.print();
 }
 
 /* 🔥 HIER TOEVOEGEN */
-async function wisAlles(){
+function wisAlles(){
 
+let code = document.getElementById("pin").value;
+
+if(code !== "8760"){
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute admin code";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    return;
+}
+
+document.getElementById("confirmBox").style.display = "flex";
+
+}
 function login(){
 if(document.getElementById("pin").value==="8760"){
     document.getElementById("login").style.display="none";
@@ -843,17 +890,51 @@ if(document.getElementById("pin").value==="8760"){
 
     document.getElementById("pin").value = "";
 }
-}    
-
-function login(){
-if(document.getElementById("pin").value==="8760"){
-    document.getElementById("login").style.display="none";
-    document.getElementById("adminPanel").style.display="block";
-} else {
-    alert("❌ Foute code");
 }
-}    
 
+async function doWisAlles(){
+
+try{
+
+let snapshot = await db.collection("tickets").get();
+
+let batch = db.batch();
+let count = 0;
+
+for (const doc of snapshot.docs){
+
+    batch.delete(doc.ref);
+    count++;
+
+    if(count === 400){
+        await batch.commit();
+        batch = db.batch();
+        count = 0;
+    }
+}
+
+function bevestigWis(){
+document.getElementById("confirmBox").style.display = "none";
+doWisAlles();
+}
+
+function cancelWis(){
+document.getElementById("confirmBox").style.display = "none";
+}
+    
+if(count > 0){
+    await batch.commit();
+}
+
+alert("✅ Alle QR codes verwijderd");
+
+}catch(e){
+    alert("❌ Fout bij verwijderen");
+    console.error(e);
+}
+
+}
+    
 let code = prompt("⚠ ADMIN CODE NODIG\nVoer code in om ALLES te wissen:");
 
 if(code !== "8760"){
