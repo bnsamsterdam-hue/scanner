@@ -68,7 +68,11 @@ border-radius:10px;
 #pinPad button:active {
 background:#555;
 }
-    
+
+input[type="text"] {
+  -webkit-text-security: disc;
+}
+ 
 /* KLEUREN */
 .btn-scan { background:green; }
 .btn-nood { background:red; }
@@ -171,7 +175,7 @@ z-index:999999;
 <div id="teller" class="tab">
 
 <div id="tellerLogin">
-<input id="tellerPin" type="password" placeholder="Pincode">
+<input id="tellerPin" type="text" placeholder="Pincode" autocomplete="off">
 <br>
 <button onclick="checkTeller()">OK</button>
 <button onclick="terugNaarMenuTeller()">⬅ Terug</button>
@@ -195,7 +199,7 @@ z-index:999999;
 <div id="qrmaak" class="tab">
 
 <div id="qrLogin">
-<input id="qrPin" type="password" placeholder="Pincode">
+<input id="qrPin" type="text" placeholder="Pincode" autocomplete="off">
 <br>
 <button onclick="checkQRLogin()">OK</button>
 <button onclick="terugNaarMenuQR()">⬅ Terug</button>
@@ -221,7 +225,7 @@ z-index:999999;
 <!-- ADMIN -->
 <div id="admin" class="tab">
 <div id="login">
-<input id="pin" type="password" placeholder="Pincode">
+<input id="pin" type="text" placeholder="Pincode" autocomplete="off">
 <button onclick="login()">OK</button>
 </div>
 
@@ -874,6 +878,12 @@ document.addEventListener("DOMContentLoaded", function(){
             }
 
         });
+    });
+}); 
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll('input').forEach(el=>{
+        el.value = "";
     });
 }); 
 </script>
