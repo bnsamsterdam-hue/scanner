@@ -938,7 +938,7 @@ db.collection("teller").doc("main")
 if(!doc.exists) return;
 
 let data = doc.data();
- 
+
 let html = "Totaal: " + (data.totaal || 0) + "<br><br>";
 
 html += "Kassa: " + (data.kassa || 0) + "<br>";
@@ -947,8 +947,11 @@ for(let i=1;i<=6;i++){
     html += "Poort " + i + ": " + (data["poort"+i] || 0) + "<br>";
 }
 
+document.getElementById("poortTellers").innerHTML = html;
+
 });
-} 
- 
+
+}
+updatePoortTellers(); 
 </script>
 </body>
