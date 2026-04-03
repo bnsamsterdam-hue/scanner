@@ -828,7 +828,12 @@ win.print();
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
 
+let s = document.getElementById("status");
+
 try{
+
+s.className = "";
+s.innerText = "⏳ Bezig met verwijderen...";
 
 let snapshot = await db.collection("tickets").get();
 
@@ -851,17 +856,26 @@ if(count > 0){
 await batch.commit();
 }
 
-let s = document.getElementById("status");
 s.className = "ok";
-s.innerText = "✅ Alles verwijderd";
+s.innerText = "✅ Alle QR codes verwijderd";
 
 setTimeout(()=>{
     s.innerText = "SCAN KLAAR";
     s.className = "";
-},1500);
+},2000);
 
 }catch(e){
+
 console.error(e);
+
+s.className = "fout";
+s.innerText = "❌ Fout bij verwijderen";
+
+setTimeout(()=>{
+    s.innerText = "SCAN KLAAR";
+    s.className = "";
+},2000);
+
 }
 
 }
