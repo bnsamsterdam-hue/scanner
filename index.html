@@ -243,15 +243,6 @@ z-index:999999;
 
 <div id="adminPanel" style="display:none;">
 
-<h3>🔐 PIN BEHEER</h3>
-
-<input id="pin_app" type="password" placeholder="App PIN"><br>
-<input id="pin_teller" type="password" placeholder="Teller PIN"><br>
-<input id="pin_qr" type="password" placeholder="QR PIN"><br>
-<input id="pin_admin" type="password" placeholder="Admin PIN"><br>
-
-<button onclick="savePins()">💾 Opslaan</button>
-
 <br><br>
 
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
@@ -339,25 +330,16 @@ display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
 
 function checkAppLock(){
 
-try {
-
-    let juistePin = (PIN && PIN.app) ? PIN.app : "1726";
-
-    if(enteredPin === juistePin){
-        sessionStorage.setItem("appLock","open");
-        document.getElementById("appLock").style.display = "none";
-    } else {
-        alert("❌ U bent niet bevoegd / foute code");
-        clearPin();
-    }
-
-} catch(e){
-    alert("❌ Systeem fout, probeer opnieuw");
-    console.error(e);
+if(enteredPin === "1726"){
+    sessionStorage.setItem("appLock","open");
+    document.getElementById("appLock").style.display = "none";
+} else {
+    alert("❌ Foute code");
+    clearPin();
 }
 
 }
-  
+    
 /* FIREBASE */
 firebase.initializeApp({
 apiKey:"AIza...",
@@ -365,28 +347,6 @@ authDomain:"ticket-systeem-18a08.firebaseapp.com",
 projectId:"ticket-systeem-18a08"
 });
 const db = firebase.firestore();
-    
-let PIN = {};
-
-db.collection("settings").doc("pins")
-.onSnapshot(doc=>{
-    if(doc.exists){
-        PIN = doc.data();
-
-        console.log("PIN geladen:", PIN);
-
-        /* 🔥 velden vullen in admin */
-        let a = document.getElementById("pin_app");
-        let t = document.getElementById("pin_teller");
-        let q = document.getElementById("pin_qr");
-        let ad = document.getElementById("pin_admin");
-
-        if(a) a.value = PIN.app || "";
-        if(t) t.value = PIN.teller || "";
-        if(q) q.value = PIN.qr || "";
-        if(ad) ad.value = PIN.admin || "";
-    }
-});
     
 let qrLoggedIn = false;   // 👈 HIER toevoegen
 
@@ -667,12 +627,26 @@ for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
 document.getElementById("tellerWaarde").innerText=0;
 updatePoortTellers();
 }
+    
+function checkQRLogin(){
+if(document.getElementById("qrPin").value==="9990"){
+
+    qrLoggedIn = true;
+    sessionStorage.setItem("qrLogin","true");
+
+    document.getElementById("qrPin").value="";
+    document.getElementById("qrLogin").style.display="none";
+    document.getElementById("qrPanel").style.display="block";
+
+    maakNieuweQR();
+
+} else {
+    alert("❌ Foute code");
+}
+}
 
 function checkTeller(){
-
-let juistePin = PIN.teller || "9990";
-
-if(document.getElementById("tellerPin").value === juistePin){
+if(document.getElementById("tellerPin").value==="9990"){
 
     document.getElementById("tellerLogin").style.display="none";
     document.getElementById("tellerPanel").style.display="block";
@@ -683,9 +657,8 @@ if(document.getElementById("tellerPin").value === juistePin){
 } else {
     alert("❌ Foute code");
 }
-
 }
-
+    
 function terugNaarMenuQR(){
 
 document.getElementById("tabs").style.display = "block";
@@ -696,18 +669,6 @@ document.getElementById("qrPanel").style.display="none";
 showTab('scan');
 }
 
-function login(){
-
-let juistePin = PIN.admin || "8760";
-
-if(document.getElementById("pin").value === juistePin){
-    document.getElementById("login").style.display="none";
-    document.getElementById("adminPanel").style.display="block";
-} else {
-    alert("❌ Foute code");
-}
-
-}
 function logout(){ location.reload(); }
 
 async function maakTicket(){
@@ -768,28 +729,6 @@ toonQR(code);
 
 }
 /* QR LOGIN */
-function checkQRLogin(){
-
-let juistePin = PIN.qr || "9990";
-
-if(document.getElementById("qrPin").value === juistePin){
-
-    qrLoggedIn = true;
-    sessionStorage.setItem("qrLogin","true");
-
-    document.getElementById("qrPin").value="";
-
-    document.getElementById("qrLogin").style.display="none";
-    document.getElementById("qrPanel").style.display="block";
-
-    maakNieuweQR();
-
-} else {
-    alert("❌ Foute code");
-}
-
-}
-
 
 function terugNaarMenuTeller(){
 
@@ -858,11 +797,9 @@ win.print();
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
 
-let code = prompt("⚠ Admin bevestiging nodig\nVoer je code in:");
+let code = prompt("⚠ ADMIN CODE NODIG\nVoer code in om ALLES te wissen:");
 
-let juistePin = PIN.admin || "8760";
-
-if(code !== juistePin){
+if(code !== "8760"){
     alert("❌ Foute code");
     return;
 }
@@ -903,31 +840,6 @@ alert("✅ Alle QR codes verwijderd");
 
 }
 
-    
-function savePins(){
-
-let nieuwePins = {
-    app: document.getElementById("pin_app").value,
-    teller: document.getElementById("pin_teller").value,
-    qr: document.getElementById("pin_qr").value,
-    admin: document.getElementById("pin_admin").value
-};
-
-if(!nieuwePins.app || !nieuwePins.admin){
-    alert("Vul minimaal app en admin PIN in");
-    return;
-}
-
-db.collection("settings").doc("pins").set(nieuwePins)
-.then(()=>{
-    alert("✅ PIN opgeslagen!");
-})
-.catch(e=>{
-    alert("❌ Fout bij opslaan");
-    console.error(e);
-});
-
-}    
 </script>
 
 </body>
