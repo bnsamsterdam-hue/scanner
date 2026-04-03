@@ -826,11 +826,16 @@ win.print();
 }
 
 /* 🔥 HIER TOEVOEGEN */
-async function wisAlles(){
+function wisAlles(){
 
 if(!confirm("⚠ Weet je zeker dat je ALLE QR codes wilt verwijderen?")){
     return;
 }
+
+doWisAlles();
+}
+
+async function doWisAlles(){
 
 let s = document.getElementById("status");
 
@@ -872,34 +877,6 @@ s.innerText = "❌ Fout bij verwijderen";
 
 }
 
-if(count > 0){
-await batch.commit();
-}
-
-s.className = "ok";
-s.innerText = "✅ Alle QR codes verwijderd";
-
-setTimeout(()=>{
-    s.innerText = "SCAN KLAAR";
-    s.className = "";
-},2000);
-
-}catch(e){
-
-console.error(e);
-
-s.className = "fout";
-s.innerText = "❌ Fout bij verwijderen";
-
-setTimeout(()=>{
-    s.innerText = "SCAN KLAAR";
-    s.className = "";
-},2000);
-
-}
-
-}
-
 document.addEventListener("DOMContentLoaded", function(){
     document.querySelectorAll('input[type="password"]').forEach(el=>{
         el.addEventListener('focus', ()=>{
@@ -921,5 +898,4 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 }); 
 </script>
-
 </body>
