@@ -641,7 +641,17 @@ if(document.getElementById("qrPin").value==="9990"){
     maakNieuweQR();
 
 } else {
-    alert("❌ Foute code");
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("qrPin").value="";
 }
 }
 
@@ -655,7 +665,17 @@ if(document.getElementById("tellerPin").value==="9990"){
     updatePoortTellers();
 
 } else {
-    alert("❌ Foute code");
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("tellerPin").value="";
 }
 }
 
@@ -805,6 +825,25 @@ win.print();
 
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
+
+function login(){
+if(document.getElementById("pin").value==="8760"){
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("pin").value = "";
+}
+}    
 
 function login(){
 if(document.getElementById("pin").value==="8760"){
