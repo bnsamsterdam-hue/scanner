@@ -1,7 +1,7 @@
 {
   "name": "The Plee's To Bee",
-  "short_name": "The",
-  "start_url": "/scanner/"
+  "short_name": "Plee's",
+  "start_url": "/scanner/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
