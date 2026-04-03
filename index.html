@@ -1,16 +1,30 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Ticket Scanner PRO</title>
 
+<!-- 📱 APP NAAM -->
+<meta name="apple-mobile-web-app-title" content="Plee's To Bee">
+<meta name="application-name" content="Plee's To Bee">
+
+<!-- 📱 APP GEDRAG -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- 🎨 KLEUR -->
+<meta name="theme-color" content="#000000">
+
+<!-- scripts -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
+    
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
 #tabs button { 
@@ -105,11 +119,14 @@ justify-content:center;
 align-items:center;
 z-index:999999;
 ">
-
-<h2>🔒 Toegang</h2>
+<h2 style="font-size:34px;">
+🔒 Plee’s To Bee
+</h2>
+<div style="opacity:0.6;">Scanner System</div>
 
 <div id="pinDisplay" style="font-size:30px; letter-spacing:10px; margin:20px;">----</div>
-
+<div id="pinError" style="color:red; margin-top:10px; font-size:16px;"></div>
+    
 <div id="pinPad" style="display:grid; grid-template-columns:repeat(3,80px); gap:10px; justify-content:center;">
 
 <button onclick="pressPin('1')">1</button>
@@ -171,9 +188,13 @@ z-index:999999;
 <br>
 <button onclick="checkTeller()">OK</button>
 <button onclick="terugNaarMenuTeller()">⬅ Terug</button>
+<div id="tellerError" style="color:red; margin-top:10px;"></div>   
 </div>
 
 <div id="tellerPanel" style="display:none;">
+  <hr>
+
+<br><br>  
 <h2>Totaal</h2>
 <h1 id="tellerWaarde">0</h1>
 
@@ -195,6 +216,7 @@ z-index:999999;
 <br>
 <button onclick="checkQRLogin()">OK</button>
 <button onclick="terugNaarMenuQR()">⬅ Terug</button>
+<div id="qrError" style="color:red; margin-top:10px;"></div>    
 </div>
 
 <div id="qrPanel" style="display:none;">
@@ -216,12 +238,33 @@ z-index:999999;
 
 <!-- ADMIN -->
 <div id="admin" class="tab">
+
 <div id="login">
 <input id="pin" type="password" placeholder="Pincode">
 <button onclick="login()">OK</button>
+
+<div id="adminError" style="color:red; margin-top:10px;"></div>
+
 </div>
 
 <div id="adminPanel" style="display:none;">
+<button style="background:red;color:white;" onclick="togglePins()">🔐 PIN BEHEER</button>
+<br><br>
+<div id="pinBeheer" style="display:none;">
+    
+
+<h3>🔐 PIN BEHEER</h3>
+
+<input id="pin_app" type="password" placeholder="App PIN"><br>
+<input id="pin_teller" type="password" placeholder="Teller PIN"><br>
+<input id="pin_qr" type="password" placeholder="QR PIN"><br>
+<input id="pin_admin" type="password" placeholder="Admin PIN"><br>
+
+<button onclick="savePins()">💾 Opslaan</button>
+
+</div>
+<br><br>
+
 <input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
 <input id="code" placeholder="Code bv TOILET-001"><br>
 <input id="aantal" placeholder="Aantal bv 10"><br>
@@ -233,16 +276,20 @@ z-index:999999;
 <button onclick="bulk(1000)">Bulk 1000</button>
 <button onclick="bulk(2000)">Bulk 2000</button>
 <button onclick="bulk(3000)">Bulk 3000</button>
+
 <br><br>
+
 <button onclick="maakEnToonQR()">1 QR tonen</button>
 <button onclick="printLaatsteQR()">Print QR</button>
 
 <br><br>
-<br><br>
+
 <button style="background:red;color:white;" onclick="wisAlles()">⚠ Wis alle QR codes</button>
 <button onclick="logout()">Terug</button>
+
 </div>
 </div>
+    
 <div id="qrScreen" style="display:none;">
 <h2>QR Code</h2>
 <canvas id="qrCanvas"></canvas>
@@ -282,11 +329,15 @@ if(sessionStorage.getItem("appLock") === "open"){
 let enteredPin = "";
 
 function pressPin(num){
+
 enteredPin += num;
 
 if(enteredPin.length > 4){
 enteredPin = enteredPin.slice(0,4);
 }
+
+/* 🔥 foutmelding resetten */
+document.getElementById("pinError").innerText = "";
 
 updateDisplay();
 }
@@ -303,16 +354,26 @@ display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
 
 function checkAppLock(){
 
-if(enteredPin === "1726"){
-sessionStorage.setItem("appLock","open");
-document.getElementById("appLock").style.display = "none";
-} else {
-alert("❌ Foute code");
-clearPin();
+try {
+
+    let juistePin = (PIN && PIN.app) ? PIN.app : "1726";
+
+    if(enteredPin === juistePin){
+        sessionStorage.setItem("appLock","open");
+        document.getElementById("appLock").style.display = "none";
+    } else {
+        document.getElementById("pinError").innerText = "❌ U bent niet bevoegd / foute code";
+        clearPin();
+document.getElementById("pinDisplay").innerText = "❌";
+    }
+
+} catch(e){
+    alert("❌ Systeem fout, probeer opnieuw");
+    console.error(e);
 }
 
 }
-    
+  
 /* FIREBASE */
 firebase.initializeApp({
 apiKey:"AIza...",
@@ -320,7 +381,29 @@ authDomain:"ticket-systeem-18a08.firebaseapp.com",
 projectId:"ticket-systeem-18a08"
 });
 const db = firebase.firestore();
+    
+let PIN = {};
 
+db.collection("settings").doc("pins")
+.onSnapshot(doc=>{
+    if(doc.exists){
+        PIN = doc.data();
+
+        console.log("PIN geladen:", PIN);
+
+        /* 🔥 velden vullen in admin */
+        let a = document.getElementById("pin_app");
+        let t = document.getElementById("pin_teller");
+        let q = document.getElementById("pin_qr");
+        let ad = document.getElementById("pin_admin");
+
+        if(a) a.value = PIN.app || "";
+        if(t) t.value = PIN.teller || "";
+        if(q) q.value = PIN.qr || "";
+        if(ad) ad.value = PIN.admin || "";
+    }
+});
+    
 let qrLoggedIn = false;   // 👈 HIER toevoegen
 
 /* POORTEN */
@@ -600,18 +683,24 @@ for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
 document.getElementById("tellerWaarde").innerText=0;
 updatePoortTellers();
 }
-
 function checkTeller(){
-if(document.getElementById("tellerPin").value==="9990"){
 
-document.getElementById("tellerLogin").style.display="none";
-document.getElementById("tellerPanel").style.display="block";
+document.getElementById("tellerError").innerText = "";
 
-/* 🔥 BELANGRIJK */
-document.getElementById("tellerWaarde").innerText = teller;
-updatePoortTellers();
+let juistePin = PIN.teller || "9990";
 
+if(document.getElementById("tellerPin").value === juistePin){
+
+    document.getElementById("tellerLogin").style.display="none";
+    document.getElementById("tellerPanel").style.display="block";
+
+    document.getElementById("tellerWaarde").innerText = teller;
+    updatePoortTellers();
+
+} else {
+    document.getElementById("tellerError").innerText = "❌ Foute code";
 }
+
 }
 
 function terugNaarMenuQR(){
@@ -625,11 +714,18 @@ showTab('scan');
 }
 
 function login(){
-if(document.getElementById("pin").value==="8760"){
-document.getElementById("login").style.display="none";
-document.getElementById("adminPanel").style.display="block";
+
+let juistePin = PIN.admin || "8760";
+
+if(document.getElementById("pin").value === juistePin){
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+    document.getElementById("adminError").innerText = "❌ Foute code";
 }
+
 }
+    
 function logout(){ location.reload(); }
 
 async function maakTicket(){
@@ -652,6 +748,7 @@ await db.collection("tickets").doc(code).set({remaining:10});
 alert(aantal+" tickets aangemaakt");
 }
 function toonQR(code){
+document.getElementById("qrError").innerText = "";    
 document.getElementById("adminPanel").style.display="none";
 document.getElementById("qrScreen").style.display="block";
 
@@ -688,22 +785,20 @@ remaining:aantal
 /* QR tonen */
 toonQR(code);
 
+document.getElementById("qrError").innerText = "";
+
+    qrLoggedIn = true;
+    sessionStorage.setItem("qrLogin","true");
+
+    document.getElementById("qrPin").value="";
+
+    document.getElementById("qrLogin").style.display="none";
+    document.getElementById("qrPanel").style.display="block";
+
+    maakNieuweQR();
+
 }
-/* QR LOGIN */
-function checkQRLogin(){
-if(document.getElementById("qrPin").value==="9990"){
 
-qrLoggedIn = true;
-sessionStorage.setItem("qrLogin","true");
-
-document.getElementById("qrPin").value=""; // leeg maken
-
-document.getElementById("qrLogin").style.display="none";
-document.getElementById("qrPanel").style.display="block";
-
-maakNieuweQR();
-}
-}
 
 function terugNaarMenuTeller(){
 
@@ -772,15 +867,17 @@ win.print();
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
 
-let code = prompt("⚠ VOER VERWIJDER CODE IN");
+let code = prompt("⚠ Admin bevestiging nodig\nVoer je code in:");
 
-if(code !== "8760"){
-alert("❌ Foute code");
-return;
+let juistePin = PIN.admin || "8760";
+
+if(code !== juistePin){
+    document.getElementById("adminError").innerText = "❌ Foute code";
+    return;
 }
 
 if(!confirm("Weet je ZEKER dat je alles wilt verwijderen?")){
-return;
+    return;
 }
 
 try{
@@ -792,30 +889,64 @@ let count = 0;
 
 for (const doc of snapshot.docs){
 
-batch.delete(doc.ref);
-count++;
+    batch.delete(doc.ref);
+    count++;
 
-if(count === 400){
-await batch.commit();
-batch = db.batch();
-count = 0;
-}
+    if(count === 400){
+        await batch.commit();
+        batch = db.batch();
+        count = 0;
+    }
 }
 
 if(count > 0){
-await batch.commit();
+    await batch.commit();
 }
 
 alert("✅ Alle QR codes verwijderd");
 
 }catch(e){
-alert("❌ Fout bij verwijderen");
-console.error(e);
+    alert("❌ Fout bij verwijderen");
+    console.error(e);
 }
 
 }
+function togglePins(){
 
+let el = document.getElementById("pinBeheer");
+
+if(el.style.display === "none"){
+    el.style.display = "block";
+} else {
+    el.style.display = "none";
+}
+
+}
     
+function savePins(){
+
+let nieuwePins = {
+    app: document.getElementById("pin_app").value,
+    teller: document.getElementById("pin_teller").value,
+    qr: document.getElementById("pin_qr").value,
+    admin: document.getElementById("pin_admin").value
+};
+
+if(!nieuwePins.app || !nieuwePins.admin){
+    alert("Vul minimaal app en admin PIN in");
+    return;
+}
+
+db.collection("settings").doc("pins").set(nieuwePins)
+.then(()=>{
+    alert("✅ PIN opgeslagen!");
+})
+.catch(e=>{
+    alert("❌ Fout bij opslaan");
+    console.error(e);
+});
+
+}    
 </script>
 
 </body>
