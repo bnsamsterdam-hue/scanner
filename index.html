@@ -642,10 +642,18 @@ el.innerText="🟣 ONBEKENDE STATUS";
 // startStatusListener();
 
 function resetTeller(){
-teller=0;
-for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
-document.getElementById("tellerWaarde").innerText=0;
-updatePoortTellers();
+
+db.collection("teller").doc("main").set({
+    totaal: 0,
+    kassa: 0,
+    poort1: 0,
+    poort2: 0,
+    poort3: 0,
+    poort4: 0,
+    poort5: 0,
+    poort6: 0
+});
+
 }
 function updatePoortTellers(){
 
@@ -682,7 +690,6 @@ if(document.getElementById("tellerPin").value==="9990"){
 document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
 
-document.getElementById("tellerWaarde").innerText = teller;
 updatePoortTellers();
 
 } else {
