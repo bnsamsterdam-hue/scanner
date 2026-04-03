@@ -11,6 +11,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
+ <meta name="autocomplete" content="off">   
+
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
 #tabs button { 
@@ -169,7 +171,7 @@ z-index:999999;
 <div id="teller" class="tab">
 
 <div id="tellerLogin">
-<input id="tellerPin" type="password" placeholder="Pincode" autocomplete="new-password">
+<input id="tellerPin" type="password" placeholder="Pincode" autocomplete="new-password" inputmode="none">
 <br>
 <button onclick="checkTeller()">OK</button>
 <button onclick="terugNaarMenuTeller()">⬅ Terug</button>
@@ -193,7 +195,7 @@ z-index:999999;
 <div id="qrmaak" class="tab">
 
 <div id="qrLogin">
-<input id="qrPin" type="password" placeholder="Pincode" autocomplete="new-password">
+<input id="qrPin" type="password" placeholder="Pincode" autocomplete="new-password" inputmode="none">
 <br>
 <button onclick="checkQRLogin()">OK</button>
 <button onclick="terugNaarMenuQR()">⬅ Terug</button>
@@ -219,7 +221,7 @@ z-index:999999;
 <!-- ADMIN -->
 <div id="admin" class="tab">
 <div id="login">
-<input id="pin" type="password" placeholder="Pincode" autocomplete="new-password">
+<input id="pin" type="password" placeholder="Pincode" autocomplete="new-password" inputmode="none">
 <button onclick="login()">OK</button>
 </div>
 
@@ -860,6 +862,13 @@ console.error(e);
 
 }
 
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll('input[type="password"]').forEach(el=>{
+        el.addEventListener('focus', ()=>{
+            el.blur();
+        });
+    });
+});
     
 </script>
 
