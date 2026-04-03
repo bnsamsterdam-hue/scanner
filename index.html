@@ -110,6 +110,8 @@ z-index:999999;
 
 <div id="pinDisplay" style="font-size:30px; letter-spacing:10px; margin:20px;">----</div>
 
+<div id="pinError" style="color:red; margin-bottom:10px;"></div>    
+
 <div id="pinPad" style="display:grid; grid-template-columns:repeat(3,80px); gap:10px; justify-content:center;">
 
 <button onclick="pressPin('1')">1</button>
@@ -282,6 +284,11 @@ if(sessionStorage.getItem("appLock") === "open"){
 let enteredPin = "";
 
 function pressPin(num){
+
+// 🔥 foutmelding leegmaken zodra iemand typt
+let e = document.getElementById("pinError");
+if(e) e.innerText = "";
+
 enteredPin += num;
 
 if(enteredPin.length > 4){
@@ -308,14 +315,12 @@ if(enteredPin === "1726"){
     document.getElementById("appLock").style.display = "none";
 } else {
 
-    let s = document.getElementById("status");
-    if(s){
-        s.className = "fout";
-        s.innerText = "❌ Foute pincode";
+    let e = document.getElementById("pinError");
+    if(e){
+        e.innerText = "❌ Foute pincode";
 
         setTimeout(()=>{
-            s.innerText = "SCAN KLAAR";
-            s.className = "";
+            e.innerText = "";
         },1500);
     }
 
