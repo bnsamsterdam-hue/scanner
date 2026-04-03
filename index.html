@@ -16,7 +16,7 @@ body { background:#000; color:white; font-family:Arial; margin:0; text-align:cen
 #tabs button { 
 width:20%; 
 padding:10px; 
-color:white;
+color:white;  
 border:none;
 font-weight:bold;
 }
@@ -304,15 +304,15 @@ display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
 function checkAppLock(){
 
 if(enteredPin === "1726"){
-sessionStorage.setItem("appLock","open");
-document.getElementById("appLock").style.display = "none";
+    sessionStorage.setItem("appLock","open");
+    document.getElementById("appLock").style.display = "none";
 } else {
-alert("❌ Foute code");
-clearPin();
-}
+
+    clearPin();
+    updateDisplay();
 
 }
-    
+}
 /* FIREBASE */
 firebase.initializeApp({
 apiKey:"AIza...",
@@ -626,8 +626,20 @@ showTab('scan');
 
 function login(){
 if(document.getElementById("pin").value==="8760"){
-document.getElementById("login").style.display="none";
-document.getElementById("adminPanel").style.display="block";
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("pin").value="";
 }
 }
 function logout(){ location.reload(); }
@@ -772,16 +784,7 @@ win.print();
 /* 🔥 HIER TOEVOEGEN */
 async function wisAlles(){
 
-let code = prompt("⚠ VOER VERWIJDER CODE IN");
-
-if(code !== "8760"){
-alert("❌ Foute code");
-return;
-}
-
-if(!confirm("Weet je ZEKER dat je alles wilt verwijderen?")){
-return;
-}
+let code = "8760"; // of haal check weg als je al admin bent
 
 try{
 
@@ -799,6 +802,24 @@ if(count === 400){
 await batch.commit();
 batch = db.batch();
 count = 0;
+}
+}
+
+if(count > 0){
+await batch.commit();
+}
+
+let s = document.getElementById("status");
+s.className = "ok";
+s.innerText = "✅ Alles verwijderd";
+
+setTimeout(()=>{
+    s.innerText = "SCAN KLAAR";
+    s.className = "";
+},1500);
+
+}catch(e){
+console.error(e);
 }
 }
 
