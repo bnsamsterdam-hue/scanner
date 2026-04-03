@@ -6,8 +6,6 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000"> 
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-<link rel="icon" t
- ype="image/png" href="logo.png">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="/scanner/manifest.json">
 <link rel="apple-touch-icon" href="/scanner/logo.png">
@@ -540,8 +538,7 @@ s.innerText="✔ TOEGANG ("+(r-1)+")";
 });
 
 teller++;
- 
-document.getElementById("tellerWaarde").innerText = teller;
+updatePoortTellers();
 /* 🔥 FIREBASE TELLER */
  
 let updateData = {
@@ -650,7 +647,35 @@ for(let i=0;i<=6;i++){ tellerPoort[i]=0; }
 document.getElementById("tellerWaarde").innerText=0;
 updatePoortTellers();
 }
+function updatePoortTellers(){
 
+db.collection("teller").doc("main")
+.onSnapshot(doc=>{
+
+if(!doc.exists){
+    document.getElementById("poortTellers").innerHTML = "Geen data";
+    return;
+}
+
+let data = doc.data();
+
+let html = "Totaal: " + (data.totaal || 0) + "<br><br>";
+
+html += "Kassa: " + (data.kassa || 0) + "<br>";
+
+for(let i=1;i<=6;i++){
+    html += "Poort " + i + ": " + (data["poort"+i] || 0) + "<br>";
+}
+
+/* 🔥 BELANGRIJK */
+document.getElementById("poortTellers").innerHTML = html;
+
+/* 🔥 OOK TOTAAL BOVENIN */
+document.getElementById("tellerWaarde").innerText = data.totaal || 0;
+
+});
+}
+ 
 function checkTeller(){
 if(document.getElementById("tellerPin").value==="9990"){
 
