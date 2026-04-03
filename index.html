@@ -309,25 +309,27 @@ align-items:center;
 
 document.addEventListener("DOMContentLoaded", function(){
 
-/* 🔥 CHECK: is dit een poort? */
 const params = new URLSearchParams(window.location.search);
+let lock = document.getElementById("appLock");
 
+/* 🔥 POORT = NOOIT LOCK */
 if(params.get("poort")){
-    document.getElementById("appLock").style.display = "none";
+    if(lock) lock.style.display = "none";
     return;
 }
 
-/* 🔒 ANDERS = kassa → WEL lock */
-
-let lock = document.getElementById("appLock");
-
+/* 🔒 KASSA = WEL LOCK */
 if(lock){
 
-if(sessionStorage.getItem("appLock") === "open"){
-    lock.style.display = "none";
-} else {
-    lock.style.display = "flex";
+    if(sessionStorage.getItem("appLock") === "open"){
+        lock.style.display = "none";
+    } else {
+        lock.style.display = "flex";
+    }
+
 }
+
+});
 
 /* ENTER SUPPORT */
 
