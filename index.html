@@ -308,10 +308,20 @@ if(enteredPin === "1726"){
     document.getElementById("appLock").style.display = "none";
 } else {
 
-    clearPin();
-    updateDisplay();
+    let s = document.getElementById("status");
+    if(s){
+        s.className = "fout";
+        s.innerText = "❌ Foute pincode";
 
+        setTimeout(()=>{
+            s.innerText = "SCAN KLAAR";
+            s.className = "";
+        },1500);
+    }
+
+    clearPin();
 }
+
 }
 /* FIREBASE */
 firebase.initializeApp({
@@ -607,10 +617,21 @@ if(document.getElementById("tellerPin").value==="9990"){
 document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
 
-/* 🔥 BELANGRIJK */
 document.getElementById("tellerWaarde").innerText = teller;
 updatePoortTellers();
 
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("tellerPin").value="";
 }
 }
 
@@ -708,12 +729,24 @@ if(document.getElementById("qrPin").value==="9990"){
 qrLoggedIn = true;
 sessionStorage.setItem("qrLogin","true");
 
-document.getElementById("qrPin").value=""; // leeg maken
-
+document.getElementById("qrPin").value="";
 document.getElementById("qrLogin").style.display="none";
 document.getElementById("qrPanel").style.display="block";
 
 maakNieuweQR();
+
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("qrPin").value="";
 }
 }
 
