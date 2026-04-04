@@ -126,6 +126,15 @@ opacity:0.8;
 .noodBtn.open { background:green; }
 .led { padding:10px; margin:5px; }
 input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
+@keyframes blinkRed {
+  0% { background: red; }
+  50% { background: black; }
+  100% { background: red; }
+}
+
+.blink-red {
+  animation: blinkRed 0.4s infinite;
+}
 </style>
 </head>
 
@@ -544,7 +553,11 @@ scanLock=true;
 
 code=code.trim().toUpperCase();
 let s=document.getElementById("status");
-
+try {
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    }
+} catch(e){}
 try{
 
 await db.runTransaction(async (t)=>{
@@ -605,14 +618,18 @@ db.collection("teller").doc("main").set(updateData, {merge:true});
 
 updatePoortTellers();
 
-new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play();
 
 }catch(e){
-s.className="fout";
-s.innerText="❌ ONGELDIG";
-new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
-}
+s.className="blink-red";
 
+s.innerHTML = `
+    <div style="font-size:70px;">🚽</div>
+    <div style="font-size:70px;">❌</div>
+    <div style="font-size:22px; margin-top:10px;">
+        ONGELDIG
+    </div>
+`;
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
