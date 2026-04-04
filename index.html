@@ -673,16 +673,7 @@ new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play
 } // ✅ catch dicht
 
 } 
-}catch(e){
-s.className="blink-red";
 
-s.innerHTML = `
-    <div style="font-size:70px;">🚽</div>
-    <div style="font-size:70px;">❌</div>
-    <div style="font-size:22px; margin-top:10px;">
-        ONGELDIG
-    </div>
-`;
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
