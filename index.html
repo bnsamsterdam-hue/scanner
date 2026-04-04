@@ -12,7 +12,7 @@
 <link rel="icon" href="/scanner/logo.png">
  
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">F
 
 <title>Ticket Scanner PRO</title>
 
@@ -437,7 +437,8 @@ let RELAIS_IP="";
 let POORT_NR=0;
 
 let scanLock=false;
-
+let lastScan = {};
+ 
 /* TAB */
 function showTab(id){
 
@@ -594,6 +595,21 @@ async function restartCamera(){
  
 /* SCAN */
 async function processScan(code){
+// 🔥 EXTRA BEVEILIGING PER QR
+if(lastScan[code] && Date.now() - lastScan[code] < 3000){
+
+    s.className="fout";
+    s.innerHTML =
+        <div style="font-size:60px;">⏳</div>
+        <div style="font-size:20px;">Even wachten...</div>
+    `;
+
+    new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg").play();
+
+    return;
+}
+
+lastScan[code] = Date.now();
 
 if(scanLock) return;
 scanLock=true;
@@ -628,13 +644,13 @@ await db.runTransaction(async (t)=>{
         t.update(ref,{remaining:0});
 
         s.className="blink-orange";
-        s.innerHTML = `
-            <div style="font-size:60px;">🚽</div>
-            <div class="wave" style="font-size:40px;">👋</div>
-            <div style="font-size:20px; margin-top:10px;">
-                ⚠ Laatste toilet bezoek
-            </div>
-        `;
+      s.innerHTML = `
+    <div style="font-size:70px;">🚽</div>
+    <div style="font-size:70px;">❌</div>
+    <div style="font-size:22px; margin-top:10px;">
+        Ongeldig of te snel gescand
+    </div>
+`;
 
     } else {
 
