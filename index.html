@@ -530,12 +530,31 @@ let doc=await t.get(ref);
 
 if(!doc.exists) throw "invalid";
 let r=doc.data().remaining;
-if(r<=0) throw "empty";
+if(!doc.exists) throw "invalid";
 
-t.update(ref,{remaining:r-1});
-s.className="ok";
-s.innerText="✔ TOEGANG ("+(r-1)+")";
-});
+let r = doc.data().remaining;
+
+/* ❌ GEEN BEURTEN MEER */
+if(r <= 0){
+    throw "empty";
+}
+
+/* 🔥 LAATSTE KEER */
+if(r === 1){
+
+    t.update(ref,{remaining:0});
+
+    s.className="ok";
+    s.innerHTML = "⚠ Laatste toilet bezoek";
+
+} else {
+
+    t.update(ref,{remaining:r-1});
+
+    s.className="ok";
+    s.innerText="✔ TOEGANG ("+(r-1)+")";
+
+}
 
 teller++;
 updatePoortTellers();
