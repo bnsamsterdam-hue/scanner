@@ -656,7 +656,7 @@ updatePoortTellers();
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
 
-} catch(e){ // ✅ try dicht
+} catch(e){
 
 s.className="blink-red";
 
@@ -670,22 +670,20 @@ s.innerHTML = `
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 
-} // ✅ catch dicht
-
-} 
+}
 
 if(scanner){
-try{ await scanner.stop(); await scanner.clear(); }catch(e){}
+try{ await scanner.stop(); await scanner.clear(); } catch(e){}
 }
 
 setTimeout(()=>{
-scanLock=false;
-if(MODE!=="poort") startCamera(currentCam);
+    scanLock=false;
+    if(MODE!=="poort") startCamera(currentCam);
 },3000);
 
 setTimeout(()=>{
-s.innerText="SCAN KLAAR";
-s.className="";
+    s.innerText="SCAN KLAAR";
+    s.className="";
 },1500);
 }
 
