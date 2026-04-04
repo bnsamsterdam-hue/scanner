@@ -126,15 +126,27 @@ let readerBig = false;
 function toggleScanSize(){
 
     let reader = document.getElementById("reader");
+    let screenWidth = window.innerWidth;
 
-    if(!readerBig){
+    if(scanSize === 200){
+
+        // 🔥 TELEFOON vs TABLET verschil
+        if(screenWidth < 600){
+            scanSize = Math.floor(screenWidth * 0.6); // mobiel netjes passend
+        } else {
+            scanSize = 400; // tablet lekker groot
+        }
+
         reader.classList.add("reader-big");
-        readerBig = true;
+
     } else {
+
+        scanSize = 200;
         reader.classList.remove("reader-big");
-        readerBig = false;
+
     }
 
+    restartCamera();
 }
 #reader {
 max-width:300px;
@@ -524,8 +536,7 @@ db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 let scanner;
 let cameras=[];
 let currentCam=0;
-
-let scanSize = 200;
+let scanSize = window.innerWidth > 768 ? 350 : 200;
  
 if(MODE !== "poort"){
 Html5Qrcode.getCameras().then(cam=>{
@@ -610,25 +621,14 @@ function toggleScanSize(){
 
 }
 
-async function restartCamera(){
-    if(scanner){
-        try{
-            await scanner.stop();
-            await scanner.clear();
-        }catch(e){}
-    }
-
-    scanner = new Html5Qrcode("reader");
-
-    scanner.start(
-        cameras[currentCam].id,
-        {
-            fps:10,
-            qrbox: scanSize
-        },
-        code=>processScan(code)
-    );
-}
+scanner.start(
+    cameras[currentCam].id,
+    {
+        fps:10,
+        qrbox: scanSize
+    },
+    code=>processScan(code)
+);
  
 /* SCAN */
 async function processScan(code){
