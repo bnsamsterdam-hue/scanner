@@ -96,7 +96,7 @@ border-radius:10px;
   50% { transform: rotate(0deg); }
   75% { transform: rotate(-20deg); }
   100% { transform: rotate(0deg); }
-} 
+ } 
 
 #pinPad button:active {
 background:#555;
@@ -135,6 +135,17 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 .blink-red {
   animation: blinkRed 0.4s infinite;
 }
+
+.cam-small {
+    max-width:300px;
+    margin:auto;
+}
+
+.cam-big {
+    width:90vw !important;
+    max-width:900px !important;
+}
+ 
 </style>
 </head>
 
@@ -214,7 +225,18 @@ z-index:999999;
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
-<div id="reader"></div>
+<div id="reader" class="cam-small"></div>
+
+<button onclick="toggleCamSize()" style="
+margin-top:10px;
+padding:10px;
+background:#444;
+color:white;
+border:none;
+border-radius:8px;
+">
+🔍 Zoom camera
+</button>
 <button id="camBtn" onclick="switchCamera()">🔄 Camera</button>
 
 <div id="manualBox">
@@ -490,6 +512,22 @@ document.getElementById("reader").style.display="none";
 document.getElementById("camBtn").style.display="none";
 }
 
+let camBig = false;
+
+function toggleCamSize(){
+let reader = document.getElementById("reader");
+
+camBig = !camBig;
+
+if(camBig){
+    reader.classList.remove("cam-small");
+    reader.classList.add("cam-big");
+} else {
+    reader.classList.remove("cam-big");
+    reader.classList.add("cam-small");
+}
+}
+ 
 /* 🔥 handmatige scan */
 function manualScan(){
 let val = document.getElementById("manualInput").value;
