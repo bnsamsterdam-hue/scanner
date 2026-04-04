@@ -530,9 +530,6 @@ let doc=await t.get(ref);
 
 if(!doc.exists) throw "invalid";
 let r=doc.data().remaining;
-if(!doc.exists) throw "invalid";
-
-let r = doc.data().remaining;
 
 /* ❌ GEEN BEURTEN MEER */
 if(r <= 0){
