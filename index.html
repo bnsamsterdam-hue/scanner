@@ -536,7 +536,7 @@ db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 let scanner;
 let cameras=[];
 let currentCam=0;
-let scanSize = window.innerWidth > 768 ? 350 : 200;
+let scanSize = window.innerWidth > 768 ? 380 : 240;
  
 if(MODE !== "poort"){
 Html5Qrcode.getCameras().then(cam=>{
