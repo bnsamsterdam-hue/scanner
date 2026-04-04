@@ -232,6 +232,8 @@ border-radius:8px;
 <div id="manualBox">
 <input id="manualInput" placeholder="Scan of typ code" autofocus>
 <button onclick="manualScan()">OK</button>
+</div>
+
 </div> <!-- ✅ SLUIT SCAN TAB -->
 
 <!-- NOOD -->
@@ -490,6 +492,8 @@ let scanner;
 let cameras=[];
 let currentCam=0;
 
+let scanSize = 200;
+ 
 if(MODE !== "poort"){
 Html5Qrcode.getCameras().then(cam=>{
 cameras=cam;
@@ -556,10 +560,6 @@ function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
 }
-
-// 👇 HIER PLAKKEN (stap 3)
-
-let scanSize = 200;
 
 function toggleScanSize(){
 
