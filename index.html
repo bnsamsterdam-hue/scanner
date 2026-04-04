@@ -348,7 +348,6 @@ if(sessionStorage.getItem("appLock") === "open"){
     lock.style.display = "none";
 } else {
     lock.style.display = "flex";
-}
 
 /* ENTER SUPPORT */
 
@@ -461,7 +460,6 @@ document.getElementById("qrPanel").style.display="none";
 }
 
 /* MODE */
-const params=new URLSearchParams(window.location.search);
 if(params.get("poort")){
 MODE="poort";
 POORT_NR=parseInt(params.get("poort"));
