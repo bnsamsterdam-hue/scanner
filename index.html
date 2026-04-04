@@ -22,29 +22,6 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
  <meta name="autocomplete" content="off">   
-
-@keyframes blinkOrange {
-  0% { background: orange; }
-  50% { background: black; }
-  100% { background: orange; }
-}
-
-.blink-orange {
-  animation: blinkOrange 0.5s infinite;
-}
-
-.wave {
-  display:inline-block;
-  animation: wave 1s infinite;
-}
-
-@keyframes wave {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(20deg); }
-  50% { transform: rotate(0deg); }
-  75% { transform: rotate(-20deg); }
-  100% { transform: rotate(0deg); }
-}
  
 <style>
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
@@ -96,7 +73,29 @@ background:#222;
 color:white;
 border:none;
 border-radius:10px;
+
+@keyframes blinkOrange {
+  0% { background: orange; }
+  50% { background: black; }
+  100% { background: orange; }
 }
+
+.blink-orange {
+  animation: blinkOrange 0.5s infinite;
+}
+
+.wave {
+  display:inline-block;
+  animation: wave 1s infinite;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-20deg); }
+  100% { transform: rotate(0deg); }
+} 
 
 #pinPad button:active {
 background:#555;
