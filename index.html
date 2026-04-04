@@ -1129,7 +1129,7 @@ document.addEventListener("DOMContentLoaded", function(){
  function updatePoortTellers(){
 
 db.collection("teller").doc("main")
-onSnapshot(doc=>{
+.onSnapshot(doc=>{
 
 if(!doc.exists) return;
 
@@ -1149,5 +1149,6 @@ document.getElementById("poortTellers").innerHTML = html;
 
 }
 updatePoortTellers(); 
+ }); 
 </script>
 </body>
