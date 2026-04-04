@@ -217,7 +217,7 @@ z-index:999999;
 <div id="status">SCAN KLAAR</div>
 <div id="reader" class="cam-small"></div>
 
-<button onclick="toggleCamSize()" style="
+<button onclick="toggleScanSize()" style="
 margin-top:10px;
 padding:10px;
 background:#444;
@@ -225,7 +225,7 @@ color:white;
 border:none;
 border-radius:8px;
 ">
-🔍 Zoom camera
+🔍 Scan groter
 </button>
 <button id="camBtn" onclick="switchCamera()">🔄 Camera</button>
 
@@ -557,14 +557,16 @@ currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
 }
 
-let scanSize = 200; // standaard klein
+// 👇 HIER PLAKKEN (stap 3)
+
+let scanSize = 200;
 
 function toggleScanSize(){
 
     if(scanSize === 200){
-        scanSize = 300; // groter
+        scanSize = 300;
     } else {
-        scanSize = 200; // terug klein
+        scanSize = 200;
     }
 
     restartCamera();
@@ -580,14 +582,15 @@ async function restartCamera(){
 
     scanner = new Html5Qrcode("reader");
 
-scanner.start(
-    cameras[i].id,
-    {
-        fps:10,
-        qrbox: scanSize
-    },
-    code=>processScan(code)
-);
+    scanner.start(
+        cameras[currentCam].id,
+        {
+            fps:10,
+            qrbox: scanSize
+        },
+        code=>processScan(code)
+    );
+}
  
 /* SCAN */
 async function processScan(code){
