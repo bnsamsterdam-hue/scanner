@@ -217,14 +217,7 @@ z-index:999999;
 <div id="status">SCAN KLAAR</div>
 <div id="reader" class="cam-small"></div>
 
-<button onclick="toggleScanSize()" style="
-margin-top:10px;
-padding:10px;
-background:#444;
-color:white;
-border:none;
-border-radius:8px;
-">
+<button onclick="toggleScanSize()" style="margin-top:10px;padding:10px;background:#444;color:white;border:none;border-radius:8px;">
 🔍 Scan groter
 </button>
 <button id="camBtn" onclick="switchCamera()">🔄 Camera</button>
@@ -359,8 +352,6 @@ if(sessionStorage.getItem("appLock") === "open"){
 
 /* ENTER SUPPORT */
 
-}
-
 });
 let enteredPin = "";
 
@@ -436,7 +427,8 @@ let MODE="kassa";
 let RELAIS_IP="";
 let POORT_NR=0;
 
-let scanLock=false;
+let scanLock = false;
+let scanSize = 200;
 let lastScan = {};
  
 /* TAB */
@@ -562,9 +554,7 @@ currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
 }
 
-function toggleScanSize(){
-
-    if(scanSize === 200){
+function toggleScanSize(){    
         scanSize = 300;
     } else {
         scanSize = 200;
