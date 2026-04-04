@@ -596,52 +596,50 @@ try {
         document.documentElement.requestFullscreen();
     }
 } catch(e){}
+ 
 try{
 
 await db.runTransaction(async (t)=>{
 
-let ref = db.collection("tickets").doc(code);
-let doc = await t.get(ref);
+    let ref = db.collection("tickets").doc(code);
+    let doc = await t.get(ref);
 
-if(!doc.exists) throw "invalid";
+    if(!doc.exists) throw "invalid";
 
-let r = doc.data().remaining;
+    let r = doc.data().remaining;
 
-/* ❌ GEEN BEURTEN MEER */
-if(r <= 0){
-    throw "empty";
-}
+    /* ❌ GEEN BEURTEN MEER */
+    if(r <= 0){
+        throw "empty";
+    }
 
-/* 🔥 LAATSTE KEER */
-if(r === 1){
+    /* 🔥 LAATSTE KEER */
+    if(r === 1){
 
-    t.update(ref,{remaining:0});
+        t.update(ref,{remaining:0});
 
-s.className="blink-orange";
+        s.className="blink-orange";
+        s.innerHTML = `
+            <div style="font-size:60px;">🚽</div>
+            <div class="wave" style="font-size:40px;">👋</div>
+            <div style="font-size:20px; margin-top:10px;">
+                ⚠ Laatste toilet bezoek
+            </div>
+        `;
 
-s.innerHTML = `
-    <div style="font-size:60px;">🚽</div>
-    <div class="wave" style="font-size:40px;">👋</div>
-    <div style="font-size:20px; margin-top:10px;">
-        ⚠ Laatste toilet bezoek
-    </div>
-`;
+    } else {
 
-} else {
+        t.update(ref,{remaining:r-1});
 
-    t.update(ref,{remaining:r-1});
+        s.className="ok";
+        s.innerText="✔ TOEGANG ("+(r-1)+")";
 
-    s.className="ok";
-    s.innerText="✔ TOEGANG ("+(r-1)+")";
+    }
 
-}
-
-});
+}); // ✅ transaction dicht
 
 teller++;
-updatePoortTellers();
-/* 🔥 FIREBASE TELLER */
- 
+
 let updateData = {
     totaal: firebase.firestore.FieldValue.increment(1)
 };
@@ -656,10 +654,23 @@ db.collection("teller").doc("main").set(updateData, {merge:true});
 
 updatePoortTellers();
 
+new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+
+} catch(e){ // ✅ try dicht
+
+s.className="blink-red";
+
+s.innerHTML = `
+    <div style="font-size:70px;">🚽</div>
+    <div style="font-size:70px;">❌</div>
+    <div style="font-size:22px; margin-top:10px;">
+        ONGELDIG
+    </div>
+`;
 
 new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
 
-} 
+} // ✅ catch dicht
 
 } 
 }catch(e){
