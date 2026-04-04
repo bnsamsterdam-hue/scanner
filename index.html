@@ -525,11 +525,13 @@ let s=document.getElementById("status");
 try{
 
 await db.runTransaction(async (t)=>{
-let ref=db.collection("tickets").doc(code);
-let doc=await t.get(ref);
+
+let ref = db.collection("tickets").doc(code);
+let doc = await t.get(ref);
 
 if(!doc.exists) throw "invalid";
-let r=doc.data().remaining;
+
+let r = doc.data().remaining;
 
 /* ❌ GEEN BEURTEN MEER */
 if(r <= 0){
@@ -552,6 +554,8 @@ if(r === 1){
     s.innerText="✔ TOEGANG ("+(r-1)+")";
 
 }
+
+});
 
 teller++;
 updatePoortTellers();
