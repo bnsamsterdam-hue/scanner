@@ -135,16 +135,6 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 .blink-red {
   animation: blinkRed 0.4s infinite;
 }
-
-.cam-small {
-    max-width:300px;
-    margin:auto;
-}
-
-.cam-big {
-    width:90vw !important;
-    max-width:900px !important;
-}
  
 </style>
 </head>
@@ -514,20 +504,6 @@ document.getElementById("camBtn").style.display="none";
 
 let camBig = false;
 
-function toggleCamSize(){
-let reader = document.getElementById("reader");
-
-camBig = !camBig;
-
-if(camBig){
-    reader.classList.remove("cam-small");
-    reader.classList.add("cam-big");
-} else {
-    reader.classList.remove("cam-big");
-    reader.classList.add("cam-small");
-}
-}
- 
 /* 🔥 handmatige scan */
 function manualScan(){
 let val = document.getElementById("manualInput").value;
@@ -575,7 +551,7 @@ if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 scanner=new Html5Qrcode("reader");
-scanner.start(cameras[i].id,{fps:10,qrbox:200},code=>processScan(code));
+scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
 }
 
 function switchCamera(){
@@ -583,6 +559,38 @@ currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
 }
 
+let scanSize = 200; // standaard klein
+
+function toggleScanSize(){
+
+    if(scanSize === 200){
+        scanSize = 300; // groter
+    } else {
+        scanSize = 200; // terug klein
+    }
+
+    restartCamera();
+}
+
+async function restartCamera(){
+    if(scanner){
+        try{
+            await scanner.stop();
+            await scanner.clear();
+        }catch(e){}
+    }
+
+    scanner = new Html5Qrcode("reader");
+
+scanner.start(
+    cameras[i].id,
+    {
+        fps:10,
+        qrbox: scanSize
+    },
+    code=>processScan(code)
+);
+ 
 /* SCAN */
 async function processScan(code){
 
