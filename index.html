@@ -342,37 +342,33 @@ if(params.get("poort")){
 
 let lock = document.getElementById("appLock");
 
-if(lock){
-
-if(sessionStorage.getItem("appLock") === "open"){
-    lock.style.display = "none";
-} else {
-    lock.style.display = "flex";
+if (lock) {
+    if (sessionStorage.getItem("appLock") === "open") {
+        lock.style.display = "none";
+    } else {
+        lock.style.display = "flex";
+    }
+}
 
 /* ENTER SUPPORT */
 
 let enteredPin = "";
 
-function pressPin(num){
+function pressPin(num) {
 
-// 🔥 foutmelding leegmaken zodra iemand typt
-let e = document.getElementById("pinError");
-if(e) e.innerText = "";
+    // 🔥 foutmelding leegmaken zodra iemand typt
+    let e = document.getElementById("pinError");
+    if (e) e.innerText = "";
 
-enteredPin += num;
+    enteredPin += num;
 
-if(enteredPin.length > 4){
-enteredPin = enteredPin.slice(0,4);
+    if (enteredPin.length > 4) {
+        enteredPin = enteredPin.slice(0, 4);
+    }
+
+    updateDisplay();
 }
-
-updateDisplay();
-}
-
-function clearPin(){
-enteredPin = "";
-updateDisplay();
-}
-
+ 
 function updateDisplay(){
 let display = document.getElementById("pinDisplay");
 display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
