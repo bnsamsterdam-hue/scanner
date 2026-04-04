@@ -121,7 +121,40 @@ opacity:0.8;
 #status { font-size:28px; padding:10px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
-#reader { max-width:300px; margin:auto; }
+let readerBig = false;
+
+function toggleScanSize(){
+
+    let reader = document.getElementById("reader");
+
+    if(!readerBig){
+        reader.classList.add("reader-big");
+        readerBig = true;
+    } else {
+        reader.classList.remove("reader-big");
+        readerBig = false;
+    }
+
+}
+#reader {
+max-width:300px;
+width:90%;
+margin:auto;
+transition: all 0.3s ease;
+}
+
+/* 📲 Tablet automatisch groter */
+@media (min-width: 768px){
+#reader{
+    max-width:500px;
+}
+}
+
+/* 🔍 Knop vergroting */
+.reader-big{
+    max-width:800pc !important;
+}
+
 .noodBtn { background:red; padding:12px; margin:5px; color:white; }
 .noodBtn.open { background:green; }
 .led { padding:10px; margin:5px; }
@@ -344,7 +377,7 @@ if(params.get("poort")){
     document.getElementById("appLock").style.display = "none";
     return;
 }
-
+ 0
 /* 🔒 ANDERS = kassa → WEL lock */
 
 let lock = document.getElementById("appLock");
@@ -561,15 +594,20 @@ currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
 }
 
+let readerBig = false;
+
 function toggleScanSize(){
 
-    if(scanSize === 200){
-        scanSize = 300;
+    let reader = document.getElementById("reader");
+
+    if(!readerBig){
+        reader.classList.add("reader-big");
+        readerBig = true;
     } else {
-        scanSize = 200;
+        reader.classList.remove("reader-big");
+        readerBig = false;
     }
 
-    restartCamera();
 }
 
 async function restartCamera(){
