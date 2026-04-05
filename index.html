@@ -27,8 +27,7 @@
 body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
 #tabs button { 
 width:20%; 
-padding:18px; 
-front-size:18px 
+padding:10px; 
 color:white;  
 border:none;
 font-weight:bold;
@@ -380,7 +379,7 @@ if(params.get("poort")){
     document.getElementById("appLock").style.display = "none";
     return;
 }
- 
+ 0
 /* 🔒 ANDERS = kassa → WEL lock */
 
 let lock = document.getElementById("appLock");
@@ -531,24 +530,13 @@ let scanSize = window.innerWidth > 768 ? 380 : 240;
  
 if(MODE !== "poort"){
 Html5Qrcode.getCameras().then(cam=>{
-    cameras = cam;
-
-    let isTablet = window.innerWidth >= 768;
-    let camIndex = -1;
-
-    if(isTablet){
-        // 📲 Tablet → FRONT
-        camIndex = cameras.findIndex(c =>
-            c.label.toLowerCase().includes("front") ||
-            c.label.toLowerCase().includes("user")
-        );
-    } else {
-        // 📱 Telefoon → BACK
-        camIndex = cameras.findIndex(c =>
-            c.label.toLowerCase().includes("back") ||
-            c.label.toLowerCase().includes("environment")
-        );
-    }
+cameras=cam;
+if(cameras.length){ startCamera(cameras.length-1); }
+});
+}else{
+document.getElementById("reader").style.display="none";
+document.getElementById("camBtn").style.display="none";
+}
 
 let camBig = false;
 
@@ -561,7 +549,7 @@ document.getElementById("manualInput").value="";
 }
 }
 
-document.addEventListener("DOMContentLoaded", function});
+document.addEventListener("DOMContentLoaded", function(){
 let input = document.getElementById("manualInput");
 
 if(input){
@@ -602,18 +590,9 @@ scanner=new Html5Qrcode("reader");
 scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
 }
 
-let switching = false;
-
-async function switchCamera(){
-    if(switching) return;
-    switching = true;
-
-    currentCam = (currentCam + 1) % cameras.length;
-    await startCamera(currentCam);
-
-    setTimeout(()=>{
-        switching = false;
-    },500);
+function switchCamera(){
+currentCam=(currentCam+1)%cameras.length;
+startCamera(currentCam);
 }
 
 let readerBig = false;
@@ -1126,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 }); 
  
- function updatePoortTellers(){ad
+ function updatePoortTellers(){
 
 db.collection("teller").doc("main")
 .onSnapshot(doc=>{
@@ -1148,7 +1127,6 @@ document.getElementById("poortTellers").innerHTML = html;
 });
 
 }
-updatePoortTellers();                                       
- 
+updatePoortTellers(); 
 </script>
 </body>
