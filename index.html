@@ -471,19 +471,123 @@ let MODE="kassa";
 let RELAIS_IP="";
 let POORT_NR=0;
 
-let scanLock=false;
+let scanLock = false;
+let lastScanTime = 0;
+const SCAN_DELAY = 3000; // 3 seconden
 
-/* TAB */
-function showTab(id){
+let lastCode = ""; // 🔥 voorkomt dubbele scans
 
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+async function processScan(code){
 
-/* 🔥 QR = fullscreen modus */
-if(id === "qrmaak"){
-document.getElementById("tabs").style.display = "none";
-} else {
-document.getElementById("tabs").style.display = "block";
+    code = code.trim().toUpperCase();
+
+    /* 🔥 dubbele scan blokkeren */
+/* 🔒 lock eerst */
+if(scanLock) return;
+scanLock = true;
+
+/* 🔒 anti spam timer */
+let now = Date.now();
+if(now - lastScanTime < SCAN_DELAY){
+    scanLock = false;
+    return;
+}
+lastScanTime = now;
+
+if(code === lastCode){
+    scanLock = false;
+    return;
+}
+lastCode = code;
+
+    let s = document.getElementById("status");
+
+    try {
+
+        await db.runTransaction(async (t)=>{
+
+            let ref = db.collection("tickets").doc(code);
+            let doc = await t.get(ref);
+
+            if(!doc.exists) throw "invalid";
+
+            let r = doc.data().remaining;
+
+            if(r <= 0){
+                throw "empty";
+            }
+
+            if(r === 1){
+
+                t.update(ref,{remaining:0});
+
+                s.className="blink-orange";
+                s.innerHTML = `
+                    <div style="font-size:60px;">🚽</div>
+                    <div style="font-size:40px;">⚠ Laatste keer</div>
+                `;
+
+            } else {
+
+                t.update(ref,{remaining:r-1});
+
+                s.className="ok";
+                s.innerText="✔ TOEGANG ("+(r-1)+")";
+            }
+
+        });
+
+        /* 🔥 teller update */
+        let updateData = {
+            totaal: firebase.firestore.FieldValue.increment(1)
+        };
+
+        if(MODE === "poort"){
+            updateData["poort"+POORT_NR] = firebase.firestore.FieldValue.increment(1);
+        } else {
+            updateData["kassa"] = firebase.firestore.FieldValue.increment(1);
+        }
+
+        db.collection("teller").doc("main").set(updateData, {merge:true});
+
+        updatePoortTellers();
+
+        /* 🔊 geluid */
+        new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+
+        /* 🔓 POORT OPENEN (alleen poort mode) */
+        if(MODE === "poort"){
+            fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+
+            setTimeout(()=>{
+                fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=false");
+            }, 2000);
+        }
+
+    } catch(e){
+
+        s.className="blink-red";
+
+        s.innerHTML = `
+            <div style="font-size:70px;">🚽</div>
+            <div style="font-size:70px;">❌</div>
+            <div style="font-size:22px;">ONGELDIG</div>
+        `;
+
+        new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
+    }
+
+    /* 🔓 reset na delay */
+    setTimeout(()=>{
+        scanLock = false;
+        lastCode = "";
+    }, SCAN_DELAY);
+
+    /* UI reset */
+    setTimeout(()=>{
+        s.innerText="SCAN KLAAR";
+        s.className="";
+    },1500);
 }
 
 /* QR login */
@@ -574,8 +678,14 @@ document.addEventListener("keydown", function(e){
 if(MODE !== "poort") return;
 
 if(e.key === "Enter"){
-processScan(buffer);
-buffer="";
+
+    let code = buffer.trim();
+
+    if(code.length > 3){   // voorkomt lege of halve scans
+        processScan(code);
+    }
+
+    buffer="";
 }else if(e.key.length===1){
 buffer+=e.key;
 }
@@ -622,6 +732,14 @@ scanner.start(
  
 /* SCAN */
 async function processScan(code){
+
+ let now = Date.now();
+
+if(now - lastScanTime < SCAN_DELAY){
+    return; // blokkeer snelle herhaal scans
+}
+
+lastScanTime = now;
 
 if(scanLock) return;
 scanLock=true;
@@ -695,6 +813,8 @@ new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").p
 
 } catch(e){
 
+    scanLock = false; // 🔥 TOEVOEGEN!
+
 s.className="blink-red";
 
 s.innerHTML = `
@@ -712,12 +832,10 @@ new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play
 if(scanner){
 try{ await scanner.stop(); await scanner.clear(); } catch(e){}
 }
-
 setTimeout(()=>{
     scanLock=false;
     if(MODE!=="poort") startCamera(currentCam);
-},3000);
-
+}, SCAN_DELAY); 
 setTimeout(()=>{
     s.innerText="SCAN KLAAR";
     s.className="";
