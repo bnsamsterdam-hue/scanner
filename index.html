@@ -375,23 +375,30 @@ document.addEventListener("DOMContentLoaded", function(){
 /* 🔥 CHECK: is dit een poort? */
 const params = new URLSearchParams(window.location.search);
 
+let IS_POORT = false;
+
 if(params.get("poort")){
-    document.getElementById("appLock").style.display = "none";
-    return;
+    IS_POORT = true;
 }
- 
-/* 🔒 ANDERS = kassa → WEL lock */
+
+/* 🔒 LOCK LOGICA */
 
 let lock = document.getElementById("appLock");
 
 if(lock){
 
-if(sessionStorage.getItem("appLock") === "open"){
-    lock.style.display = "none";
-} else {
-    lock.style.display = "flex";
+    if(IS_POORT){
+        lock.style.display = "none";
+    }
+    else if(sessionStorage.getItem("appLock") === "open"){
+        lock.style.display = "none";
+    } else {
+        lock.style.display = "flex";
+    }
+
 }
 
+}); // 🔥 DEZE MOET ERSTAAN
 /* ENTER SUPPORT */
 
 }
@@ -676,6 +683,7 @@ manualScan();
 let buffer="";
 document.addEventListener("keydown", function(e){
 // alleen blokkeren als scanner bezig is op poort
+if(MODE !== "poort") return;
 if(MODE === "poort" && scanLock) return;
 
 // blokkeer scanner als lock scherm zichtbaar is
