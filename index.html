@@ -675,7 +675,12 @@ manualScan();
 /* SCANNER */
 let buffer="";
 document.addEventListener("keydown", function(e){
-if(MODE !== "poort") return;
+// alleen blokkeren als scanner bezig is op poort
+if(MODE === "poort" && scanLock) return;
+
+// blokkeer scanner als lock scherm zichtbaar is
+let lock = document.getElementById("appLock");
+if(lock && lock.style.display !== "none") return;
 
 if(e.key === "Enter"){
 
