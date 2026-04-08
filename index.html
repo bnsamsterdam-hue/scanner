@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="nl">  
 <head>
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
 <link rel="icon" type="image/png" href="logo.png">
@@ -121,33 +121,7 @@ opacity:0.8;
 #status { font-size:28px; padding:10px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
-let readerBig = false;
 
-function toggleScanSize(){
-
-    let reader = document.getElementById("reader");
-    let screenWidth = window.innerWidth;
-
-    if(scanSize === 200){
-
-        // 🔥 TELEFOON vs TABLET verschil
-        if(screenWidth < 600){
-            scanSize = Math.floor(screenWidth * 0.6); // mobiel netjes passend
-        } else {
-            scanSize = 400; // tablet lekker groot
-        }
-
-        reader.classList.add("reader-big");
-
-    } else {
-
-        scanSize = 200;
-        reader.classList.remove("reader-big");
-
-    }
-
-    restartCamera();
-}
 #reader {
 max-width:300px;
 width:90%;
@@ -472,7 +446,40 @@ let RELAIS_IP="";
 let POORT_NR=0;
 
 let scanLock=false;
+let scanLock=false;
 
+/* 🔥 SCAN SIZE TOGGLE (GEFIXT) */
+let scanLock=false;
+
+/* 🔥 SCAN SIZE TOGGLE (GEFIXT) */
+let readerBig = false;
+
+function toggleScanSize(){
+
+    let reader = document.getElementById("reader");
+    let screenWidth = window.innerWidth;
+
+    if(scanSize === 200){
+
+        // 📱 mobiel vs tablet
+        if(screenWidth < 600){
+            scanSize = Math.floor(screenWidth * 0.6);
+        } else {
+            scanSize = 400;
+        }
+
+        reader.classList.add("reader-big");
+
+    } else {
+
+        scanSize = 200;
+        reader.classList.remove("reader-big");
+
+    }
+
+    // 🔁 camera opnieuw starten
+    restartCamera();
+}
 /* TAB */
 function showTab(id){
 
@@ -600,28 +607,10 @@ if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 scanner=new Html5Qrcode("reader");
-scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
-}
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
-}
-
-let readerBig = false;
-
-function toggleScanSize(){
-
-    let reader = document.getElementById("reader");
-
-    if(!readerBig){
-        reader.classList.add("reader-big");
-        readerBig = true;
-    } else {
-        reader.classList.remove("reader-big");
-        readerBig = false;
-    }
-
 }
 
 scanner.start(
