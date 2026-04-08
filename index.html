@@ -372,31 +372,26 @@ z-index:999999;
 
 document.addEventListener("DOMContentLoaded", function(){
 
-/* 🔥 CHECK: is dit een poort? */
-const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
+    let IS_POORT = params.get("poort") ? true : false;
 
-let IS_POORT = false;
+    let lock = document.getElementById("appLock");
 
-if(params.get("poort")){
-    IS_POORT = true;
-}
+    if(lock){
 
-/* 🔒 LOCK LOGICA */
+        if(IS_POORT){
+            lock.style.display = "none"; // 🚪 poort = geen pin
+        } else {
+            if(sessionStorage.getItem("appLock") === "open"){
+                lock.style.display = "none";
+            } else {
+                lock.style.display = "flex";
+            }
+        }
 
-let lock = document.getElementById("appLock");
-
-if(lock){
-
-    if(IS_POORT){
-        lock.style.display = "none";
-    }
-    else if(sessionStorage.getItem("appLock") === "open"){
-        lock.style.display = "none";
-    } else {
-        lock.style.display = "flex";
     }
 
-}
+});
 
 }); // 🔥 DEZE MOET ERSTAAN
 /* ENTER SUPPORT */
@@ -744,116 +739,6 @@ scanner.start(
 );
  
 /* SCAN */
-async function processScan(code){
-
- let now = Date.now();
-
-if(now - lastScanTime < SCAN_DELAY){
-    return; // blokkeer snelle herhaal scans
-}
-
-lastScanTime = now;
-
-if(scanLock) return;
-scanLock=true;
-
-code=code.trim().toUpperCase();
-let s=document.getElementById("status");
-try {
-    if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-    }
-} catch(e){}
- 
-try{
-
-await db.runTransaction(async (t)=>{
-
-    let ref = db.collection("tickets").doc(code);
-    let doc = await t.get(ref);
-
-    if(!doc.exists) throw "invalid";
-
-    let r = doc.data().remaining;
-
-    /* ❌ GEEN BEURTEN MEER */
-    if(r <= 0){
-        throw "empty";
-    }
-
-    /* 🔥 LAATSTE KEER */
-    if(r === 1){
-
-        t.update(ref,{remaining:0});
-
-        s.className="blink-orange";
-        s.innerHTML = `
-            <div style="font-size:60px;">🚽</div>
-            <div class="wave" style="font-size:40px;">👋</div>
-            <div style="font-size:20px; margin-top:10px;">
-                ⚠ Laatste toilet bezoek
-            </div>
-        `;
-
-    } else {
-
-        t.update(ref,{remaining:r-1});
-
-        s.className="ok";
-        s.innerText="✔ TOEGANG ("+(r-1)+")";
-
-    }
-
-}); // ✅ transaction dicht
-
-teller++;
-
-let updateData = {
-    totaal: firebase.firestore.FieldValue.increment(1)
-};
-
-if(MODE === "poort"){
-    updateData["poort"+POORT_NR] = firebase.firestore.FieldValue.increment(1);
-} else {
-    updateData["kassa"] = firebase.firestore.FieldValue.increment(1);
-}
-
-db.collection("teller").doc("main").set(updateData, {merge:true});
-
-updatePoortTellers();
-
-new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
-
-} catch(e){
-
-    scanLock = false; // 🔥 TOEVOEGEN!
-
-s.className="blink-red";
-
-s.innerHTML = `
-    <div style="font-size:70px;">🚽</div>
-    <div style="font-size:70px;">❌</div>
-    <div style="font-size:22px; margin-top:10px;">
-        ONGELDIG
-    </div>
-`;
-
-new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
-
-}
-
-if(scanner){
-try{ await scanner.stop(); await scanner.clear(); } catch(e){}
-}
-setTimeout(()=>{
-    scanLock=false;
-    if(MODE!=="poort") startCamera(currentCam);
-}, SCAN_DELAY); 
-setTimeout(()=>{
-    s.innerText="SCAN KLAAR";
-    s.className="";
-},1500);
-}
 
 /* 🔥 AANGEPAST */
 function nood(n,btn){
