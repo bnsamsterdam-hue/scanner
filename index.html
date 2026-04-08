@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">  
+<html lang="nl">
 <head>
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
 <link rel="icon" type="image/png" href="logo.png">
@@ -121,7 +121,33 @@ opacity:0.8;
 #status { font-size:28px; padding:10px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
+let readerBig = false;
 
+function toggleScanSize(){
+
+    let reader = document.getElementById("reader");
+    let screenWidth = window.innerWidth;
+
+    if(scanSize === 200){
+
+        // 🔥 TELEFOON vs TABLET verschil
+        if(screenWidth < 600){
+            scanSize = Math.floor(screenWidth * 0.6); // mobiel netjes passend
+        } else {
+            scanSize = 400; // tablet lekker groot
+        }
+
+        reader.classList.add("reader-big");
+
+    } else {
+
+        scanSize = 200;
+        reader.classList.remove("reader-big");
+
+    }
+
+    restartCamera();
+}
 #reader {
 max-width:300px;
 width:90%;
@@ -446,40 +472,7 @@ let RELAIS_IP="";
 let POORT_NR=0;
 
 let scanLock=false;
-let scanLock=false;
 
-/* 🔥 SCAN SIZE TOGGLE (GEFIXT) */
-let scanLock=false;
-
-/* 🔥 SCAN SIZE TOGGLE (GEFIXT) */
-let readerBig = false;
-
-function toggleScanSize(){
-
-    let reader = document.getElementById("reader");
-    let screenWidth = window.innerWidth;
-
-    if(scanSize === 200){
-
-        // 📱 mobiel vs tablet
-        if(screenWidth < 600){
-            scanSize = Math.floor(screenWidth * 0.6);
-        } else {
-            scanSize = 400;
-        }
-
-        reader.classList.add("reader-big");
-
-    } else {
-
-        scanSize = 200;
-        reader.classList.remove("reader-big");
-
-    }
-
-    // 🔁 camera opnieuw starten
-    restartCamera();
-}
 /* TAB */
 function showTab(id){
 
@@ -577,27 +570,14 @@ manualScan();
 });
 /* SCANNER */
 let buffer="";
-let lastScanTime = 0;
-
 document.addEventListener("keydown", function(e){
 if(MODE !== "poort") return;
 
 if(e.key === "Enter"){
-
-    let now = Date.now();
-
-    if(now - lastScanTime < 3000){
-        buffer="";
-        return;
-    }
-
-    lastScanTime = now;
-
-    processScan(buffer);
-    buffer="";
-
+processScan(buffer);
+buffer="";
 }else if(e.key.length===1){
-    buffer+=e.key;
+buffer+=e.key;
 }
 });
 
@@ -607,10 +587,28 @@ if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 scanner=new Html5Qrcode("reader");
+scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
+}
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
+}
+
+let readerBig = false;
+
+function toggleScanSize(){
+
+    let reader = document.getElementById("reader");
+
+    if(!readerBig){
+        reader.classList.add("reader-big");
+        readerBig = true;
+    } else {
+        reader.classList.remove("reader-big");
+        readerBig = false;
+    }
+
 }
 
 scanner.start(
@@ -656,10 +654,7 @@ await db.runTransaction(async (t)=>{
     if(r === 1){
 
         t.update(ref,{remaining:0});
-     if(MODE === "poort"){
-    fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
-}
-   
+
         s.className="blink-orange";
         s.innerHTML = `
             <div style="font-size:60px;">🚽</div>
@@ -671,15 +666,10 @@ await db.runTransaction(async (t)=>{
 
     } else {
 
-t.update(ref,{remaining:r-1});
+        t.update(ref,{remaining:r-1});
 
-s.className="ok";
-s.innerText="✔ TOEGANG ("+(r-1)+")";
-
-if(MODE === "poort"){
-    fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
-}
-     
+        s.className="ok";
+        s.innerText="✔ TOEGANG ("+(r-1)+")";
 
     }
 
