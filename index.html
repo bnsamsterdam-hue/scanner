@@ -629,7 +629,6 @@ scanLock=true;
 code = code
     .trim()
     .toUpperCase()
-    .replace(/[^A-Z0-9\-]/g, "");
 
 console.log("SCAN:", code);
 let s=document.getElementById("status");
@@ -1017,9 +1016,15 @@ t.set(ref,{value:next});
 return next;
 });
 function generateCode(){
-return Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
-       Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
-       Math.random().toString(36).substring(2,6).toUpperCase();
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let part = () => {
+        let s = "";
+        for(let i=0;i<4;i++){
+            s += chars[Math.floor(Math.random()*chars.length)];
+        }
+        return s;
+    };
+    return part() + "-" + part() + "-" + part();
 }
 
 let code = generateCode();
