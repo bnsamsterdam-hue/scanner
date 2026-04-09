@@ -516,7 +516,7 @@ if(MODE==="poort"){
 db.collection("openPoort").doc("poort"+POORT_NR)
 .onSnapshot(doc=>{
 if(doc.exists && doc.data().trigger){
-fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
 db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 }
 });
@@ -654,10 +654,9 @@ if(r === 1){
 
     t.update(ref,{remaining:0});
 
-    if(MODE === "poort"){
-        fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
-    }
-
+ if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+}
     s.className="blink-orange";
     s.innerHTML = `
         <div style="font-size:60px;">🚽</div>
@@ -674,10 +673,9 @@ if(r === 1){
     s.className="ok";
     s.innerText="✔ TOEGANG ("+(r-1)+")";
 
-    if(MODE === "poort"){
-        fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
-    }
-
+  if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+}
 }
 
 }); // ✅ transaction dicht
