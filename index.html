@@ -1019,16 +1019,20 @@ return (
 );
 }
 
-let code = generateCode();
+let code = generateCode().toUpperCase();
 
+// eerst opslaan
 await db.collection("tickets").doc(code).set({
-remaining:10
+    remaining:10
 });
 
+// 🔥 WACHT EVEN (CRUCIAAL)
+await new Promise(resolve => setTimeout(resolve, 500));
+
+// dan pas QR tonen
 QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
-width:400
+    width:400
 });
-}
 
 /* OUDE FUNCTIE */
 function printLaatsteQR(){
