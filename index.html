@@ -652,6 +652,12 @@ await db.runTransaction(async (t)=>{
 
     /* 🔥 LAATSTE KEER */
     if(r === 1){
+     t.update(ref,{remaining:0});
+
+if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+}
+
 
         t.update(ref,{remaining:0});
 
@@ -666,12 +672,14 @@ await db.runTransaction(async (t)=>{
 
     } else {
 
-        t.update(ref,{remaining:r-1});
+     t.update(ref,{remaining:r-1});
 
-        s.className="ok";
-        s.innerText="✔ TOEGANG ("+(r-1)+")";
+s.className="ok";
+s.innerText="✔ TOEGANG ("+(r-1)+")";
 
-    }
+if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+}
 
 }); // ✅ transaction dicht
 
