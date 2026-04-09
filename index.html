@@ -587,8 +587,6 @@ if(scanner){
 try{ await scanner.stop(); await scanner.clear(); }catch(e){}
 }
 scanner=new Html5Qrcode("reader");
-scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
-}
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
@@ -610,15 +608,6 @@ function toggleScanSize(){
     }
 
 }
-
-scanner.start(
-    cameras[currentCam].id,
-    {
-        fps:10,
-        qrbox: scanSize
-    },
-    code=>processScan(code)
-);
  
 /* SCAN */
 async function processScan(code){
