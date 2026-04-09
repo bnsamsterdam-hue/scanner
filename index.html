@@ -583,10 +583,25 @@ buffer+=e.key;
 
 /* CAMERA FUNCTIES */
 async function startCamera(i){
-if(scanner){
-try{ await scanner.stop(); await scanner.clear(); }catch(e){}
+
+    if(scanner){
+        try{ 
+            await scanner.stop(); 
+            await scanner.clear(); 
+        }catch(e){}
+    }
+
+    scanner = new Html5Qrcode("reader");
+
+    await scanner.start(
+        cameras[i].id,
+        {
+            fps:10,
+            qrbox: scanSize
+        },
+        code => processScan(code)
+    );
 }
-scanner=new Html5Qrcode("reader");
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
