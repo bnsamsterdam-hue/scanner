@@ -626,7 +626,12 @@ async function processScan(code){
 if(scanLock) return;
 scanLock=true;
 
-code=code.trim().toUpperCase();
+code = code
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9\-]/g, "");
+
+console.log("SCAN:", code);
 let s=document.getElementById("status");
 try {
     if (document.documentElement.requestFullscreen) {
