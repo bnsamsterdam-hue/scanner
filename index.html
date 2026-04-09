@@ -626,11 +626,13 @@ async function processScan(code){
 if(scanLock) return;
 scanLock=true;
 
-code = code
-    .trim()
-    .toUpperCase()
+code = code.trim().toUpperCase();
+
+// 🔥 FIX: scanner gebruikt / i.p.v -
+code = code.replace(/\//g, "-");
 
 console.log("SCAN:", code);
+
 let s=document.getElementById("status");
 try {
     if (document.documentElement.requestFullscreen) {
