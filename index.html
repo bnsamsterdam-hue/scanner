@@ -1012,9 +1012,11 @@ t.set(ref,{value:next});
 return next;
 });
 function generateCode(){
-return Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
-       Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
-       Math.random().toString(36).substring(2,6).toUpperCase();
+return (
+    Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
+    Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
+    Math.random().toString(36).substring(2,6).toUpperCase()
+);
 }
 
 let code = generateCode();
