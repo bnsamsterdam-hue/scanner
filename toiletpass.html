@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>The Plee’s To Bee Toilet Pass</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#000;
+color:#fff;
+text-align:center;
+padding:20px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+}
+
+.logo{
+width:100%;
+max-width:320px;
+margin:20px auto;
+display:block;
+border-radius:20px;
+}
+
+h1{
+font-size:28px;
+margin-bottom:10px;
+color:#ffd54a;
+}
+
+.sub{
+opacity:0.8;
+margin-bottom:25px;
+font-size:15px;
+}
+
+.langs{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:8px;
+margin-bottom:25px;
+}
+
+.langs button{
+border:none;
+padding:8px 12px;
+border-radius:10px;
+font-size:18px;
+cursor:pointer;
+background:#1c1c1c;
+color:#fff;
+}
+
+.card{
+background:#111;
+border:1px solid #333;
+padding:18px;
+border-radius:18px;
+margin-bottom:15px;
+box-shadow:0 0 12px rgba(255,215,74,0.15);
+}
+
+.price{
+font-size:30px;
+font-weight:bold;
+color:#ffd54a;
+margin-bottom:8px;
+}
+
+.name{
+font-size:20px;
+margin-bottom:15px;
+}
+
+.buy{
+width:100%;
+padding:15px;
+font-size:18px;
+border:none;
+border-radius:14px;
+cursor:pointer;
+font-weight:bold;
+background:linear-gradient(90deg,#ffd54a,#ffb300);
+color:#000;
+}
+
+.buy:hover{
+opacity:0.92;
+}
+
+.footer{
+margin-top:25px;
+font-size:13px;
+opacity:0.6;
+}
+
+.notice{
+margin-top:15px;
+font-size:14px;
+opacity:0.8;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<img src="logo.png" class="logo">
+
+<h1 id="title">The Plee’s To Bee Toilet Pass</h1>
+<div class="sub" id="subtitle">Kies uw toegang</div>
+
+<div class="langs">
+<button onclick="setLang('nl')">🇳🇱</button>
+<button onclick="setLang('en')">🇬🇧</button>
+<button onclick="setLang('de')">🇩🇪</button>
+<button onclick="setLang('fr')">🇫🇷</button>
+<button onclick="setLang('es')">🇪🇸</button>
+<button onclick="setLang('it')">🇮🇹</button>
+</div>
+
+<div class="card">
+<div class="price">€1,25</div>
+<div class="name" id="p1">1 Beurt</div>
+<button class="buy" onclick="pay('single')" id="b1">Betaal Nu</button>
+</div>
+
+<div class="card">
+<div class="price">€10,00</div>
+<div class="name" id="p2">10 Rittenkaart</div>
+<button class="buy" onclick="pay('ten')" id="b2">Betaal Nu</button>
+</div>
+
+<div class="card">
+<div class="price">€20,00</div>
+<div class="name" id="p3">20 Rittenkaart</div>
+<button class="buy" onclick="pay('twenty')" id="b3">Betaal Nu</button>
+</div>
+
+<div class="notice" id="safe">🔒 Veilig betalen</div>
+
+<div class="footer">
+The Plee’s To Bee
+</div>
+
+</div>
+
+<script>
+
+const texts = {
+
+nl:{
+subtitle:"Kies uw toegang",
+p1:"1 Beurt",
+p2:"10 Rittenkaart",
+p3:"20 Rittenkaart",
+buy:"Betaal Nu",
+safe:"🔒 Veilig betalen"
+},
+
+en:{
+subtitle:"Choose your access",
+p1:"1 Visit",
+p2:"10 Visit Pass",
+p3:"20 Visit Pass",
+buy:"Pay Now",
+safe:"🔒 Secure payment"
+},
+
+de:{
+subtitle:"Wählen Sie Ihren Zugang",
+p1:"1 Besuch",
+p2:"10er Karte",
+p3:"20er Karte",
+buy:"Jetzt bezahlen",
+safe:"🔒 Sichere Zahlung"
+},
+
+fr:{
+subtitle:"Choisissez votre accès",
+p1:"1 Passage",
+p2:"Carte 10 Passages",
+p3:"Carte 20 Passages",
+buy:"Payer",
+safe:"🔒 Paiement sécurisé"
+},
+
+es:{
+subtitle:"Elige tu acceso",
+p1:"1 Entrada",
+p2:"Tarjeta 10 Entradas",
+p3:"Tarjeta 20 Entradas",
+buy:"Pagar Ahora",
+safe:"🔒 Pago seguro"
+},
+
+it:{
+subtitle:"Scegli il tuo accesso",
+p1:"1 Accesso",
+p2:"Carta 10 Accessi",
+p3:"Carta 20 Accessi",
+buy:"Paga Ora",
+safe:"🔒 Pagamento sicuro"
+}
+
+};
+
+function setLang(lang){
+
+document.getElementById("subtitle").innerText=texts[lang].subtitle;
+document.getElementById("p1").innerText=texts[lang].p1;
+document.getElementById("p2").innerText=texts[lang].p2;
+document.getElementById("p3").innerText=texts[lang].p3;
+
+document.getElementById("b1").innerText=texts[lang].buy;
+document.getElementById("b2").innerText=texts[lang].buy;
+document.getElementById("b3").innerText=texts[lang].buy;
+
+document.getElementById("safe").innerText=texts[lang].safe;
+
+}
+
+function pay(type){
+
+if(type==="single"){
+window.location.href="https://www.mollie.com/payments";
+}
+
+if(type==="ten"){
+window.location.href="https://www.mollie.com/payments";
+}
+
+if(type==="twenty"){
+window.location.href="https://www.mollie.com/payments";
+}
+
+}
+
+</script>
+
+</body>
+</html>
