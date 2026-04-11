@@ -16,8 +16,8 @@ font-family:Arial,Helvetica,sans-serif;
 body{
 background:#000;
 color:#fff;
+padding:18px;
 text-align:center;
-padding:20px;
 }
 
 .wrap{
@@ -45,28 +45,22 @@ margin-bottom:20px;
 opacity:0.95;
 }
 
-.info{
-font-size:16px;
-line-height:1.5;
-margin-bottom:25px;
-opacity:0.9;
-}
-
 .langs{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:10px;
-margin-bottom:25px;
+margin-bottom:20px;
 }
 
 .langs button{
 padding:14px;
-border:none;
-border-radius:12px;
 font-size:18px;
 font-weight:bold;
+border:none;
+border-radius:14px;
 background:#1d1d1d;
 color:#fff;
+cursor:pointer;
 }
 
 .card{
@@ -79,40 +73,41 @@ box-shadow:0 0 10px rgba(255,213,74,0.12);
 }
 
 .name{
-font-size:22px;
+font-size:23px;
 font-weight:bold;
-margin-bottom:6px;
+margin-bottom:8px;
 }
 
 .desc{
 font-size:15px;
-opacity:0.8;
-margin-bottom:10px;
+line-height:1.5;
+opacity:0.88;
+margin-bottom:12px;
 }
 
 .price{
 font-size:32px;
-color:#ffd54a;
 font-weight:bold;
-margin-bottom:12px;
+color:#ffd54a;
+margin-bottom:14px;
 }
 
 .buy{
 width:100%;
 padding:15px;
-border:none;
-border-radius:14px;
 font-size:18px;
 font-weight:bold;
+border:none;
+border-radius:14px;
 background:linear-gradient(90deg,#ffd54a,#ffb300);
 color:#000;
+cursor:pointer;
 }
 
-.bottom{
-margin-top:25px;
-font-size:15px;
-line-height:1.7;
-opacity:0.85;
+.disabled{
+background:#333;
+color:#fff;
+cursor:default;
 }
 
 .small{
@@ -129,51 +124,60 @@ opacity:0.55;
 
 <img src="logo.png" class="logo">
 
-<h1 id="title">The Plee's To Bee Toilet Pass</h1>
+<h1>The Plee's To Bee Toilet Pass</h1>
 
 <div class="sub" id="sub">
-Direct toegang via poort of kassa
-</div>
-
-<div class="info" id="info">
-✅ Deelbaar met vrienden<br>
-✅ Geen wachtrij<br>
-✅ Op je telefoon
+Kies uw toegang
 </div>
 
 <div class="langs">
 <button onclick="setLang('nl')">🇳🇱 Nederlands</button>
 <button onclick="setLang('en')">🇬🇧 English</button>
-<button onclick="setLang('de')">🇩🇪 Deutsch</button>
 <button onclick="setLang('fr')">🇫🇷 Français</button>
+<button onclick="setLang('de')">🇩🇪 Deutsch</button>
 <button onclick="setLang('es')">🇪🇸 Español</button>
 <button onclick="setLang('it')">🇮🇹 Italiano</button>
 </div>
 
 <div class="card">
+<div class="name" id="n0">Cash Pass</div>
+<div class="desc" id="d0">
+1 bezoek<br>
+Bij kassa<br>
+Snelle toegang • Geen wachtrijen
+</div>
+<div class="price">€1,00</div>
+<button class="buy disabled" id="b0">Bij Kassa</button>
+</div>
+
+<div class="card">
 <div class="name" id="n1">Single Pass</div>
-<div class="desc" id="d1">1 bezoek</div>
+<div class="desc" id="d1">
+1 bezoek<br>
+Direct op je telefoon
+</div>
 <div class="price">€1,50</div>
-<button class="buy">Koop Nu</button>
+<button class="buy" id="b1">Koop Nu</button>
 </div>
 
 <div class="card">
 <div class="name" id="n2">Shared Pass</div>
-<div class="desc" id="d2">10 bezoeken • deelbaar</div>
+<div class="desc" id="d2">
+10 bezoeken<br>
+Deelbaar met vrienden
+</div>
 <div class="price">€10</div>
-<button class="buy">Koop Nu</button>
+<button class="buy" id="b2">Koop Nu</button>
 </div>
 
 <div class="card">
 <div class="name" id="n3">Group Pass</div>
-<div class="desc" id="d3">20 bezoeken • deelbaar</div>
-<div class="price">€20</div>
-<button class="buy">Koop Nu</button>
+<div class="desc" id="d3">
+20 bezoeken<br>
+Deelbaar met vrienden
 </div>
-
-<div class="bottom" id="bottom">
-💵 Cash betalen bij kassa<br>
-💳 Contactloos betalen bij toegangspoort
+<div class="price">€20</div>
+<button class="buy" id="b3">Koop Nu</button>
 </div>
 
 <div class="small">
@@ -184,49 +188,72 @@ The Plee's To Bee
 
 <script>
 
-const t = {
+const lang = {
 
 nl:{
-sub:"Direct toegang via poort of kassa",
-info:"✅ Deelbaar met vrienden<br>✅ Geen wachtrij<br>✅ Op je telefoon",
+sub:"Kies uw toegang",
+n0:"Cash Pass",
+d0:"1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen",
+b0:"Bij Kassa",
 n1:"Single Pass",
-d1:"1 bezoek",
+d1:"1 bezoek<br>Direct op je telefoon",
 n2:"Shared Pass",
-d2:"10 bezoeken • deelbaar",
+d2:"10 bezoeken<br>Deelbaar met vrienden",
 n3:"Group Pass",
-d3:"20 bezoeken • deelbaar",
-bottom:"💵 Cash betalen bij kassa<br>💳 Contactloos betalen bij toegangspoort"
+d3:"20 bezoeken<br>Deelbaar met vrienden",
+buy:"Koop Nu"
 },
 
 en:{
-sub:"Direct access via gate or desk",
-info:"✅ Share with friends<br>✅ No queue<br>✅ On your phone",
+sub:"Choose your access",
+n0:"Cash Pass",
+d0:"1 visit<br>Pay at desk<br>Fast access • No queues",
+b0:"At Desk",
 n1:"Single Pass",
-d1:"1 visit",
+d1:"1 visit<br>Direct on your phone",
 n2:"Shared Pass",
-d2:"10 visits • shareable",
+d2:"10 visits<br>Share with friends",
 n3:"Group Pass",
-d3:"20 visits • shareable",
-bottom:"💵 Cash at desk<br>💳 Contactless at gate"
+d3:"20 visits<br>Share with friends",
+buy:"Buy Now"
+},
+
+fr:{
+sub:"Choisissez votre accès",
+n0:"Cash Pass",
+d0:"1 passage<br>A la caisse<br>Accès rapide • Sans file",
+b0:"Caisse",
+n1:"Single Pass",
+d1:"1 passage<br>Direct sur votre téléphone",
+n2:"Shared Pass",
+d2:"10 passages<br>Partageable",
+n3:"Group Pass",
+d3:"20 passages<br>Partageable",
+buy:"Acheter"
 }
 
 };
 
 function setLang(x){
 
-document.getElementById("sub").innerHTML=t[x].sub;
-document.getElementById("info").innerHTML=t[x].info;
+document.getElementById("sub").innerHTML=lang[x].sub;
 
-document.getElementById("n1").innerHTML=t[x].n1;
-document.getElementById("d1").innerHTML=t[x].d1;
+document.getElementById("n0").innerHTML=lang[x].n0;
+document.getElementById("d0").innerHTML=lang[x].d0;
+document.getElementById("b0").innerHTML=lang[x].b0;
 
-document.getElementById("n2").innerHTML=t[x].n2;
-document.getElementById("d2").innerHTML=t[x].d2;
+document.getElementById("n1").innerHTML=lang[x].n1;
+document.getElementById("d1").innerHTML=lang[x].d1;
 
-document.getElementById("n3").innerHTML=t[x].n3;
-document.getElementById("d3").innerHTML=t[x].d3;
+document.getElementById("n2").innerHTML=lang[x].n2;
+document.getElementById("d2").innerHTML=lang[x].d2;
 
-document.getElementById("bottom").innerHTML=t[x].bottom;
+document.getElementById("n3").innerHTML=lang[x].n3;
+document.getElementById("d3").innerHTML=lang[x].d3;
+
+document.getElementById("b1").innerHTML=lang[x].buy;
+document.getElementById("b2").innerHTML=lang[x].buy;
+document.getElementById("b3").innerHTML=lang[x].buy;
 
 }
 
