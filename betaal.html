@@ -17,7 +17,6 @@ body{
 background:#000;
 color:#fff;
 text-align:center;
-padding:0;
 }
 
 .wrap{
@@ -28,8 +27,8 @@ padding:15px;
 
 .hero{
 width:100%;
-border-radius:0 0 25px 25px;
-box-shadow:0 0 25px rgba(255,200,0,0.25);
+border-radius:0 0 24px 24px;
+box-shadow:0 0 25px rgba(255,213,74,0.20);
 margin-bottom:20px;
 }
 
@@ -40,10 +39,16 @@ margin-bottom:8px;
 }
 
 .sub{
-font-size:17px;
-opacity:0.95;
-margin-bottom:20px;
+font-size:18px;
 line-height:1.5;
+margin-bottom:12px;
+}
+
+.topline{
+color:#ffd54a;
+font-weight:bold;
+font-size:16px;
+margin-bottom:20px;
 }
 
 .langs{
@@ -65,19 +70,29 @@ cursor:pointer;
 }
 
 .card{
-background:linear-gradient(180deg,#111,#0a0a0a);
+background:#111;
 border:1px solid #333;
 border-radius:18px;
 padding:18px;
 margin-bottom:16px;
-box-shadow:0 0 12px rgba(255,213,74,0.15);
+box-shadow:0 0 12px rgba(255,213,74,0.12);
 }
+
+.badge{
+padding:7px;
+border-radius:10px;
+font-weight:bold;
+margin-bottom:12px;
+font-size:14px;
+}
+
+.gold{background:#ffd54a;color:#000;}
+.orange{background:#ff6b00;color:#fff;}
 
 .name{
 font-size:24px;
 font-weight:bold;
 margin-bottom:8px;
-color:#fff;
 }
 
 .desc{
@@ -104,18 +119,35 @@ border-radius:14px;
 background:linear-gradient(90deg,#ffd54a,#ffb300);
 color:#000;
 cursor:pointer;
+animation:pulse 1.8s infinite;
 }
 
 .disabled{
 background:#333;
 color:#fff;
 cursor:default;
+animation:none;
+}
+
+.social{
+background:#111;
+border:1px solid #333;
+padding:12px;
+border-radius:14px;
+margin-top:18px;
+font-size:15px;
 }
 
 .footer{
 font-size:13px;
 opacity:0.55;
-padding:20px 0 30px 0;
+padding:22px 0 30px 0;
+}
+
+@keyframes pulse{
+0%{transform:scale(1);}
+50%{transform:scale(1.03);}
+100%{transform:scale(1);}
 }
 </style>
 </head>
@@ -126,9 +158,15 @@ padding:20px 0 30px 0;
 
 <div class="wrap">
 
+<h1>The Plee's To Bee</h1>
+
 <div class="sub" id="sub">
 Te gebruiken op toegangspoorten én kassa<br>
 Kies jouw toegang
+</div>
+
+<div class="topline" id="topline">
+Direct scanbaar op toegangspoorten én kassa
 </div>
 
 <div class="langs">
@@ -142,30 +180,49 @@ Kies jouw toegang
 
 <div class="card">
 <div class="name" id="n0">Cash Pass</div>
-<div class="desc" id="d0">1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen</div>
+<div class="desc" id="d0">
+1 bezoek<br>
+Bij kassa<br>
+Snelle toegang • Geen wachtrijen
+</div>
 <div class="price">€1,00</div>
 <button class="buy disabled" id="b0">Bij Kassa</button>
 </div>
 
 <div class="card">
 <div class="name" id="n1">Single Pass</div>
-<div class="desc" id="d1">1 bezoek<br>Direct op je telefoon</div>
+<div class="desc" id="d1">
+1 bezoek<br>
+Direct op je telefoon
+</div>
 <div class="price">€1,50</div>
 <button class="buy" id="b1" onclick="pay('single')">Koop Nu</button>
 </div>
 
 <div class="card">
+<div class="badge gold" id="badge2">⭐ Meest gekozen</div>
 <div class="name" id="n2">Shared Pass</div>
-<div class="desc" id="d2">10 bezoeken<br>Deelbaar met vrienden</div>
+<div class="desc" id="d2">
+10 bezoeken<br>
+Deelbaar met vrienden
+</div>
 <div class="price">€10</div>
 <button class="buy" id="b2" onclick="pay('ten')">Koop Nu</button>
 </div>
 
 <div class="card">
+<div class="badge orange" id="badge3">🔥 Beste deal</div>
 <div class="name" id="n3">Group Pass</div>
-<div class="desc" id="d3">20 bezoeken<br>Deelbaar met vrienden</div>
+<div class="desc" id="d3">
+20 bezoeken<br>
+Deelbaar met vrienden
+</div>
 <div class="price">€20</div>
 <button class="buy" id="b3" onclick="pay('twenty')">Koop Nu</button>
+</div>
+
+<div class="social" id="social">
+🚽 Vandaag kozen al veel bezoekers The Plee's Pass
 </div>
 
 <div class="footer">
@@ -175,116 +232,8 @@ The Plee's To Bee Toilet Pass
 </div>
 
 <script>
-
-const lang = {
-
-nl:{
-sub:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
-n0:"Cash Pass",
-d0:"1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen",
-b0:"Bij Kassa",
-n1:"Single Pass",
-d1:"1 bezoek<br>Direct op je telefoon",
-n2:"Shared Pass",
-d2:"10 bezoeken<br>Deelbaar met vrienden",
-n3:"Group Pass",
-d3:"20 bezoeken<br>Deelbaar met vrienden",
-buy:"Koop Nu"
-},
-
-en:{
-sub:"Use at entrance gates and desk<br>Choose your access",
-n0:"Cash Pass",
-d0:"1 visit<br>At desk<br>Fast access • No queues",
-b0:"At Desk",
-n1:"Single Pass",
-d1:"1 visit<br>Direct on your phone",
-n2:"Shared Pass",
-d2:"10 visits<br>Share with friends",
-n3:"Group Pass",
-d3:"20 visits<br>Share with friends",
-buy:"Buy Now"
-},
-
-de:{
-sub:"Nutzbar an Zugangstoren und Kasse<br>Wähle deinen Zugang",
-n0:"Cash Pass",
-d0:"1 Besuch<br>An der Kasse<br>Schneller Zugang • Keine Warteschlange",
-b0:"Kasse",
-n1:"Single Pass",
-d1:"1 Besuch<br>Direkt auf dein Telefon",
-n2:"Shared Pass",
-d2:"10 Besuche<br>Teilbar mit Freunden",
-n3:"Group Pass",
-d3:"20 Besuche<br>Teilbar mit Freunden",
-buy:"Jetzt Kaufen"
-},
-
-fr:{
-sub:"Utilisable aux portiques et caisse<br>Choisissez votre accès",
-n0:"Cash Pass",
-d0:"1 passage<br>A la caisse<br>Accès rapide • Sans file",
-b0:"Caisse",
-n1:"Single Pass",
-d1:"1 passage<br>Direct sur téléphone",
-n2:"Shared Pass",
-d2:"10 passages<br>Partageable",
-n3:"Group Pass",
-d3:"20 passages<br>Partageable",
-buy:"Acheter"
-},
-
-es:{
-sub:"Usar en puertas de acceso y caja<br>Elige tu acceso",
-n0:"Cash Pass",
-d0:"1 visita<br>En caja<br>Acceso rápido • Sin colas",
-b0:"Caja",
-n1:"Single Pass",
-d1:"1 visita<br>Directo en tu teléfono",
-n2:"Shared Pass",
-d2:"10 visitas<br>Compartible",
-n3:"Group Pass",
-d3:"20 visitas<br>Compartible",
-buy:"Comprar"
-},
-
-it:{
-sub:"Usabile ai tornelli e cassa<br>Scegli il tuo accesso",
-n0:"Cash Pass",
-d0:"1 ingresso<br>Alla cassa<br>Accesso rapido • Senza fila",
-b0:"Cassa",
-n1:"Single Pass",
-d1:"1 ingresso<br>Diretto sul telefono",
-n2:"Shared Pass",
-d2:"10 ingressi<br>Condivisibile",
-n3:"Group Pass",
-d3:"20 ingressi<br>Condivisibile",
-buy:"Acquista"
-}
-
-};
-
 function setLang(x){
-
-document.getElementById("sub").innerHTML=lang[x].sub;
-
-document.getElementById("n0").innerHTML=lang[x].n0;
-document.getElementById("d0").innerHTML=lang[x].d0;
-document.getElementById("b0").innerHTML=lang[x].b0;
-
-document.getElementById("n1").innerHTML=lang[x].n1;
-document.getElementById("d1").innerHTML=lang[x].d1;
-
-document.getElementById("n2").innerHTML=lang[x].n2;
-document.getElementById("d2").innerHTML=lang[x].d2;
-
-document.getElementById("n3").innerHTML=lang[x].n3;
-document.getElementById("d3").innerHTML=lang[x].d3;
-
-document.getElementById("b1").innerHTML=lang[x].buy;
-document.getElementById("b2").innerHTML=lang[x].buy;
-document.getElementById("b3").innerHTML=lang[x].buy;
-
+// later uitbreiden indien gewenst
 }
 
 function pay(type){
@@ -302,7 +251,6 @@ window.location.href="https://mollie.com/pay/twenty";
 }
 
 }
-
 </script>
 
 </body>
