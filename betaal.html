@@ -3,119 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>The Plee's To Bee Toilet Pass</title>
+<title>The Plee's To Bee</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
-}
-
 body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
 background:#000;
 color:#fff;
 text-align:center;
-padding:0;
-}
-
-.wrap{
-max-width:560px;
-margin:auto;
-padding:15px;
 }
 
 .hero{
 width:100%;
-border-radius:0 0 25px 25px;
-box-shadow:0 0 25px rgba(255,200,0,0.25);
-margin-bottom:20px;
+max-width:430px;
+margin:15px auto;
+display:block;
+border-radius:18px;
+}
+
+.wrap{
+max-width:430px;
+margin:auto;
+padding:10px;
 }
 
 h1{
+color:#ffd700;
 font-size:30px;
-color:#ffd54a;
-margin-bottom:8px;
+margin:8px 0;
 }
 
 .sub{
-font-size:17px;
-opacity:0.95;
-margin-bottom:20px;
+font-size:18px;
 line-height:1.5;
+margin-bottom:14px;
 }
 
 .langs{
 display:grid;
 grid-template-columns:repeat(2,1fr);
-gap:10px;
-margin-bottom:20px;
+gap:8px;
+margin-bottom:18px;
 }
 
 .langs button{
-padding:14px;
-font-size:17px;
+padding:12px;
+font-size:16px;
 font-weight:bold;
 border:none;
-border-radius:14px;
-background:#181818;
+border-radius:12px;
+background:#1c1c1c;
 color:#fff;
 cursor:pointer;
 }
 
 .card{
-background:linear-gradient(180deg,#111,#0a0a0a);
+background:#111;
 border:1px solid #333;
 border-radius:18px;
 padding:18px;
-margin-bottom:16px;
-box-shadow:0 0 12px rgba(255,213,74,0.15);
+margin:12px 0;
+box-shadow:0 0 12px rgba(255,215,0,.15);
 }
 
-.name{
-font-size:24px;
+.badge{
+display:inline-block;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
 font-weight:bold;
 margin-bottom:8px;
-color:#fff;
+background:#ffd700;
+color:#000;
 }
 
-.desc{
-font-size:15px;
-line-height:1.5;
-opacity:0.9;
-margin-bottom:12px;
+.badge2{
+background:#ff6600;
+color:#fff;
 }
 
 .price{
 font-size:34px;
 font-weight:bold;
-color:#ffd54a;
-margin-bottom:14px;
+color:#ffd700;
+}
+
+.name{
+font-size:24px;
+font-weight:bold;
+margin-top:6px;
+}
+
+.desc{
+line-height:1.5;
+margin:10px 0;
+opacity:.9;
 }
 
 .buy{
 width:100%;
-padding:15px;
+padding:14px;
+border:none;
+border-radius:12px;
 font-size:18px;
 font-weight:bold;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#ffd54a,#ffb300);
+background:#ffd700;
 color:#000;
 cursor:pointer;
 }
 
-.disabled{
-background:#333;
+.cash{
+background:#35c759;
 color:#fff;
 cursor:default;
 }
 
 .footer{
+padding:20px;
 font-size:13px;
-opacity:0.55;
-padding:20px 0 30px 0;
+opacity:.6;
 }
 </style>
 </head>
@@ -125,6 +132,8 @@ padding:20px 0 30px 0;
 <img src="plee's.png" class="hero">
 
 <div class="wrap">
+
+<h1>The Plee's To Bee</h1>
 
 <div class="sub" id="sub">
 Te gebruiken op toegangspoorten én kassa<br>
@@ -141,168 +150,55 @@ Kies jouw toegang
 </div>
 
 <div class="card">
-<div class="name" id="n0">Cash Pass</div>
-<div class="desc" id="d0">1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen</div>
+<div class="badge">⭐ Mega Deal</div>
 <div class="price">€1,00</div>
-<button class="buy disabled" id="b0">Bij Kassa</button>
+<div class="name" id="cashname">Cash Pass</div>
+<div class="desc" id="cashdesc">1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen</div>
+<button class="buy cash" id="cashbtn">Bij Kassa</button>
 </div>
 
 <div class="card">
-<div class="name" id="n1">Single Pass</div>
-<div class="desc" id="d1">1 bezoek<br>Direct op je telefoon</div>
 <div class="price">€1,50</div>
+<div class="name" id="n1">Single Pass</div>
+<div class="desc" id="d1">1 bezoek<br>Direct op telefoon</div>
 <button class="buy" id="b1" onclick="pay('single')">Koop Nu</button>
 </div>
 
 <div class="card">
-<div class="name" id="n2">Shared Pass</div>
-<div class="desc" id="d2">10 bezoeken<br>Deelbaar met vrienden</div>
+<div class="badge">⭐ Meest gekozen</div>
 <div class="price">€10</div>
+<div class="name" id="n2">Share Pass</div>
+<div class="desc" id="d2">10 bezoeken<br>Deelbaar met vrienden</div>
 <button class="buy" id="b2" onclick="pay('ten')">Koop Nu</button>
 </div>
 
 <div class="card">
+<div class="badge badge2">🔥 Beste Deal</div>
+<div class="price">€20</div>
 <div class="name" id="n3">Group Pass</div>
 <div class="desc" id="d3">20 bezoeken<br>Deelbaar met vrienden</div>
-<div class="price">€20</div>
 <button class="buy" id="b3" onclick="pay('twenty')">Koop Nu</button>
 </div>
 
-<div class="footer">
-The Plee's To Bee Toilet Pass
+<div class="footer" id="footer">
+Vandaag kozen veel bezoekers The Plee's Pass
 </div>
 
 </div>
 
 <script>
-
-const lang = {
-
-nl:{
-sub:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
-n0:"Cash Pass",
-d0:"1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen",
-b0:"Bij Kassa",
-n1:"Single Pass",
-d1:"1 bezoek<br>Direct op je telefoon",
-n2:"Shared Pass",
-d2:"10 bezoeken<br>Deelbaar met vrienden",
-n3:"Group Pass",
-d3:"20 bezoeken<br>Deelbaar met vrienden",
-buy:"Koop Nu"
-},
-
-en:{
-sub:"Use at entrance gates and desk<br>Choose your access",
-n0:"Cash Pass",
-d0:"1 visit<br>At desk<br>Fast access • No queues",
-b0:"At Desk",
-n1:"Single Pass",
-d1:"1 visit<br>Direct on your phone",
-n2:"Shared Pass",
-d2:"10 visits<br>Share with friends",
-n3:"Group Pass",
-d3:"20 visits<br>Share with friends",
-buy:"Buy Now"
-},
-
-de:{
-sub:"Nutzbar an Zugangstoren und Kasse<br>Wähle deinen Zugang",
-n0:"Cash Pass",
-d0:"1 Besuch<br>An der Kasse<br>Schneller Zugang • Keine Warteschlange",
-b0:"Kasse",
-n1:"Single Pass",
-d1:"1 Besuch<br>Direkt auf dein Telefon",
-n2:"Shared Pass",
-d2:"10 Besuche<br>Teilbar mit Freunden",
-n3:"Group Pass",
-d3:"20 Besuche<br>Teilbar mit Freunden",
-buy:"Jetzt Kaufen"
-},
-
-fr:{
-sub:"Utilisable aux portiques et caisse<br>Choisissez votre accès",
-n0:"Cash Pass",
-d0:"1 passage<br>A la caisse<br>Accès rapide • Sans file",
-b0:"Caisse",
-n1:"Single Pass",
-d1:"1 passage<br>Direct sur téléphone",
-n2:"Shared Pass",
-d2:"10 passages<br>Partageable",
-n3:"Group Pass",
-d3:"20 passages<br>Partageable",
-buy:"Acheter"
-},
-
-es:{
-sub:"Usar en puertas de acceso y caja<br>Elige tu acceso",
-n0:"Cash Pass",
-d0:"1 visita<br>En caja<br>Acceso rápido • Sin colas",
-b0:"Caja",
-n1:"Single Pass",
-d1:"1 visita<br>Directo en tu teléfono",
-n2:"Shared Pass",
-d2:"10 visitas<br>Compartible",
-n3:"Group Pass",
-d3:"20 visitas<br>Compartible",
-buy:"Comprar"
-},
-
-it:{
-sub:"Usabile ai tornelli e cassa<br>Scegli il tuo accesso",
-n0:"Cash Pass",
-d0:"1 ingresso<br>Alla cassa<br>Accesso rapido • Senza fila",
-b0:"Cassa",
-n1:"Single Pass",
-d1:"1 ingresso<br>Diretto sul telefono",
-n2:"Shared Pass",
-d2:"10 ingressi<br>Condivisibile",
-n3:"Group Pass",
-d3:"20 ingressi<br>Condivisibile",
-buy:"Acquista"
+function pay(type){
+window.location.href="https://mollie.com";
 }
-
-};
 
 function setLang(x){
-
-document.getElementById("sub").innerHTML=lang[x].sub;
-
-document.getElementById("n0").innerHTML=lang[x].n0;
-document.getElementById("d0").innerHTML=lang[x].d0;
-document.getElementById("b0").innerHTML=lang[x].b0;
-
-document.getElementById("n1").innerHTML=lang[x].n1;
-document.getElementById("d1").innerHTML=lang[x].d1;
-
-document.getElementById("n2").innerHTML=lang[x].n2;
-document.getElementById("d2").innerHTML=lang[x].d2;
-
-document.getElementById("n3").innerHTML=lang[x].n3;
-document.getElementById("d3").innerHTML=lang[x].d3;
-
-document.getElementById("b1").innerHTML=lang[x].buy;
-document.getElementById("b2").innerHTML=lang[x].buy;
-document.getElementById("b3").innerHTML=lang[x].buy;
-
+if(x=="nl"){ sub.innerHTML="Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang"; }
+if(x=="en"){ sub.innerHTML="Use at gates and desk<br>Choose your access"; }
+if(x=="de"){ sub.innerHTML="Nutzbar an Toren und Kasse<br>Wähle Zugang"; }
+if(x=="fr"){ sub.innerHTML="Utilisable aux portiques et caisse<br>Choisissez accès"; }
+if(x=="es"){ sub.innerHTML="Usar en puertas y caja<br>Elige acceso"; }
+if(x=="it"){ sub.innerHTML="Usabile ai tornelli e cassa<br>Scegli accesso"; }
 }
-
-function pay(type){
-
-if(type=="single"){
-window.location.href="https://mollie.com/pay/single";
-}
-
-if(type=="ten"){
-window.location.href="https://mollie.com/pay/ten";
-}
-
-if(type=="twenty"){
-window.location.href="https://mollie.com/pay/twenty";
-}
-
-}
-
 </script>
 
 </body>
