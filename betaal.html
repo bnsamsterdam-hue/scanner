@@ -154,7 +154,107 @@ Kies jouw toegang
 <div class="price">€1,00</div>
 <div class="name" id="cashname">Cash Pass</div>
 <div class="desc" id="cashdesc">1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen</div>
-<button class="buy cash" id="cashbtn">Bij Kassa</button>
+<!-- PLAK IN JE HUIDIGE BETAAL.HTML -->
+
+<style>
+.paymethods{
+background:#111;
+border:1px solid #333;
+border-radius:18px;
+padding:16px;
+margin-top:12px;
+}
+
+.paymethods button{
+width:100%;
+padding:14px;
+margin:6px 0;
+border:none;
+border-radius:12px;
+font-size:17px;
+font-weight:bold;
+background:#ffd700;
+color:#000;
+cursor:pointer;
+}
+
+.methodtitle{
+font-size:18px;
+font-weight:bold;
+margin-bottom:10px;
+color:#fff;
+}
+</style>
+
+<div class="paymethods">
+
+<div class="methodtitle" id="paytitle">
+Kies betaalwijze
+</div>
+
+<button onclick="payMethod('cash')">💵 Cash €10,00</button>
+
+<button onclick="payMethod('ideal')">🏦 iDEAL €10,00</button>
+
+<button onclick="payMethod('apple')">📱 Apple Pay €10,25</button>
+
+<button onclick="payMethod('card')">💳 Creditcard €10,45</button>
+
+</div>
+
+<script>
+
+function payMethod(type){
+
+if(type=="cash"){
+alert("Betaal bij kassa");
+}
+
+if(type=="ideal"){
+window.location.href="https://mollie.com";
+}
+
+if(type=="apple"){
+window.location.href="https://mollie.com";
+}
+
+if(type=="card"){
+window.location.href="https://mollie.com";
+}
+
+}
+
+/* taal mee laten veranderen */
+
+function setLang(x){
+
+if(x=="nl"){
+document.getElementById("paytitle").innerHTML="Kies betaalwijze";
+}
+
+if(x=="en"){
+document.getElementById("paytitle").innerHTML="Choose payment method";
+}
+
+if(x=="de"){
+document.getElementById("paytitle").innerHTML="Wähle Zahlungsmethode";
+}
+
+if(x=="fr"){
+document.getElementById("paytitle").innerHTML="Choisissez paiement";
+}
+
+if(x=="es"){
+document.getElementById("paytitle").innerHTML="Elige método de pago";
+}
+
+if(x=="it"){
+document.getElementById("paytitle").innerHTML="Scegli metodo di pagamento";
+}
+
+}
+
+</script>
 </div>
 
 <div class="card">
