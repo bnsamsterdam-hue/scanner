@@ -158,157 +158,18 @@ padding:22px 0 30px 0;
 
 <div class="wrap">
 
+
+  
 <script>
-
-const lang = {
-
-nl:{
-sub:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
-topline:"Direct scanbaar op toegangspoorten én kassa",
-cash:"Cash Pass",
-cashdesc:"1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen",
-cashbtn:"⭐ Mega Deal Bij Kassa",
-single:"Single Pass",
-singledesc:"1 bezoek<br>Direct op je telefoon",
-shared:"Shared Pass",
-shareddesc:"10 bezoeken<br>Deelbaar met vrienden",
-group:"Group Pass",
-groupdesc:"20 bezoeken<br>Deelbaar met vrienden",
-buy:"Koop Nu",
-badge2:"⭐ Meest gekozen",
-badge3:"🔥 Beste deal",
-social:"🚽 Vandaag kozen al veel bezoekers The Plee's Pass"
-},
-
-en:{
-sub:"Use at entrance gates and desk<br>Choose your access",
-topline:"Direct usable at gates and desk",
-cash:"Cash Pass",
-cashdesc:"1 visit<br>At desk<br>Fast access • No queues",
-cashbtn:"⭐ Mega Deal At Desk",
-single:"Single Pass",
-singledesc:"1 visit<br>Direct on your phone",
-shared:"Shared Pass",
-shareddesc:"10 visits<br>Share with friends",
-group:"Group Pass",
-groupdesc:"20 visits<br>Share with friends",
-buy:"Buy Now",
-badge2:"⭐ Most Popular",
-badge3:"🔥 Best Deal",
-social:"🚽 Many visitors chose The Plee's Pass today"
-},
-
-de:{
-sub:"Nutzbar an Zugangstoren und Kasse<br>Wähle deinen Zugang",
-topline:"Direkt nutzbar an Toren und Kasse",
-cash:"Cash Pass",
-cashdesc:"1 Besuch<br>An der Kasse<br>Schneller Zugang • Keine Warteschlange",
-cashbtn:"⭐ Mega Angebot Kasse",
-single:"Single Pass",
-singledesc:"1 Besuch<br>Direkt auf dein Telefon",
-shared:"Shared Pass",
-shareddesc:"10 Besuche<br>Teilbar mit Freunden",
-group:"Group Pass",
-groupdesc:"20 Besuche<br>Teilbar mit Freunden",
-buy:"Jetzt Kaufen",
-badge2:"⭐ Beliebt",
-badge3:"🔥 Bestes Angebot",
-social:"🚽 Viele Besucher nutzten heute The Plee's Pass"
-},
-
-fr:{
-sub:"Utilisable aux portiques et caisse<br>Choisissez votre accès",
-topline:"Utilisable aux portiques et caisse",
-cash:"Cash Pass",
-cashdesc:"1 passage<br>A la caisse<br>Accès rapide • Sans file",
-cashbtn:"⭐ Mega Deal Caisse",
-single:"Single Pass",
-singledesc:"1 passage<br>Direct sur téléphone",
-shared:"Shared Pass",
-shareddesc:"10 passages<br>Partageable",
-group:"Group Pass",
-groupdesc:"20 passages<br>Partageable",
-buy:"Acheter",
-badge2:"⭐ Le Plus Choisi",
-badge3:"🔥 Meilleure Offre",
-social:"🚽 Beaucoup de visiteurs ont choisi The Plee's Pass"
-},
-
-es:{
-sub:"Usar en puertas de acceso y caja<br>Elige tu acceso",
-topline:"Usable en puertas y caja",
-cash:"Cash Pass",
-cashdesc:"1 visita<br>En caja<br>Acceso rápido • Sin colas",
-cashbtn:"⭐ Mega Oferta Caja",
-single:"Single Pass",
-singledesc:"1 visita<br>Directo en tu teléfono",
-shared:"Shared Pass",
-shareddesc:"10 visitas<br>Compartible",
-group:"Group Pass",
-groupdesc:"20 visitas<br>Compartible",
-buy:"Comprar",
-badge2:"⭐ Más Elegido",
-badge3:"🔥 Mejor Oferta",
-social:"🚽 Muchos visitantes eligieron The Plee's Pass hoy"
-},
-
-it:{
-sub:"Usabile ai tornelli e cassa<br>Scegli il tuo accesso",
-topline:"Usabile ai tornelli e cassa",
-cash:"Cash Pass",
-cashdesc:"1 ingresso<br>Alla cassa<br>Accesso rapido • Senza fila",
-cashbtn:"⭐ Mega Offerta Cassa",
-single:"Single Pass",
-singledesc:"1 ingresso<br>Diretto sul telefono",
-shared:"Shared Pass",
-shareddesc:"10 ingressi<br>Condivisibile",
-group:"Group Pass",
-groupdesc:"20 ingressi<br>Condivisibile",
-buy:"Acquista",
-badge2:"⭐ Più Scelto",
-badge3:"🔥 Miglior Offerta",
-social:"🚽 Molti visitatori hanno scelto The Plee's Pass oggi"
-}
-
-};
-
 function setLang(x){
-
-document.getElementById("sub").innerHTML = lang[x].sub;
-document.getElementById("topline").innerHTML = lang[x].topline;
-
-document.getElementById("n0").innerHTML = lang[x].cash;
-document.getElementById("d0").innerHTML = lang[x].cashdesc;
-document.getElementById("b0").innerHTML = lang[x].cashbtn;
-
-document.getElementById("n1").innerHTML = lang[x].single;
-document.getElementById("d1").innerHTML = lang[x].singledesc;
-
-document.getElementById("n2").innerHTML = lang[x].shared;
-document.getElementById("d2").innerHTML = lang[x].shareddesc;
-
-document.getElementById("n3").innerHTML = lang[x].group;
-document.getElementById("d3").innerHTML = lang[x].groupdesc;
-
-document.getElementById("b1").innerHTML = lang[x].buy;
-document.getElementById("b2").innerHTML = lang[x].buy;
-document.getElementById("b3").innerHTML = lang[x].buy;
-
-document.getElementById("badge2").innerHTML = lang[x].badge2;
-document.getElementById("badge3").innerHTML = lang[x].badge3;
-
-document.getElementById("social").innerHTML = lang[x].social;
-
+alert("Taal: " + x);
 }
 
 function pay(type){
-
-if(type=="single"){ window.location.href="https://mollie.com/pay/single"; }
-if(type=="ten"){ window.location.href="https://mollie.com/pay/ten"; }
-if(type=="twenty"){ window.location.href="https://mollie.com/pay/twenty"; }
+if(type=="single"){ window.location.href="https://google.com"; }
+if(type=="ten"){ window.location.href="https://google.com"; }
+if(type=="twenty"){ window.location.href="https://google.com"; }
 }
-  
 </script>
-</div> 
 </body>
 </html>
