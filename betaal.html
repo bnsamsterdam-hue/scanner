@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>The Plee’s To Bee Toilet Pass</title>
+<title>The Plee's To Bee Toilet Pass</title>
 
 <style>
 *{
@@ -20,239 +20,213 @@ text-align:center;
 padding:20px;
 }
 
-.container{
-max-width:500px;
+.wrap{
+max-width:520px;
 margin:auto;
 }
 
 .logo{
 width:100%;
 max-width:320px;
-margin:20px auto;
+margin:10px auto 20px auto;
 display:block;
-border-radius:20px;
+border-radius:18px;
 }
 
 h1{
-font-size:28px;
-margin-bottom:10px;
+font-size:30px;
 color:#ffd54a;
+margin-bottom:10px;
 }
 
 .sub{
-opacity:0.8;
+font-size:18px;
+margin-bottom:20px;
+opacity:0.95;
+}
+
+.info{
+font-size:16px;
+line-height:1.5;
 margin-bottom:25px;
-font-size:15px;
+opacity:0.9;
 }
 
 .langs{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:8px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
 margin-bottom:25px;
 }
 
 .langs button{
+padding:14px;
 border:none;
-padding:8px 12px;
-border-radius:10px;
+border-radius:12px;
 font-size:18px;
-cursor:pointer;
-background:#1c1c1c;
+font-weight:bold;
+background:#1d1d1d;
 color:#fff;
 }
 
 .card{
 background:#111;
 border:1px solid #333;
-padding:18px;
 border-radius:18px;
-margin-bottom:15px;
-box-shadow:0 0 12px rgba(255,215,74,0.15);
-}
-
-.price{
-font-size:30px;
-font-weight:bold;
-color:#ffd54a;
-margin-bottom:8px;
+padding:18px;
+margin-bottom:16px;
+box-shadow:0 0 10px rgba(255,213,74,0.12);
 }
 
 .name{
-font-size:20px;
-margin-bottom:15px;
+font-size:22px;
+font-weight:bold;
+margin-bottom:6px;
+}
+
+.desc{
+font-size:15px;
+opacity:0.8;
+margin-bottom:10px;
+}
+
+.price{
+font-size:32px;
+color:#ffd54a;
+font-weight:bold;
+margin-bottom:12px;
 }
 
 .buy{
 width:100%;
 padding:15px;
-font-size:18px;
 border:none;
 border-radius:14px;
-cursor:pointer;
+font-size:18px;
 font-weight:bold;
 background:linear-gradient(90deg,#ffd54a,#ffb300);
 color:#000;
 }
 
-.buy:hover{
-opacity:0.92;
-}
-
-.footer{
+.bottom{
 margin-top:25px;
+font-size:15px;
+line-height:1.7;
+opacity:0.85;
+}
+
+.small{
+margin-top:20px;
 font-size:13px;
-opacity:0.6;
+opacity:0.55;
 }
-
-.notice{
-margin-top:15px;
-font-size:14px;
-opacity:0.8;
-}
-
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<div class="wrap">
 
 <img src="logo.png" class="logo">
 
-<h1 id="title">The Plee’s To Bee Toilet Pass</h1>
-<div class="sub" id="subtitle">Kies uw toegang</div>
+<h1 id="title">The Plee's To Bee Toilet Pass</h1>
+
+<div class="sub" id="sub">
+Direct toegang via poort of kassa
+</div>
+
+<div class="info" id="info">
+✅ Deelbaar met vrienden<br>
+✅ Geen wachtrij<br>
+✅ Op je telefoon
+</div>
 
 <div class="langs">
-
 <button onclick="setLang('nl')">🇳🇱 Nederlands</button>
-
 <button onclick="setLang('en')">🇬🇧 English</button>
-
 <button onclick="setLang('de')">🇩🇪 Deutsch</button>
-
 <button onclick="setLang('fr')">🇫🇷 Français</button>
-
 <button onclick="setLang('es')">🇪🇸 Español</button>
-
 <button onclick="setLang('it')">🇮🇹 Italiano</button>
-
 </div>
 
 <div class="card">
-<div class="price">€1,25</div>
-<div class="name" id="p1">1 Beurt</div>
-<button class="buy" onclick="pay('single')" id="b1">Betaal Nu</button>
+<div class="name" id="n1">Single Pass</div>
+<div class="desc" id="d1">1 bezoek</div>
+<div class="price">€1,50</div>
+<button class="buy">Koop Nu</button>
 </div>
 
 <div class="card">
-<div class="price">€10,00</div>
-<div class="name" id="p2">10 Rittenkaart</div>
-<button class="buy" onclick="pay('ten')" id="b2">Betaal Nu</button>
+<div class="name" id="n2">Shared Pass</div>
+<div class="desc" id="d2">10 bezoeken • deelbaar</div>
+<div class="price">€10</div>
+<button class="buy">Koop Nu</button>
 </div>
 
 <div class="card">
-<div class="price">€20,00</div>
-<div class="name" id="p3">20 Rittenkaart</div>
-<button class="buy" onclick="pay('twenty')" id="b3">Betaal Nu</button>
+<div class="name" id="n3">Group Pass</div>
+<div class="desc" id="d3">20 bezoeken • deelbaar</div>
+<div class="price">€20</div>
+<button class="buy">Koop Nu</button>
 </div>
 
-<div class="notice" id="safe">🔒 Veilig betalen</div>
+<div class="bottom" id="bottom">
+💵 Cash betalen bij kassa<br>
+💳 Contactloos betalen bij toegangspoort
+</div>
 
-<div class="footer">
-The Plee’s To Bee
+<div class="small">
+The Plee's To Bee
 </div>
 
 </div>
 
 <script>
 
-const texts = {
+const t = {
 
 nl:{
-subtitle:"Kies uw toegang",
-p1:"1 Beurt",
-p2:"10 Rittenkaart",
-p3:"20 Rittenkaart",
-buy:"Betaal Nu",
-safe:"🔒 Veilig betalen"
+sub:"Direct toegang via poort of kassa",
+info:"✅ Deelbaar met vrienden<br>✅ Geen wachtrij<br>✅ Op je telefoon",
+n1:"Single Pass",
+d1:"1 bezoek",
+n2:"Shared Pass",
+d2:"10 bezoeken • deelbaar",
+n3:"Group Pass",
+d3:"20 bezoeken • deelbaar",
+bottom:"💵 Cash betalen bij kassa<br>💳 Contactloos betalen bij toegangspoort"
 },
 
 en:{
-subtitle:"Choose your access",
-p1:"1 Visit",
-p2:"10 Visit Pass",
-p3:"20 Visit Pass",
-buy:"Pay Now",
-safe:"🔒 Secure payment"
-},
-
-de:{
-subtitle:"Wählen Sie Ihren Zugang",
-p1:"1 Besuch",
-p2:"10er Karte",
-p3:"20er Karte",
-buy:"Jetzt bezahlen",
-safe:"🔒 Sichere Zahlung"
-},
-
-fr:{
-subtitle:"Choisissez votre accès",
-p1:"1 Passage",
-p2:"Carte 10 Passages",
-p3:"Carte 20 Passages",
-buy:"Payer",
-safe:"🔒 Paiement sécurisé"
-},
-
-es:{
-subtitle:"Elige tu acceso",
-p1:"1 Entrada",
-p2:"Tarjeta 10 Entradas",
-p3:"Tarjeta 20 Entradas",
-buy:"Pagar Ahora",
-safe:"🔒 Pago seguro"
-},
-
-it:{
-subtitle:"Scegli il tuo accesso",
-p1:"1 Accesso",
-p2:"Carta 10 Accessi",
-p3:"Carta 20 Accessi",
-buy:"Paga Ora",
-safe:"🔒 Pagamento sicuro"
+sub:"Direct access via gate or desk",
+info:"✅ Share with friends<br>✅ No queue<br>✅ On your phone",
+n1:"Single Pass",
+d1:"1 visit",
+n2:"Shared Pass",
+d2:"10 visits • shareable",
+n3:"Group Pass",
+d3:"20 visits • shareable",
+bottom:"💵 Cash at desk<br>💳 Contactless at gate"
 }
 
 };
 
-function setLang(lang){
+function setLang(x){
 
-document.getElementById("subtitle").innerText=texts[lang].subtitle;
-document.getElementById("p1").innerText=texts[lang].p1;
-document.getElementById("p2").innerText=texts[lang].p2;
-document.getElementById("p3").innerText=texts[lang].p3;
+document.getElementById("sub").innerHTML=t[x].sub;
+document.getElementById("info").innerHTML=t[x].info;
 
-document.getElementById("b1").innerText=texts[lang].buy;
-document.getElementById("b2").innerText=texts[lang].buy;
-document.getElementById("b3").innerText=texts[lang].buy;
+document.getElementById("n1").innerHTML=t[x].n1;
+document.getElementById("d1").innerHTML=t[x].d1;
 
-document.getElementById("safe").innerText=texts[lang].safe;
+document.getElementById("n2").innerHTML=t[x].n2;
+document.getElementById("d2").innerHTML=t[x].d2;
 
-}
+document.getElementById("n3").innerHTML=t[x].n3;
+document.getElementById("d3").innerHTML=t[x].d3;
 
-function pay(type){
-
-if(type==="single"){
-window.location.href="https://www.mollie.com/payments";
-}
-
-if(type==="ten"){
-window.location.href="https://www.mollie.com/payments";
-}
-
-if(type==="twenty"){
-window.location.href="https://www.mollie.com/payments";
-}
+document.getElementById("bottom").innerHTML=t[x].bottom;
 
 }
 
