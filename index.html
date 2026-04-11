@@ -358,6 +358,105 @@ z-index:999999;
 <br><br>
 <br><br>
 <button style="background:red;color:white;" onclick="wisAlles()">⚠ Wis alle QR codes</button>
+<!-- PLAK IN JE BESTAANDE ADMIN PANEL -->
+
+<hr>
+<h2>🛠 Shop Beheer</h2>
+
+<div style="background:#111;padding:15px;border-radius:15px;margin:10px;">
+
+<h3>💵 Cash Pass</h3>
+<input id="cashNaam" placeholder="Naam" value="Cash Pass"><br>
+<input id="cashPrijs" placeholder="Prijs" value="1.00"><br>
+<label><input type="checkbox" id="cashVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>🚪 Single Pass</h3>
+<input id="singleNaam" placeholder="Naam" value="Single Pass"><br>
+<input id="singlePrijs" placeholder="Prijs" value="1.50"><br>
+<input id="singleAantal" placeholder="Aantal scans" value="1"><br>
+<label><input type="checkbox" id="singleVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>👥 Share Pass</h3>
+<input id="shareNaam" placeholder="Naam" value="Share Pass"><br>
+<input id="sharePrijs" placeholder="Prijs" value="10.00"><br>
+<input id="shareAantal" placeholder="Aantal scans" value="10"><br>
+<label><input type="checkbox" id="shareVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>🎉 Group Pass</h3>
+<input id="groupNaam" placeholder="Naam" value="Group Pass"><br>
+<input id="groupPrijs" placeholder="Prijs" value="20.00"><br>
+<input id="groupAantal" placeholder="Aantal scans" value="20"><br>
+<label><input type="checkbox" id="groupVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>⚙ Algemene Instellingen</h3>
+<input id="siteTitel" placeholder="Titel" value="The Plee's To Bee"><br>
+<input id="bannerTekst" placeholder="Banner tekst" value="Toegangspoorten én kassa"><br>
+
+<label><input type="checkbox" id="mollieOn" checked> Mollie actief</label><br>
+<label><input type="checkbox" id="cashOn" checked> Cash actief</label>
+
+<br><br>
+
+<button onclick="saveShopSettings()" style="background:green;color:white;padding:14px;border:none;border-radius:12px;width:100%;">
+💾 Opslaan
+</button>
+
+</div>
+
+<script>
+
+async function saveShopSettings(){
+
+await db.collection("settings").doc("shop").set({
+
+cash:{
+naam:document.getElementById("cashNaam").value,
+prijs:document.getElementById("cashPrijs").value,
+visible:document.getElementById("cashVisible").checked
+},
+
+single:{
+naam:document.getElementById("singleNaam").value,
+prijs:document.getElementById("singlePrijs").value,
+aantal:document.getElementById("singleAantal").value,
+visible:document.getElementById("singleVisible").checked
+},
+
+share:{
+naam:document.getElementById("shareNaam").value,
+prijs:document.getElementById("sharePrijs").value,
+aantal:document.getElementById("shareAantal").value,
+visible:document.getElementById("shareVisible").checked
+},
+
+group:{
+naam:document.getElementById("groupNaam").value,
+prijs:document.getElementById("groupPrijs").value,
+aantal:document.getElementById("groupAantal").value,
+visible:document.getElementById("groupVisible").checked
+},
+
+titel:document.getElementById("siteTitel").value,
+banner:document.getElementById("bannerTekst").value,
+
+mollie:document.getElementById("mollieOn").checked,
+cashmode:document.getElementById("cashOn").checked
+
+});
+
+alert("✅ Shop instellingen opgeslagen");
+
+}
+
+</script> 
 <button onclick="logout()">Terug</button>
 </div>
 </div>
@@ -1148,6 +1247,42 @@ document.getElementById("poortTellers").innerHTML = html;
 });
 
 }
-updatePoortTellers(); 
+updatePoortTellers();
+async function saveShopSettings(){
+
+await db.collection("settings").doc("shop").set({
+
+cash:{
+naam:document.getElementById("cashNaam").value,
+prijs:document.getElementById("cashPrijs").value,
+visible:document.getElementById("cashVisible").checked
+},
+
+single:{
+naam:document.getElementById("singleNaam").value,
+prijs:document.getElementById("singlePrijs").value,
+aantal:document.getElementById("singleAantal").value,
+visible:document.getElementById("singleVisible").checked
+},
+
+share:{
+naam:document.getElementById("shareNaam").value,
+prijs:document.getElementById("sharePrijs").value,
+aantal:document.getElementById("shareAantal").value,
+visible:document.getElementById("shareVisible").checked
+},
+
+group:{
+naam:document.getElementById("groupNaam").value,
+prijs:document.getElementById("groupPrijs").value,
+aantal:document.getElementById("groupAantal").value,
+visible:document.getElementById("groupVisible").checked
+}
+
+});
+
+alert("✅ Opgeslagen");
+
+} 
 </script>
 </body>
