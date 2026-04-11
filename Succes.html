@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Betaling gelukt</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:#000;
+color:#fff;
+text-align:center;
+padding:20px;
+}
+
+.wrap{
+max-width:420px;
+margin:auto;
+}
+
+.logo{
+width:100%;
+max-width:340px;
+border-radius:20px;
+margin-bottom:20px;
+}
+
+.ok{
+font-size:34px;
+color:#35c759;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.sub{
+font-size:18px;
+opacity:.9;
+margin-bottom:20px;
+line-height:1.5;
+}
+
+.box{
+background:#111;
+padding:20px;
+border-radius:20px;
+border:1px solid #333;
+box-shadow:0 0 20px rgba(255,215,0,.15);
+}
+
+#qr{
+margin-top:15px;
+}
+
+.code{
+margin-top:15px;
+font-size:18px;
+letter-spacing:2px;
+color:#ffd700;
+font-weight:bold;
+}
+
+.info{
+margin-top:20px;
+line-height:1.6;
+opacity:.9;
+}
+
+.btn{
+display:block;
+margin-top:20px;
+padding:14px;
+background:#ffd700;
+color:#000;
+font-weight:bold;
+border-radius:12px;
+text-decoration:none;
+}
+
+.small{
+margin-top:15px;
+font-size:13px;
+opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<img src="plee's.png" class="logo">
+
+<div class="ok">✅ Betaling ontvangen</div>
+
+<div class="sub">
+Jouw toegangspas is klaar
+</div>
+
+<div class="box">
+
+<div id="typeText">Pass laden...</div>
+
+<canvas id="qr"></canvas>
+
+<div class="code" id="codeText"></div>
+
+<div class="info">
+📱 Scan bij toegangspoort of toon aan kassa<br>
+👥 Deelbaar met vrienden
+</div>
+
+<a href="betaal.html" class="btn">Nieuwe aankoop</a>
+
+<div class="small">
+Screenshot bewaren aanbevolen
+</div>
+
+</div>
+</div>
+
+<script>
+
+/* FIREBASE */
+firebase.initializeApp({
+apiKey:"AIza...",
+authDomain:"ticket-systeem-18a08.firebaseapp.com",
+projectId:"ticket-systeem-18a08"
+});
+
+const db = firebase.firestore();
+
+/* TYPE UITLEZEN */
+const params = new URLSearchParams(window.location.search);
+let type = params.get("type") || "1";
+
+let remaining = 1;
+let txt = "Single Pass - 1 bezoek";
+
+if(type=="10"){
+remaining = 10;
+txt = "Share Pass - 10 bezoeken";
+}
+
+if(type=="20"){
+remaining = 20;
+txt = "Group Pass - 20 bezoeken";
+}
+
+document.getElementById("typeText").innerText = txt;
+
+/* CODE MAKEN */
+function generateCode(){
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+function part(){
+let s="";
+for(let i=0;i<4;i++){
+s += chars[Math.floor(Math.random()*chars.length)];
+}
+return s;
+}
+
+return part()+"-"+part()+"-"+part();
+}
+
+/* OPSLAAN */
+async function start(){
+
+let code = generateCode();
+
+await db.collection("tickets").doc(code).set({
+remaining: remaining
+});
+
+document.getElementById("codeText").innerText = code;
+
+QRCode.toCanvas(document.getElementById("qr"), code, {
+width:280,
+margin:1
+});
+
+}
+
+start();
+
+</script>
+</body>
+</html>
