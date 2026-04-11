@@ -16,38 +16,45 @@ text-align:center;
 
 .hero{
 width:100%;
-max-width:420px;
-margin:20px auto 10px auto;
+max-width:430px;
+margin:15px auto;
 display:block;
 border-radius:18px;
 }
 
 .wrap{
-max-width:420px;
+max-width:430px;
 margin:auto;
 padding:10px;
 }
 
 h1{
-font-size:32px;
-margin:10px 0;
 color:#ffd700;
+font-size:30px;
+margin:8px 0;
 }
 
 .sub{
 font-size:18px;
-margin-bottom:15px;
-line-height:1.4;
+line-height:1.5;
+margin-bottom:14px;
+}
+
+.langs{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:8px;
+margin-bottom:18px;
 }
 
 .langs button{
-margin:4px;
-padding:10px 14px;
-border:none;
-border-radius:10px;
-background:#222;
-color:#fff;
+padding:12px;
+font-size:16px;
 font-weight:bold;
+border:none;
+border-radius:12px;
+background:#1c1c1c;
+color:#fff;
 cursor:pointer;
 }
 
@@ -56,26 +63,42 @@ background:#111;
 border:1px solid #333;
 border-radius:18px;
 padding:18px;
-margin:14px 0;
-box-shadow:0 0 12px rgba(255,215,0,0.18);
+margin:12px 0;
+box-shadow:0 0 12px rgba(255,215,0,.15);
+}
+
+.badge{
+display:inline-block;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+margin-bottom:8px;
+background:#ffd700;
+color:#000;
+}
+
+.badge2{
+background:#ff6600;
+color:#fff;
 }
 
 .price{
 font-size:34px;
-color:#ffd700;
 font-weight:bold;
+color:#ffd700;
 }
 
 .name{
 font-size:24px;
-margin-top:6px;
 font-weight:bold;
+margin-top:6px;
 }
 
 .desc{
-opacity:.9;
 line-height:1.5;
 margin:10px 0;
+opacity:.9;
 }
 
 .buy{
@@ -90,21 +113,10 @@ color:#000;
 cursor:pointer;
 }
 
-.buycash{
+.cash{
 background:#35c759;
 color:#fff;
 cursor:default;
-}
-
-.badge{
-display:inline-block;
-background:#ffd700;
-color:#000;
-padding:4px 10px;
-border-radius:20px;
-font-size:12px;
-font-weight:bold;
-margin-bottom:8px;
 }
 
 .footer{
@@ -129,56 +141,46 @@ Kies jouw toegang
 </div>
 
 <div class="langs">
-<button onclick="setLang('nl')">NL</button>
-<button onclick="setLang('en')">EN</button>
-<button onclick="setLang('de')">DE</button>
-<button onclick="setLang('fr')">FR</button>
-<button onclick="setLang('es')">ES</button>
-<button onclick="setLang('it')">IT</button>
+<button onclick="setLang('nl')">🇳🇱 Nederlands</button>
+<button onclick="setLang('en')">🇬🇧 English</button>
+<button onclick="setLang('de')">🇩🇪 Deutsch</button>
+<button onclick="setLang('fr')">🇫🇷 Français</button>
+<button onclick="setLang('es')">🇪🇸 Español</button>
+<button onclick="setLang('it')">🇮🇹 Italiano</button>
 </div>
 
 <div class="card">
 <div class="badge">⭐ Mega Deal</div>
 <div class="price">€1,00</div>
 <div class="name" id="cashname">Cash Pass</div>
-<div class="desc" id="cashdesc">
-1 bezoek<br>
-Bij kassa<br>
-Snelle toegang • Geen wachtrijen
-</div>
-<button class="buy buycash">Bij Kassa</button>
+<div class="desc" id="cashdesc">1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen</div>
+<button class="buy cash" id="cashbtn">Bij Kassa</button>
 </div>
 
 <div class="card">
 <div class="price">€1,50</div>
 <div class="name" id="n1">Single Pass</div>
-<div class="desc" id="d1">
-1 bezoek<br>Direct op telefoon
-</div>
-<button class="buy" onclick="pay('single')" id="b1">Koop Nu</button>
+<div class="desc" id="d1">1 bezoek<br>Direct op telefoon</div>
+<button class="buy" id="b1" onclick="pay('single')">Koop Nu</button>
 </div>
 
 <div class="card">
-<div class="badge">⭐ Populair</div>
-<div class="price">€12,50</div>
+<div class="badge">⭐ Meest gekozen</div>
+<div class="price">€10</div>
 <div class="name" id="n2">Share Pass</div>
-<div class="desc" id="d2">
-10 bezoeken<br>Deelbaar met vrienden
-</div>
-<button class="buy" onclick="pay('ten')" id="b2">Koop Nu</button>
+<div class="desc" id="d2">10 bezoeken<br>Deelbaar met vrienden</div>
+<button class="buy" id="b2" onclick="pay('ten')">Koop Nu</button>
 </div>
 
 <div class="card">
-<div class="badge">🔥 Beste Deal</div>
-<div class="price">€20,00</div>
+<div class="badge badge2">🔥 Beste Deal</div>
+<div class="price">€20</div>
 <div class="name" id="n3">Group Pass</div>
-<div class="desc" id="d3">
-20 bezoeken<br>Deelbaar met vrienden
-</div>
-<button class="buy" onclick="pay('twenty')" id="b3">Koop Nu</button>
+<div class="desc" id="d3">20 bezoeken<br>Deelbaar met vrienden</div>
+<button class="buy" id="b3" onclick="pay('twenty')">Koop Nu</button>
 </div>
 
-<div class="footer">
+<div class="footer" id="footer">
 Vandaag kozen veel bezoekers The Plee's Pass
 </div>
 
@@ -187,67 +189,83 @@ Vandaag kozen veel bezoekers The Plee's Pass
 <script>
 
 function pay(type){
-
-if(type=="single"){
 window.location.href="https://mollie.com";
-}
-
-if(type=="ten"){
-window.location.href="https://mollie.com";
-}
-
-if(type=="twenty"){
-window.location.href="https://mollie.com";
-}
-
 }
 
 function setLang(x){
 
 if(x=="nl"){
-document.getElementById("sub").innerHTML="Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang";
-document.getElementById("cashname").innerHTML="Cash Pass";
-document.getElementById("cashdesc").innerHTML="1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen";
-document.getElementById("n1").innerHTML="Single Pass";
-document.getElementById("d1").innerHTML="1 bezoek<br>Direct op telefoon";
-document.getElementById("n2").innerHTML="Share Pass";
-document.getElementById("d2").innerHTML="10 bezoeken<br>Deelbaar met vrienden";
-document.getElementById("n3").innerHTML="Group Pass";
-document.getElementById("d3").innerHTML="20 bezoeken<br>Deelbaar met vrienden";
-document.getElementById("b1").innerHTML="Koop Nu";
-document.getElementById("b2").innerHTML="Koop Nu";
-document.getElementById("b3").innerHTML="Koop Nu";
+sub.innerHTML="Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang";
+cashname.innerHTML="Cash Pass";
+cashdesc.innerHTML="1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen";
+cashbtn.innerHTML="Bij Kassa";
+n1.innerHTML="Single Pass";
+d1.innerHTML="1 bezoek<br>Direct op telefoon";
+n2.innerHTML="Share Pass";
+d2.innerHTML="10 bezoeken<br>Deelbaar met vrienden";
+n3.innerHTML="Group Pass";
+d3.innerHTML="20 bezoeken<br>Deelbaar met vrienden";
+b1.innerHTML="Koop Nu";
+b2.innerHTML="Koop Nu";
+b3.innerHTML="Koop Nu";
+footer.innerHTML="Vandaag kozen veel bezoekers The Plee's Pass";
 }
 
 if(x=="en"){
-document.getElementById("sub").innerHTML="Use at gates and desk<br>Choose your access";
-document.getElementById("cashname").innerHTML="Cash Pass";
-document.getElementById("cashdesc").innerHTML="1 visit<br>At desk<br>Fast access • No queues";
-document.getElementById("n1").innerHTML="Single Pass";
-document.getElementById("d1").innerHTML="1 visit<br>Direct on phone";
-document.getElementById("n2").innerHTML="Share Pass";
-document.getElementById("d2").innerHTML="10 visits<br>Shareable";
-document.getElementById("n3").innerHTML="Group Pass";
-document.getElementById("d3").innerHTML="20 visits<br>Shareable";
-document.getElementById("b1").innerHTML="Buy Now";
-document.getElementById("b2").innerHTML="Buy Now";
-document.getElementById("b3").innerHTML="Buy Now";
+sub.innerHTML="Use at gates and desk<br>Choose your access";
+cashname.innerHTML="Cash Pass";
+cashdesc.innerHTML="1 visit<br>At desk<br>Fast access • No queues";
+cashbtn.innerHTML="At Desk";
+n1.innerHTML="Single Pass";
+d1.innerHTML="1 visit<br>Direct on phone";
+n2.innerHTML="Share Pass";
+d2.innerHTML="10 visits<br>Shareable";
+n3.innerHTML="Group Pass";
+d3.innerHTML="20 visits<br>Shareable";
+b1.innerHTML="Buy Now";
+b2.innerHTML="Buy Now";
+b3.innerHTML="Buy Now";
+footer.innerHTML="Many visitors chose The Plee's Pass today";
 }
 
 if(x=="de"){
-document.getElementById("sub").innerHTML="Nutzbar an Toren und Kasse<br>Wähle Zugang";
+sub.innerHTML="Nutzbar an Toren und Kasse<br>Wähle Zugang";
+cashname.innerHTML="Cash Pass";
+cashdesc.innerHTML="1 Besuch<br>An der Kasse<br>Schneller Zugang";
+cashbtn.innerHTML="Kasse";
+n1.innerHTML="Single Pass";
+d1.innerHTML="1 Besuch<br>Direkt aufs Handy";
+n2.innerHTML="Share Pass";
+d2.innerHTML="10 Besuche<br>Teilbar";
+n3.innerHTML="Group Pass";
+d3.innerHTML="20 Besuche<br>Teilbar";
+b1.innerHTML="Kaufen";
+b2.innerHTML="Kaufen";
+b3.innerHTML="Kaufen";
 }
 
 if(x=="fr"){
-document.getElementById("sub").innerHTML="Utilisable aux portiques et caisse<br>Choisissez accès";
+sub.innerHTML="Utilisable aux portiques et caisse<br>Choisissez accès";
+cashbtn.innerHTML="Caisse";
+b1.innerHTML="Acheter";
+b2.innerHTML="Acheter";
+b3.innerHTML="Acheter";
 }
 
 if(x=="es"){
-document.getElementById("sub").innerHTML="Usar en puertas y caja<br>Elige acceso";
+sub.innerHTML="Usar en puertas y caja<br>Elige acceso";
+cashbtn.innerHTML="Caja";
+b1.innerHTML="Comprar";
+b2.innerHTML="Comprar";
+b3.innerHTML="Comprar";
 }
 
 if(x=="it"){
-document.getElementById("sub").innerHTML="Usabile ai tornelli e cassa<br>Scegli accesso";
+sub.innerHTML="Usabile ai tornelli e cassa<br>Scegli accesso";
+cashbtn.innerHTML="Cassa";
+b1.innerHTML="Acquista";
+b2.innerHTML="Acquista";
+b3.innerHTML="Acquista";
 }
 
 }
