@@ -223,7 +223,8 @@ function render(){
 if(adminData["contant geld"]){
 let x = adminData["contant geld"];
 setTxt("cashNaam", x.naam || txt.cashNaam[currentLang]);
-setTxt("cashPrijs","€"+(x.prijs || "1.00"));
+setTxt("cashPrijs",
+euro(x.prijs || x.price || "0,50"));
 show("cashCard", x.zichtbaar !== false);
 }
 
