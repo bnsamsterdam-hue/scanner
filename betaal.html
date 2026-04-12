@@ -3,65 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>The Plee's To Bee</title>
+
+<title>Ticket Scanner PRO</title>
+
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="theme-color" content="#000000">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
 body{
 margin:0;
-font-family:Arial,Helvetica,sans-serif;
 background:#000;
 color:#fff;
+font-family:Arial,Helvetica,sans-serif;
 text-align:center;
 }
-.hero{
-width:100%;
-max-width:430px;
-margin:15px auto;
-display:block;
-border-radius:18px;
-}
+
 .wrap{
 max-width:430px;
 margin:auto;
-padding:10px;
+padding:15px;
 }
+
+.hero{
+width:100%;
+max-width:320px;
+border-radius:18px;
+margin:10px auto 20px;
+display:block;
+}
+
 h1{
 color:#ffd700;
 font-size:30px;
-margin:8px 0;
+margin:5px 0;
 }
+
 .sub{
-font-size:18px;
+font-size:17px;
+opacity:.9;
 line-height:1.5;
-margin-bottom:14px;
+margin-bottom:15px;
 }
+
 .langs{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:8px;
 margin-bottom:18px;
 }
+
 .langs button{
 padding:12px;
-font-size:16px;
-font-weight:bold;
 border:none;
 border-radius:12px;
-background:#1c1c1c;
+background:#111;
 color:#fff;
-cursor:pointer;
+font-size:16px;
+font-weight:bold;
 }
+
 .card{
 background:#111;
 border:1px solid #333;
 border-radius:18px;
 padding:18px;
-margin:12px 0;
-box-shadow:0 0 12px rgba(255,215,0,.15);
+margin-bottom:14px;
+box-shadow:0 0 15px rgba(255,215,0,.10);
 }
+
 .badge{
 display:inline-block;
-padding:5px 10px;
+padding:6px 12px;
 border-radius:20px;
 font-size:12px;
 font-weight:bold;
@@ -69,41 +85,47 @@ margin-bottom:8px;
 background:#ffd700;
 color:#000;
 }
+
 .badge2{
 background:#ff6600;
 color:#fff;
 }
+
 .price{
 font-size:34px;
 font-weight:bold;
 color:#ffd700;
 }
+
 .name{
 font-size:24px;
 font-weight:bold;
-margin-top:6px;
+margin-top:8px;
 }
+
 .desc{
+margin-top:8px;
 line-height:1.5;
-margin:10px 0;
 opacity:.9;
 }
+
 .buy{
+margin-top:14px;
 width:100%;
 padding:14px;
-border:none;
-border-radius:12px;
 font-size:18px;
 font-weight:bold;
+border:none;
+border-radius:12px;
 background:#ffd700;
 color:#000;
-cursor:pointer;
 }
+
 .cash{
 background:#35c759;
 color:#fff;
-cursor:default;
 }
+
 .footer{
 padding:20px;
 font-size:13px;
@@ -114,13 +136,15 @@ opacity:.6;
 
 <body>
 
-<img src="plee's.png" class="hero">
-
 <div class="wrap">
 
-<h1>The Plee's To Bee</h1>
+<img src="plee's.png" class="hero">
 
-<div class="sub" id="sub"></div>
+<h1 id="title">The Plee's To Bee</h1>
+
+<div class="sub" id="sub">
+Toegangspoorten én kassa<br>Kies jouw toegang
+</div>
 
 <div class="langs">
 <button onclick="setLang('nl')">🇳🇱 Nederlands</button>
@@ -131,218 +155,161 @@ opacity:.6;
 <button onclick="setLang('it')">🇮🇹 Italiano</button>
 </div>
 
-<div class="card">
-<div class="badge" id="badge0"></div>
-<div class="price">€1,00</div>
-<div class="name" id="cashname"></div>
-<div class="desc" id="cashdesc"></div>
-<button class="buy cash" id="cashbtn"></button>
+<!-- CASH -->
+<div class="card" id="cashCard">
+<div class="badge">⭐ DEAL</div>
+<div class="price" id="cashPrijs">€1.00</div>
+<div class="name" id="cashNaam">Contant betalen</div>
+<div class="desc" id="cashDesc">Direct bij kassa</div>
+<button class="buy cash" id="cashBtn">Bij Kassa</button>
 </div>
 
-<div class="card">
-<div class="price">€1,50</div>
-<div class="name" id="n1"></div>
-<div class="desc" id="d1"></div>
-<button class="buy" id="b1" onclick="pay('single')"></button>
+<!-- SINGLE -->
+<div class="card" id="singleCard">
+<div class="price" id="singlePrijs">€1.50</div>
+<div class="name" id="singleNaam">1 Toilet Bezoek</div>
+<div class="desc" id="singleDesc">Direct op telefoon</div>
+<button class="buy" onclick="pay('single')" id="buy1">Koop Nu</button>
 </div>
 
-<div class="card">
-<div class="badge" id="badge1"></div>
-<div class="price">€10</div>
-<div class="name" id="n2"></div>
-<div class="desc" id="d2"></div>
-<button class="buy" id="b2" onclick="pay('ten')"></button>
+<!-- SHARE -->
+<div class="card" id="shareCard">
+<div class="badge">⭐ POPULAIR</div>
+<div class="price" id="sharePrijs">€10</div>
+<div class="name" id="shareNaam">Deel Uw Toilet Pas</div>
+<div class="desc" id="shareDesc">Samen gebruiken</div>
+<button class="buy" onclick="pay('ten')" id="buy2">Koop Nu</button>
 </div>
 
-<div class="card">
-<div class="badge badge2" id="badge2"></div>
-<div class="price">€20</div>
-<div class="name" id="n3"></div>
-<div class="desc" id="d3"></div>
-<button class="buy" id="b3" onclick="pay('twenty')"></button>
+<!-- GROUP -->
+<div class="card" id="groupCard">
+<div class="badge badge2">🔥 BESTE DEAL</div>
+<div class="price" id="groupPrijs">€20</div>
+<div class="name" id="groupNaam">Familie Pas</div>
+<div class="desc" id="groupDesc">Voor groepen</div>
+<button class="buy" onclick="pay('twenty')" id="buy3">Koop Nu</button>
 </div>
 
-<div class="footer" id="footer"></div>
+<div class="footer">
+The Plee's To Bee 2026
+</div>
 
 </div>
 
 <script>
-const texts = {
+firebase.initializeApp({
+apiKey:"AIza...",
+authDomain:"ticket-systeem-18a08.firebaseapp.com",
+projectId:"ticket-systeem-18a08"
+});
 
-nl:{
-sub:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
-badge0:"⭐ Beste Prijs",
-badge1:"⭐ Meest Gekozen",
-badge2:"🔥 Beste Deal",
-cashname:"Contante Betaling",
-cashdesc:"1 toilet bezoek<br>Betalen bij kassa<br>Snelle toegang",
-cashbtn:"Bij Kassa",
-n1:"1 Toilet Bezoek",
-d1:"1 bezoek<br>Direct op telefoon",
-n2:"Deel Uw Toilet Pas",
-d2:"10 bezoeken<br>Deelbaar met vrienden",
-n3:"Familie Pas",
-d3:"20 bezoeken<br>Ideaal voor gezin",
-buy:"Koop Nu",
-footer:"Vandaag kozen veel bezoekers The Plee's Pass",
-error:"Betaling tijdelijk niet beschikbaar"
-},
+const db = firebase.firestore();
 
-en:{
-sub:"Use at gates and desk<br>Choose your access",
-badge0:"⭐ Best Price",
-badge1:"⭐ Most Chosen",
-badge2:"🔥 Best Deal",
-cashname:"Cash Payment",
-cashdesc:"1 toilet visit<br>Pay at desk<br>Fast access",
-cashbtn:"At Desk",
-n1:"1 Toilet Visit",
-d1:"1 visit<br>Direct on phone",
-n2:"Share Your Toilet Pass",
-d2:"10 visits<br>Share with friends",
-n3:"Family Pass",
-d3:"20 visits<br>Perfect for family",
-buy:"Buy Now",
-footer:"Many visitors chose The Plee's Pass today",
-error:"Payment temporarily unavailable"
-},
+/* LIVE SETTINGS */
+db.collection("instellingen").doc("winkel")
+.onSnapshot(doc=>{
 
-de:{
-sub:"Nutzbar an Toren und Kasse<br>Wähle Zugang",
-badge0:"⭐ Bester Preis",
-badge1:"⭐ Beliebt",
-badge2:"🔥 Bestes Angebot",
-cashname:"Barzahlung",
-cashdesc:"1 Toilettenbesuch<br>An Kasse zahlen<br>Schneller Zugang",
-cashbtn:"An Kasse",
-n1:"1 Toilettenbesuch",
-d1:"1 Besuch<br>Direkt aufs Handy",
-n2:"Teilen Sie Ihren Pass",
-d2:"10 Besuche<br>Mit Freunden teilbar",
-n3:"Familienpass",
-d3:"20 Besuche<br>Perfekt für Familie",
-buy:"Jetzt Kaufen",
-footer:"Viele Besucher wählten heute The Plee's Pass",
-error:"Zahlung vorübergehend nicht verfügbar"
-},
+if(!doc.exists) return;
 
-fr:{
-sub:"Utilisable aux portiques et caisse<br>Choisissez accès",
-badge0:"⭐ Meilleur Prix",
-badge1:"⭐ Populaire",
-badge2:"🔥 Meilleure Offre",
-cashname:"Paiement Espèces",
-cashdesc:"1 visite toilette<br>Payer en caisse<br>Accès rapide",
-cashbtn:"À la caisse",
-n1:"1 Visite Toilette",
-d1:"1 visite<br>Direct téléphone",
-n2:"Partagez Votre Pass",
-d2:"10 visites<br>Partageable",
-n3:"Pass Famille",
-d3:"20 visites<br>Parfait famille",
-buy:"Acheter",
-footer:"Beaucoup de visiteurs ont choisi The Plee's Pass",
-error:"Paiement temporairement indisponible"
-},
+let d = doc.data();
 
-es:{
-sub:"Usar en puertas y caja<br>Elige acceso",
-badge0:"⭐ Mejor Precio",
-badge1:"⭐ Popular",
-badge2:"🔥 Mejor Oferta",
-cashname:"Pago en Efectivo",
-cashdesc:"1 visita baño<br>Pagar en caja<br>Acceso rápido",
-cashbtn:"En Caja",
-n1:"1 Visita Baño",
-d1:"1 visita<br>Directo al móvil",
-n2:"Comparte Tu Pase",
-d2:"10 visitas<br>Compartir amigos",
-n3:"Pase Familiar",
-d3:"20 visitas<br>Ideal familia",
-buy:"Comprar",
-footer:"Muchos visitantes eligieron The Plee's Pass hoy",
-error:"Pago temporalmente no disponible"
-},
-
-it:{
-sub:"Usabile ai tornelli e cassa<br>Scegli accesso",
-badge0:"⭐ Miglior Prezzo",
-badge1:"⭐ Popolare",
-badge2:"🔥 Migliore Offerta",
-cashname:"Pagamento Contanti",
-cashdesc:"1 visita toilette<br>Paga in cassa<br>Accesso rapido",
-cashbtn:"Alla Cassa",
-n1:"1 Visita Toilette",
-d1:"1 visita<br>Diretto sul telefono",
-n2:"Condividi Il Tuo Pass",
-d2:"10 visite<br>Condivisibile",
-n3:"Pass Famiglia",
-d3:"20 visite<br>Perfetto famiglia",
-buy:"Acquista",
-footer:"Molti visitatori hanno scelto The Plee's Pass oggi",
-error:"Pagamento temporaneamente non disponibile"
+/* CASH */
+if(d["contant geld"]){
+document.getElementById("cashNaam").innerText = d["contant geld"].naam || "Contant";
+document.getElementById("cashPrijs").innerText = "€" + (d["contant geld"].prijs || "1.00");
+document.getElementById("cashCard").style.display =
+d["contant geld"].zichtbaar ? "block":"none";
 }
 
-};
-
-let currentLang="nl";
-
-function setLang(lang){
-
-currentLang=lang;
-const t=texts[lang];
-
-document.getElementById("sub").innerHTML=t.sub;
-
-document.getElementById("badge0").innerHTML=t.badge0;
-document.getElementById("badge1").innerHTML=t.badge1;
-document.getElementById("badge2").innerHTML=t.badge2;
-
-document.getElementById("cashname").innerHTML=t.cashname;
-document.getElementById("cashdesc").innerHTML=t.cashdesc;
-document.getElementById("cashbtn").innerHTML=t.cashbtn;
-
-document.getElementById("n1").innerHTML=t.n1;
-document.getElementById("d1").innerHTML=t.d1;
-
-document.getElementById("n2").innerHTML=t.n2;
-document.getElementById("d2").innerHTML=t.d2;
-
-document.getElementById("n3").innerHTML=t.n3;
-document.getElementById("d3").innerHTML=t.d3;
-
-document.getElementById("b1").innerHTML=t.buy;
-document.getElementById("b2").innerHTML=t.buy;
-document.getElementById("b3").innerHTML=t.buy;
-
-document.getElementById("footer").innerHTML=t.footer;
+/* SINGLE */
+if(d.single){
+document.getElementById("singleNaam").innerText = d.single.naam || "";
+document.getElementById("singlePrijs").innerText = "€" + (d.single.prijs || "");
+document.getElementById("singleCard").style.display =
+d.single.zichtbaar ? "block":"none";
 }
 
+/* SHARE */
+if(d.deel){
+document.getElementById("shareNaam").innerText = d.deel.naam || "";
+document.getElementById("sharePrijs").innerText = "€" + (d.deel.prijs || "");
+document.getElementById("shareCard").style.display =
+d.deel.zichtbaar ? "block":"none";
+}
+
+/* GROUP */
+if(d.groep){
+document.getElementById("groupNaam").innerText = d.groep.naam || "";
+document.getElementById("groupPrijs").innerText = "€" + (d.groep.prijs || "");
+document.getElementById("groupCard").style.display =
+d.groep.zichtbaar ? "block":"none";
+}
+
+});
+
+/* BETALEN */
 async function pay(type){
+
 try{
 
-const r=await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
+let r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
+headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({type:type})
 });
 
-const data=await r.json();
+let data = await r.json();
 
 if(data.checkoutUrl){
-window.location.href=data.checkoutUrl;
-}else{
-alert(texts[currentLang].error);
+window.location.href = data.checkoutUrl;
 }
 
 }catch(e){
-alert(texts[currentLang].error);
-}
+alert("Betaling tijdelijk niet beschikbaar");
 }
 
-setLang("nl");
+}
+
+/* TALEN */
+function setLang(x){
+
+if(x=="nl"){
+buyTxt("Koop Nu");
+document.getElementById("sub").innerHTML="Toegangspoorten én kassa<br>Kies jouw toegang";
+}
+
+if(x=="en"){
+buyTxt("Buy Now");
+document.getElementById("sub").innerHTML="Entrance gates and desk<br>Choose access";
+}
+
+if(x=="de"){
+buyTxt("Jetzt Kaufen");
+document.getElementById("sub").innerHTML="Eingangstore und Kasse<br>Zugang wählen";
+}
+
+if(x=="fr"){
+buyTxt("Acheter");
+document.getElementById("sub").innerHTML="Portiques et caisse<br>Choisissez accès";
+}
+
+if(x=="es"){
+buyTxt("Comprar");
+document.getElementById("sub").innerHTML="Puertas y caja<br>Elige acceso";
+}
+
+if(x=="it"){
+buyTxt("Compra");
+document.getElementById("sub").innerHTML="Entrata e cassa<br>Scegli accesso";
+}
+
+}
+
+function buyTxt(t){
+document.getElementById("buy1").innerText=t;
+document.getElementById("buy2").innerText=t;
+document.getElementById("buy3").innerText=t;
+}
 </script>
 
 </body>
