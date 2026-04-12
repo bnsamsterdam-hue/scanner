@@ -25,27 +25,27 @@ text-align:center;
 .wrap{
 max-width:430px;
 margin:auto;
-padding:15px;
+padding:14px;
 }
 
 .hero{
 width:100%;
 max-width:320px;
-border-radius:18px;
 margin:10px auto 20px;
 display:block;
+border-radius:18px;
 }
 
 h1{
-color:#ffd700;
 font-size:30px;
+color:#ffd700;
 margin:5px 0;
 }
 
 .sub{
 font-size:17px;
-opacity:.9;
 line-height:1.5;
+opacity:.95;
 margin-bottom:15px;
 }
 
@@ -72,7 +72,7 @@ border:1px solid #333;
 border-radius:18px;
 padding:18px;
 margin-bottom:14px;
-box-shadow:0 0 15px rgba(255,215,0,.10);
+box-shadow:0 0 15px rgba(255,215,0,.12);
 }
 
 .badge{
@@ -113,10 +113,10 @@ opacity:.9;
 margin-top:14px;
 width:100%;
 padding:14px;
-font-size:18px;
-font-weight:bold;
 border:none;
 border-radius:12px;
+font-size:18px;
+font-weight:bold;
 background:#ffd700;
 color:#000;
 }
@@ -127,9 +127,9 @@ color:#fff;
 }
 
 .footer{
-padding:20px;
+padding:18px;
 font-size:13px;
-opacity:.6;
+opacity:.65;
 }
 </style>
 </head>
@@ -143,7 +143,8 @@ opacity:.6;
 <h1 id="title">The Plee's To Bee</h1>
 
 <div class="sub" id="sub">
-Toegangspoorten én kassa<br>Kies jouw toegang
+Te gebruiken op toegangspoorten én kassa<br>
+Kies jouw toegang
 </div>
 
 <div class="langs">
@@ -164,7 +165,7 @@ Toegangspoorten én kassa<br>Kies jouw toegang
 <button class="buy cash" id="cashBtn">Bij Kassa</button>
 </div>
 
-<!-- SINGLE -->
+<!-- ENKEL -->
 <div class="card" id="singleCard">
 <div class="price" id="singlePrijs">€1.50</div>
 <div class="name" id="singleNaam">1 Toilet Bezoek</div>
@@ -172,7 +173,7 @@ Toegangspoorten én kassa<br>Kies jouw toegang
 <button class="buy" onclick="pay('single')" id="buy1">Koop Nu</button>
 </div>
 
-<!-- SHARE -->
+<!-- DEEL -->
 <div class="card" id="shareCard">
 <div class="badge">⭐ POPULAIR</div>
 <div class="price" id="sharePrijs">€10</div>
@@ -181,7 +182,7 @@ Toegangspoorten én kassa<br>Kies jouw toegang
 <button class="buy" onclick="pay('ten')" id="buy2">Koop Nu</button>
 </div>
 
-<!-- GROUP -->
+<!-- GROEP -->
 <div class="card" id="groupCard">
 <div class="badge badge2">🔥 BESTE DEAL</div>
 <div class="price" id="groupPrijs">€20</div>
@@ -205,60 +206,193 @@ projectId:"ticket-systeem-18a08"
 
 const db = firebase.firestore();
 
-/* LIVE SETTINGS */
-db.collection("instellingen").doc("winkel")
-.onSnapshot(doc=>{
+let adminData = {};
+let currentLang = "nl";
 
+/* LIVE DATABASE */
+db.collection("instellingen").doc("winkel").onSnapshot(doc=>{
 if(!doc.exists) return;
+adminData = doc.data();
+render();
+});
 
-let d = doc.data();
+/* RENDER */
+function render(){
 
 /* CASH */
-if(d["contant geld"]){
-document.getElementById("cashNaam").innerText = d["contant geld"].naam || "Contant";
-document.getElementById("cashPrijs").innerText = "€" + (d["contant geld"].prijs || "1.00");
-document.getElementById("cashCard").style.display =
-d["contant geld"].zichtbaar ? "block":"none";
+if(adminData["contant geld"]){
+let x = adminData["contant geld"];
+setTxt("cashNaam", x.naam || txt.cashNaam[currentLang]);
+setTxt("cashPrijs","€"+(x.prijs || "1.00"));
+show("cashCard", x.zichtbaar !== false);
 }
 
-/* SINGLE */
-if(d.single){
-document.getElementById("singleNaam").innerText = d.single.naam || "";
-document.getElementById("singlePrijs").innerText = "€" + (d.single.prijs || "");
-document.getElementById("singleCard").style.display =
-d.single.zichtbaar ? "block":"none";
+/* ENKEL */
+if(adminData.enkel){
+let x = adminData.enkel;
+setTxt("singleNaam", x.naam || txt.singleNaam[currentLang]);
+setTxt("singlePrijs","€"+(x.prijs || "1.50"));
+show("singleCard", x.zichtbaar !== false);
 }
 
-/* SHARE */
-if(d.deel){
-document.getElementById("shareNaam").innerText = d.deel.naam || "";
-document.getElementById("sharePrijs").innerText = "€" + (d.deel.prijs || "");
-document.getElementById("shareCard").style.display =
-d.deel.zichtbaar ? "block":"none";
+/* DEEL */
+if(adminData.deel){
+let x = adminData.deel;
+setTxt("shareNaam", x.naam || txt.shareNaam[currentLang]);
+setTxt("sharePrijs","€"+(x.prijs || "10"));
+show("shareCard", x.zichtbaar !== false);
 }
 
-/* GROUP */
-if(d.groep){
-document.getElementById("groupNaam").innerText = d.groep.naam || "";
-document.getElementById("groupPrijs").innerText = "€" + (d.groep.prijs || "");
-document.getElementById("groupCard").style.display =
-d.groep.zichtbaar ? "block":"none";
+/* GROEP */
+if(adminData.groep){
+let x = adminData.groep;
+setTxt("groupNaam", x.naam || txt.groupNaam[currentLang]);
+setTxt("groupPrijs","€"+(x.prijs || "20"));
+show("groupCard", x.zichtbaar !== false);
 }
 
-});
+applyLang();
+}
+
+/* TALEN */
+const txt = {
+
+sub:{
+nl:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
+en:"Use at gates and desk<br>Choose your access",
+de:"Benutzung an Toren und Kasse<br>Wähle Zugang",
+fr:"Utilisable aux portiques et caisse<br>Choisissez accès",
+es:"Uso en puertas y caja<br>Elige acceso",
+it:"Uso ai tornelli e cassa<br>Scegli accesso"
+},
+
+buy:{
+nl:"Koop Nu",
+en:"Buy Now",
+de:"Jetzt Kaufen",
+fr:"Acheter",
+es:"Comprar",
+it:"Compra"
+},
+
+cashNaam:{
+nl:"Contant betalen",
+en:"Cash Payment",
+de:"Barzahlung",
+fr:"Paiement Espèces",
+es:"Pago en efectivo",
+it:"Pagamento contanti"
+},
+
+singleNaam:{
+nl:"1 Toilet Bezoek",
+en:"1 Toilet Visit",
+de:"1 Toilettenbesuch",
+fr:"1 Visite Toilette",
+es:"1 Visita Baño",
+it:"1 Visita Toilette"
+},
+
+shareNaam:{
+nl:"Deel Uw Toilet Pas",
+en:"Shared Toilet Pass",
+de:"Geteilter Toilettenpass",
+fr:"Pass Toilette Partagé",
+es:"Pase Compartido",
+it:"Pass Condiviso"
+},
+
+groupNaam:{
+nl:"Familie Pas",
+en:"Family Pass",
+de:"Familienpass",
+fr:"Pass Famille",
+es:"Pase Familiar",
+it:"Pass Famiglia"
+},
+
+cashDesc:{
+nl:"Direct bij kassa",
+en:"Pay at desk",
+de:"Direkt an Kasse",
+fr:"Payer à la caisse",
+es:"Pagar en caja",
+it:"Pagare alla cassa"
+},
+
+singleDesc:{
+nl:"Direct op telefoon",
+en:"Instant on phone",
+de:"Direkt aufs Telefon",
+fr:"Direct sur téléphone",
+es:"Directo al móvil",
+it:"Diretto sul telefono"
+},
+
+shareDesc:{
+nl:"Samen gebruiken",
+en:"Use together",
+de:"Gemeinsam nutzen",
+fr:"À partager",
+es:"Usar juntos",
+it:"Da condividere"
+},
+
+groupDesc:{
+nl:"Voor groepen",
+en:"For groups",
+de:"Für Gruppen",
+fr:"Pour groupes",
+es:"Para grupos",
+it:"Per gruppi"
+}
+
+};
+
+function setLang(x){
+currentLang = x;
+applyLang();
+}
+
+function applyLang(){
+
+setHtml("sub", txt.sub[currentLang]);
+
+setTxt("cashDesc", txt.cashDesc[currentLang]);
+setTxt("singleDesc", txt.singleDesc[currentLang]);
+setTxt("shareDesc", txt.shareDesc[currentLang]);
+setTxt("groupDesc", txt.groupDesc[currentLang]);
+
+setTxt("cashBtn", currentLang=="nl"?"Bij Kassa":
+currentLang=="en"?"At Desk":
+currentLang=="de"?"An Kasse":
+currentLang=="fr"?"À la caisse":
+currentLang=="es"?"En caja":"Alla cassa");
+
+setTxt("buy1", txt.buy[currentLang]);
+setTxt("buy2", txt.buy[currentLang]);
+setTxt("buy3", txt.buy[currentLang]);
+
+/* Alleen vertalen als admin leeg is */
+if(!adminData["contant geld"]?.naam) setTxt("cashNaam", txt.cashNaam[currentLang]);
+if(!adminData.enkel?.naam) setTxt("singleNaam", txt.singleNaam[currentLang]);
+if(!adminData.deel?.naam) setTxt("shareNaam", txt.shareNaam[currentLang]);
+if(!adminData.groep?.naam) setTxt("groupNaam", txt.groupNaam[currentLang]);
+
+}
 
 /* BETALEN */
 async function pay(type){
 
 try{
 
-let r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
+const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({type:type})
 });
 
-let data = await r.json();
+const data = await r.json();
 
 if(data.checkoutUrl){
 window.location.href = data.checkoutUrl;
@@ -270,45 +404,17 @@ alert("Betaling tijdelijk niet beschikbaar");
 
 }
 
-/* TALEN */
-function setLang(x){
-
-if(x=="nl"){
-buyTxt("Koop Nu");
-document.getElementById("sub").innerHTML="Toegangspoorten én kassa<br>Kies jouw toegang";
+/* HELPERS */
+function setTxt(id,v){
+document.getElementById(id).innerText=v;
 }
 
-if(x=="en"){
-buyTxt("Buy Now");
-document.getElementById("sub").innerHTML="Entrance gates and desk<br>Choose access";
+function setHtml(id,v){
+document.getElementById(id).innerHTML=v;
 }
 
-if(x=="de"){
-buyTxt("Jetzt Kaufen");
-document.getElementById("sub").innerHTML="Eingangstore und Kasse<br>Zugang wählen";
-}
-
-if(x=="fr"){
-buyTxt("Acheter");
-document.getElementById("sub").innerHTML="Portiques et caisse<br>Choisissez accès";
-}
-
-if(x=="es"){
-buyTxt("Comprar");
-document.getElementById("sub").innerHTML="Puertas y caja<br>Elige acceso";
-}
-
-if(x=="it"){
-buyTxt("Compra");
-document.getElementById("sub").innerHTML="Entrata e cassa<br>Scegli accesso";
-}
-
-}
-
-function buyTxt(t){
-document.getElementById("buy1").innerText=t;
-document.getElementById("buy2").innerText=t;
-document.getElementById("buy3").innerText=t;
+function show(id,on){
+document.getElementById(id).style.display=on?"block":"none";
 }
 </script>
 
