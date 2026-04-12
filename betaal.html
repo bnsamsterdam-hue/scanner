@@ -124,15 +124,6 @@ opacity:.65;
 
 <img src="plee's.png" class="hero">
 
-title:{
-nl:"🚽 Voor Jou en Je Plee-maten 😄",
-en:"🚽 For You and Your Pee-Mates 😄",
-de:"🚽 Für Dich und Deine Plee-Kumpels 😄",
-fr:"🚽 Pour Toi et Tes Potes des Toilettes 😄",
-es:"🚽 Para Ti y Tus Amigos del Baño 😄",
-it:"🚽 Per Te e i Tuoi Amici del WC 😄"
-},
-
 <div class="sub" id="sub">
 Te gebruiken op toegangspoorten én kassa<br>
 Kies jouw toegang
@@ -297,7 +288,14 @@ fr:"Partageable via WhatsApp",
 es:"Compartible por WhatsApp",
 it:"Condivisibile tramite WhatsApp"
 },
-
+title:{
+nl:"🚽 Voor Jou en Je Plee-maten 😄",
+en:"🚽 For You and Your Pee-Mates 😄",
+de:"🚽 Für Dich und Deine Plee-Freunde 😄",
+fr:"🚽 Pour Toi et Tes Amis des Toilettes 😄",
+es:"🚽 Para Ti y Tus Amigos del Baño 😄",
+it:"🚽 Per Te e i Tuoi Amici del WC 😄"
+},
 groupDesc:{
 nl:"Deelbaar via WhatsApp",
 en:"Shareable via WhatsApp",
@@ -341,7 +339,10 @@ show("groupCard", group.visible !== false);
 
 /* ALGEMEEN */
 setTxt("title", data.titel || "The Plee's To Bee");
-setHtml("sub", txt.sub[lang]);
+function applyLang(){
+
+setTxt("title", txt.title[currentLang]);
+setHtml("sub", txt.sub[currentLang]);
 
 setTxt("cashDesc", txt.cashDesc[lang]);
 setTxt("singleDesc", txt.singleDesc[lang]);
