@@ -14,19 +14,16 @@ color:#fff;
 font-family:Arial,Helvetica,sans-serif;
 text-align:center;
 }
-
 .wrap{
 max-width:430px;
 margin:auto;
 }
-
 .logo{
 width:100%;
 max-width:320px;
 margin:20px auto;
 display:block;
 }
-
 .box{
 background:#111;
 border:1px solid #333;
@@ -35,19 +32,8 @@ padding:25px;
 margin-top:20px;
 box-shadow:0 0 15px rgba(255,215,0,.15);
 }
-
-.ok{
-font-size:30px;
-font-weight:bold;
-color:#35c759;
-}
-
-.bad{
-font-size:28px;
-font-weight:bold;
-color:#ff3b30;
-}
-
+.ok{font-size:32px;font-weight:bold;color:#35c759;}
+.bad{font-size:28px;font-weight:bold;color:#ff3b30;}
 .qr{
 margin-top:20px;
 display:inline-block;
@@ -55,12 +41,30 @@ background:#fff;
 padding:15px;
 border-radius:15px;
 }
-
 .small{
 margin-top:15px;
 font-size:14px;
-opacity:.7;
+opacity:.75;
 line-height:1.5;
+}
+.btn{
+margin-top:15px;
+display:block;
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+}
+.save{
+background:#35c759;
+color:#fff;
+}
+.back{
+background:#ffd700;
+color:#000;
 }
 </style>
 </head>
@@ -79,10 +83,11 @@ Betaling controleren...
 
 <script>
 const result = document.getElementById("result");
+const id = new URLSearchParams(location.search).get("id");
+
+let loop = null;
 
 async function checkPayment(){
-
-const id = new URLSearchParams(window.location.search).get("id");
 
 if(!id){
 result.innerHTML =
@@ -101,32 +106,36 @@ const data = await r.json();
 
 if(data.paid){
 
+clearInterval(loop);
+
 result.innerHTML =
 '<div class="ok">✔ Betaling ontvangen</div>' +
 '<div class="small">Laat deze QR code scannen bij de toegangspoort</div>' +
-'<div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + id + '"></div>';
-
-clearInterval(loop);
+'<div class="qr">' +
+'<img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(id) + '">' +
+'</div>' +
+'<button class="btn save" onclick="saveInfo()">📸 Maak screenshot</button>' +
+'<button class="btn back" onclick="location.href=`betalen.html`">⬅ Terug</button>';
 
 }else{
-
 result.innerHTML =
 '<div class="small">Betaling verwerken...</div>';
-
 }
 
 }catch(e){
-
 result.innerHTML =
-'<div class="bad">✖ Controle mislukt</div>';
+'<div class="bad">✖ Controle mislukt</div>' +
+'<div class="small">Probeer pagina te verversen</div>';
+}
 
 }
 
+function saveInfo(){
+alert("Maak nu een screenshot van deze QR code zodat u hem bewaart.");
 }
 
 checkPayment();
-
-const loop = setInterval(checkPayment,2000);
+loop = setInterval(checkPayment,2000);
 </script>
 
 </body>
