@@ -191,13 +191,44 @@ function pay(type){
 window.location.href="https://mollie.com";
 }
 
-function setLang(x){
-if(x=="nl"){ sub.innerHTML="Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang"; }
-if(x=="en"){ sub.innerHTML="Use at gates and desk<br>Choose your access"; }
-if(x=="de"){ sub.innerHTML="Nutzbar an Toren und Kasse<br>Wähle Zugang"; }
-if(x=="fr"){ sub.innerHTML="Utilisable aux portiques et caisse<br>Choisissez accès"; }
-if(x=="es"){ sub.innerHTML="Usar en puertas y caja<br>Elige acceso"; }
-if(x=="it"){ sub.innerHTML="Usabile ai tornelli e cassa<br>Scegli accesso"; }
+<script>
+async function pay(type){
+  const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment", {
+    method: "POST"
+  });
+
+  const data = await r.json();
+  window.location.href = data.checkoutUrl;
+}
+
+function setlang(x){
+  const sub = document.getElementById("sub");
+
+  if(x=="nl"){
+    sub.innerHTML="Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang";
+  }
+
+  if(x=="en"){
+    sub.innerHTML="Use at gates and desk<br>Choose your access";
+  }
+
+  if(x=="de"){
+    sub.innerHTML="Nutzbar an Toren und Kasse<br>Wähle Zugang";
+  }
+
+  if(x=="fr"){
+    sub.innerHTML="Utilisable aux portiques et caisse<br>Choisissez accès";
+  }
+
+  if(x=="es"){
+    sub.innerHTML="Usar en puertas y caja<br>Elige acceso";
+  }
+
+  if(x=="it"){
+    sub.innerHTML="Usabile ai tornelli e cassa<br>Scegli accesso";
+  }
+}
+</script>
 }
 </script>
 
