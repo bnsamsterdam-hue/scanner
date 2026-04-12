@@ -213,12 +213,13 @@ let currentLang = "nl";
 db.collection("instellingen").doc("winkel").onSnapshot(doc=>{
 if(!doc.exists) return;
 adminData = doc.data();
+console.log(adminData);
 render();
 });
 
 /* RENDER */
 function render(){
-
+console.log("render gestart", adminData);
 /* CASH */
 if(adminData["contant geld"]){
 let x = adminData["contant geld"];
