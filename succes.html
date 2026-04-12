@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Betaling controleren</title>
+<title>Betaling succesvol</title>
 
 <style>
 body{
 margin:0;
+padding:20px;
 background:#000;
 color:#fff;
-font-family:Arial;
+font-family:Arial,Helvetica,sans-serif;
 text-align:center;
-padding:20px;
 }
 
 .wrap{
@@ -33,32 +33,34 @@ border:1px solid #333;
 border-radius:20px;
 padding:25px;
 margin-top:20px;
+box-shadow:0 0 15px rgba(255,215,0,.15);
 }
 
 .ok{
-color:#35c759;
 font-size:30px;
 font-weight:bold;
+color:#35c759;
 }
 
 .bad{
-color:#ff3b30;
-font-size:30px;
+font-size:28px;
 font-weight:bold;
+color:#ff3b30;
 }
 
 .qr{
 margin-top:20px;
+display:inline-block;
 background:#fff;
 padding:15px;
 border-radius:15px;
-display:inline-block;
 }
 
 .small{
-opacity:.7;
-margin-top:10px;
+margin-top:15px;
 font-size:14px;
+opacity:.7;
+line-height:1.5;
 }
 </style>
 </head>
@@ -76,39 +78,46 @@ Betaling controleren...
 </div>
 
 <script>
+const result = document.getElementById("result");
+
 async function checkPayment(){
 
 const id = new URLSearchParams(window.location.search).get("id");
 
 if(!id){
-document.getElementById("result").innerHTML=
-'<div class="bad">✖ Geen geldige betaling</div><div class="small">Deze pagina werkt alleen na betaling.</div>';
+result.innerHTML =
+'<div class="bad">✖ Geen geldige betaling</div>' +
+'<div class="small">Deze pagina werkt alleen na betaling.</div>';
 return;
 }
 
 try{
 
-const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/check-payment?id="+id);
+const r = await fetch(
+"https://api-atygyvzjoq-uc.a.run.app/check-payment?id=" + id
+);
+
 const data = await r.json();
 
 if(data.paid){
 
-document.getElementById("result").innerHTML =
+result.innerHTML =
 '<div class="ok">✔ Betaling ontvangen</div>' +
-'<div style="margin-top:15px;font-size:20px;">Toegang actief</div>' +
-'<div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+id+'"></div>' +
-'<div class="small">Laat deze QR code scannen bij toegangspoort</div>';
+'<div class="small">Laat deze QR code scannen bij de toegangspoort</div>' +
+'<div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + id + '"></div>';
+
+clearInterval(loop);
 
 }else{
 
-document.getElementById("result").innerHTML=
-'<div class="bad">✖ Nog niet betaald</div>';
+result.innerHTML =
+'<div class="small">Betaling verwerken...</div>';
 
 }
 
 }catch(e){
 
-document.getElementById("result").innerHTML=
+result.innerHTML =
 '<div class="bad">✖ Controle mislukt</div>';
 
 }
@@ -116,6 +125,8 @@ document.getElementById("result").innerHTML=
 }
 
 checkPayment();
+
+const loop = setInterval(checkPayment,2000);
 </script>
 
 </body>
