@@ -135,10 +135,7 @@ opacity:.6;
 
 <h1>The Plee's To Bee</h1>
 
-<div class="sub" id="sub">
-Te gebruiken op toegangspoorten én kassa<br>
-Kies jouw toegang
-</div>
+<div class="sub" id="sub"></div>
 
 <div class="langs">
 <button onclick="setLang('nl')">🇳🇱 Nederlands</button>
@@ -152,84 +149,196 @@ Kies jouw toegang
 <div class="card">
 <div class="badge">⭐ Mega Deal</div>
 <div class="price">€1,00</div>
-<div class="name" id="cashname">Cash Pass</div>
-<div class="desc" id="cashdesc">1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen</div>
-<button class="buy cash" id="cashbtn">Bij Kassa</button>
+<div class="name" id="cashname"></div>
+<div class="desc" id="cashdesc"></div>
+<button class="buy cash" id="cashbtn"></button>
 </div>
 
 <div class="card">
 <div class="price">€1,50</div>
-<div class="name" id="n1">Single Pass</div>
-<div class="desc" id="d1">1 bezoek<br>Direct op telefoon</div>
-<button class="buy" id="b1" onclick="pay('single')">Koop Nu</button>
+<div class="name" id="n1"></div>
+<div class="desc" id="d1"></div>
+<button class="buy" id="b1" onclick="pay('single')"></button>
 </div>
 
 <div class="card">
 <div class="badge">⭐ Meest gekozen</div>
 <div class="price">€10</div>
-<div class="name" id="n2">Share Pass</div>
-<div class="desc" id="d2">10 bezoeken<br>Deelbaar met vrienden</div>
-<button class="buy" id="b2" onclick="pay('ten')">Koop Nu</button>
+<div class="name" id="n2"></div>
+<div class="desc" id="d2"></div>
+<button class="buy" id="b2" onclick="pay('ten')"></button>
 </div>
 
 <div class="card">
 <div class="badge badge2">🔥 Beste Deal</div>
 <div class="price">€20</div>
-<div class="name" id="n3">Group Pass</div>
-<div class="desc" id="d3">20 bezoeken<br>Deelbaar met vrienden</div>
-<button class="buy" id="b3" onclick="pay('twenty')">Koop Nu</button>
+<div class="name" id="n3"></div>
+<div class="desc" id="d3"></div>
+<button class="buy" id="b3" onclick="pay('twenty')"></button>
 </div>
 
-<div class="footer" id="footer">
-Vandaag kozen veel bezoekers The Plee's Pass
-</div>
+<div class="footer" id="footer"></div>
 
 </div>
 
 <script>
+const texts = {
+
+nl:{
+sub:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
+cashname:"Cash Pass",
+cashdesc:"1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen",
+cashbtn:"Bij Kassa",
+n1:"Single Pass",
+d1:"1 bezoek<br>Direct op telefoon",
+n2:"Share Pass",
+d2:"10 bezoeken<br>Deelbaar met vrienden",
+n3:"Group Pass",
+d3:"20 bezoeken<br>Deelbaar met vrienden",
+buy:"Koop Nu",
+footer:"Vandaag kozen veel bezoekers The Plee's Pass",
+error:"Betaling tijdelijk niet beschikbaar"
+},
+
+en:{
+sub:"Use at gates and desk<br>Choose your access",
+cashname:"Cash Pass",
+cashdesc:"1 visit<br>At desk<br>Fast access • No waiting lines",
+cashbtn:"At Desk",
+n1:"Single Pass",
+d1:"1 visit<br>Direct on phone",
+n2:"Share Pass",
+d2:"10 visits<br>Share with friends",
+n3:"Group Pass",
+d3:"20 visits<br>Share with friends",
+buy:"Buy Now",
+footer:"Many visitors chose The Plee's Pass today",
+error:"Payment temporarily unavailable"
+},
+
+de:{
+sub:"Nutzbar an Toren und Kasse<br>Wähle Zugang",
+cashname:"Bar Pass",
+cashdesc:"1 Besuch<br>An der Kasse<br>Schneller Zugang",
+cashbtn:"An Kasse",
+n1:"Einzel Pass",
+d1:"1 Besuch<br>Direkt aufs Handy",
+n2:"Share Pass",
+d2:"10 Besuche<br>Teilbar mit Freunden",
+n3:"Group Pass",
+d3:"20 Besuche<br>Teilbar mit Freunden",
+buy:"Jetzt Kaufen",
+footer:"Viele Besucher wählten heute The Plee's Pass",
+error:"Zahlung vorübergehend nicht verfügbar"
+},
+
+fr:{
+sub:"Utilisable aux portiques et caisse<br>Choisissez accès",
+cashname:"Pass Caisse",
+cashdesc:"1 visite<br>À la caisse<br>Accès rapide",
+cashbtn:"À la caisse",
+n1:"Pass Simple",
+d1:"1 visite<br>Direct sur téléphone",
+n2:"Pass Partage",
+d2:"10 visites<br>Partageable",
+n3:"Pass Groupe",
+d3:"20 visites<br>Partageable",
+buy:"Acheter",
+footer:"Beaucoup de visiteurs ont choisi The Plee's Pass",
+error:"Paiement temporairement indisponible"
+},
+
+es:{
+sub:"Usar en puertas y caja<br>Elige acceso",
+cashname:"Pase Caja",
+cashdesc:"1 visita<br>En caja<br>Acceso rápido",
+cashbtn:"En Caja",
+n1:"Pase Individual",
+d1:"1 visita<br>Directo al móvil",
+n2:"Pase Compartido",
+d2:"10 visitas<br>Compartir con amigos",
+n3:"Pase Grupo",
+d3:"20 visitas<br>Compartir con amigos",
+buy:"Comprar",
+footer:"Muchos visitantes eligieron The Plee's Pass hoy",
+error:"Pago temporalmente no disponible"
+},
+
+it:{
+sub:"Usabile ai tornelli e cassa<br>Scegli accesso",
+cashname:"Pass Cassa",
+cashdesc:"1 visita<br>Alla cassa<br>Accesso rapido",
+cashbtn:"Alla Cassa",
+n1:"Pass Singolo",
+d1:"1 visita<br>Diretto sul telefono",
+n2:"Pass Condiviso",
+d2:"10 visite<br>Condivisibile",
+n3:"Pass Gruppo",
+d3:"20 visite<br>Condivisibile",
+buy:"Acquista",
+footer:"Molti visitatori hanno scelto The Plee's Pass oggi",
+error:"Pagamento temporaneamente non disponibile"
+}
+
+};
+
+let currentLang = "nl";
+
+function setLang(lang){
+
+currentLang = lang;
+const t = texts[lang];
+
+document.getElementById("sub").innerHTML = t.sub;
+document.getElementById("cashname").innerHTML = t.cashname;
+document.getElementById("cashdesc").innerHTML = t.cashdesc;
+document.getElementById("cashbtn").innerHTML = t.cashbtn;
+
+document.getElementById("n1").innerHTML = t.n1;
+document.getElementById("d1").innerHTML = t.d1;
+
+document.getElementById("n2").innerHTML = t.n2;
+document.getElementById("d2").innerHTML = t.d2;
+
+document.getElementById("n3").innerHTML = t.n3;
+document.getElementById("d3").innerHTML = t.d3;
+
+document.getElementById("b1").innerHTML = t.buy;
+document.getElementById("b2").innerHTML = t.buy;
+document.getElementById("b3").innerHTML = t.buy;
+
+document.getElementById("footer").innerHTML = t.footer;
+}
+
 async function pay(type){
+
 try{
- const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment", {
-   method:"POST"
- });
 
- const data = await r.json();
+const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body: JSON.stringify({
+type:type
+})
+});
 
- window.location.href = data.checkoutUrl;
+const data = await r.json();
+
+if(data.checkoutUrl){
+window.location.href = data.checkoutUrl;
+}else{
+alert(texts[currentLang].error);
+}
 
 }catch(e){
- alert("Betaling tijdelijk niet beschikbaar");
- console.log(e);
+alert(texts[currentLang].error);
 }
-}  
-function setLang(x){
-  const sub = document.getElementById("sub");
 
-  if(x=="nl"){
-    sub.innerHTML="Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang";
-  }
-
-  if(x=="en"){
-    sub.innerHTML="Use at gates and desk<br>Choose your access";
-  }
-
-  if(x=="de"){
-    sub.innerHTML="Nutzbar an Toren und Kasse<br>Wähle Zugang";
-  }
-
-  if(x=="fr"){
-    sub.innerHTML="Utilisable aux portiques et caisse<br>Choisissez accès";
-  }
-
-  if(x=="es"){
-    sub.innerHTML="Usar en puertas y caja<br>Elige acceso";
-  }
-
-  if(x=="it"){
-    sub.innerHTML="Usabile ai tornelli e cassa<br>Scegli accesso";
-  }
 }
-</script>
+
+setLang("nl");
 </script>
 
 </body>
