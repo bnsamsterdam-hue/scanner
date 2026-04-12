@@ -3,151 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Betaling controleren...</title>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<title>Betaling controleren</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial,Helvetica,sans-serif;
 background:#000;
 color:#fff;
+font-family:Arial;
 text-align:center;
 padding:20px;
 }
-.wrap{max-width:430px;margin:auto;}
-.logo{width:100%;max-width:330px;border-radius:20px;margin-bottom:20px;}
+
+.wrap{
+max-width:430px;
+margin:auto;
+}
+
+.logo{
+width:100%;
+max-width:320px;
+margin:20px auto;
+display:block;
+}
+
 .box{
 background:#111;
 border:1px solid #333;
 border-radius:20px;
-padding:20px;
+padding:25px;
+margin-top:20px;
 }
-.ok{color:#35c759;font-size:28px;font-weight:bold;}
-.err{color:#ff4d4d;font-size:26px;font-weight:bold;}
-.msg{margin:15px 0;line-height:1.6;}
-.code{margin-top:14px;color:#ffd700;font-weight:bold;letter-spacing:2px;}
-.small{font-size:13px;opacity:.65;margin-top:15px;}
+
+.ok{
+color:#35c759;
+font-size:30px;
+font-weight:bold;
+}
+
+.bad{
+color:#ff3b30;
+font-size:30px;
+font-weight:bold;
+}
+
+.qr{
+margin-top:20px;
+background:#fff;
+padding:15px;
+border-radius:15px;
+display:inline-block;
+}
+
+.small{
+opacity:.7;
+margin-top:10px;
+font-size:14px;
+}
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
+
 <img src="plee's.png" class="logo">
 
-<div class="box" id="box">
-<div class="msg">⏳ Betaling controleren...</div>
+<div class="box" id="result">
+Betaling controleren...
 </div>
+
 </div>
 
 <script>
-firebase.initializeApp({
-apiKey:"AIza...",
-authDomain:"ticket-systeem-18a08.firebaseapp.com",
-projectId:"ticket-systeem-18a08"
-});
+async function checkPayment(){
 
-const db = firebase.firestore();
+const id = new URLSearchParams(window.location.search).get("id");
 
-function generateCode(){
-const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-function part(){
-let s="";
-for(let i=0;i<4;i++){
-s += chars[Math.floor(Math.random()*chars.length)];
-}
-return s;
-}
-
-return part()+"-"+part()+"-"+part();
-}
-
-async function start(){
-
-const params = new URLSearchParams(window.location.search);
-
-const token = params.get("token");
-const type = params.get("type") || "1";
-
-if(!token){
-document.getElementById("box").innerHTML = `
-<div class="err">❌ Geen geldige betaling</div>
-<div class="msg">Deze pagina werkt alleen na betaling.</div>
-`;
+if(!id){
+document.getElementById("result").innerHTML=
+'<div class="bad">✖ Geen geldige betaling</div><div class="small">Deze pagina werkt alleen na betaling.</div>';
 return;
 }
 
-/* betaling zoeken */
-const ref = db.collection("payments").doc(token);
-const doc = await ref.get();
+try{
 
-if(!doc.exists){
-document.getElementById("box").innerHTML = `
-<div class="err">❌ Betaling niet gevonden</div>
-<div class="msg">Gebruik alleen de officiële betaallink.</div>
-`;
-return;
-}
+const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/check-payment?id="+id);
+const data = await r.json();
 
-const data = doc.data();
+if(data.paid){
 
-if(data.used === true){
-document.getElementById("box").innerHTML = `
-<div class="err">⚠ Ticket al opgehaald</div>
-<div class="msg">Deze betaling is al gebruikt.</div>
-`;
-return;
-}
+document.getElementById("result").innerHTML =
+'<div class="ok">✔ Betaling ontvangen</div>' +
+'<div style="margin-top:15px;font-size:20px;">Toegang actief</div>' +
+'<div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+id+'"></div>' +
+'<div class="small">Laat deze QR code scannen bij toegangspoort</div>';
 
-if(data.paid !== true){
-document.getElementById("box").innerHTML = `
-<div class="err">❌ Betaling niet voltooid</div>
-`;
-return;
-}
+}else{
 
-/* aantal bepalen */
-let remaining = 1;
-
-if(type=="10") remaining = 10;
-if(type=="20") remaining = 20;
-
-/* unieke qr maken */
-let code = generateCode();
-
-await db.collection("tickets").doc(code).set({
-remaining: remaining
-});
-
-/* token blokkeren */
-await ref.update({
-used:true,
-ticket:code
-});
-
-/* tonen */
-document.getElementById("box").innerHTML = `
-<div class="ok">✅ Betaling ontvangen</div>
-<div class="msg">Jouw Toilet Pass is klaar</div>
-<canvas id="qr"></canvas>
-<div class="msg">
-📱 Scan bij toegangspoort of toon aan kassa
-</div>
-<div class="small">Maak een screenshot</div>
-`;
-
-QRCode.toCanvas(document.getElementById("qr"), code, {
-width:280,
-margin:1
-});
+document.getElementById("result").innerHTML=
+'<div class="bad">✖ Nog niet betaald</div>';
 
 }
 
-start();
+}catch(e){
+
+document.getElementById("result").innerHTML=
+'<div class="bad">✖ Controle mislukt</div>';
+
+}
+
+}
+
+checkPayment();
 </script>
+
 </body>
 </html>
