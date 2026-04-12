@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Betaling succesvol</title>
+<meta name="theme-color" content="#000000">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>The Plee's To Bee</title>
 
 <style>
 body{
@@ -14,26 +16,46 @@ color:#fff;
 font-family:Arial,Helvetica,sans-serif;
 text-align:center;
 }
+
 .wrap{
 max-width:430px;
 margin:auto;
 }
+
 .logo{
 width:100%;
 max-width:320px;
-margin:20px auto;
+margin:10px auto 20px;
 display:block;
 }
+
 .box{
 background:#111;
 border:1px solid #333;
 border-radius:20px;
 padding:25px;
-margin-top:20px;
 box-shadow:0 0 15px rgba(255,215,0,.15);
 }
-.ok{font-size:32px;font-weight:bold;color:#35c759;}
-.bad{font-size:28px;font-weight:bold;color:#ff3b30;}
+
+.ok{
+font-size:30px;
+font-weight:bold;
+color:#35c759;
+}
+
+.bad{
+font-size:28px;
+font-weight:bold;
+color:#ff3b30;
+}
+
+.small{
+margin-top:12px;
+font-size:14px;
+opacity:.75;
+line-height:1.5;
+}
+
 .qr{
 margin-top:20px;
 display:inline-block;
@@ -41,30 +63,38 @@ background:#fff;
 padding:15px;
 border-radius:15px;
 }
-.small{
-margin-top:15px;
-font-size:14px;
-opacity:.75;
-line-height:1.5;
-}
+
 .btn{
-margin-top:15px;
-display:block;
 width:100%;
-padding:14px;
+padding:15px;
+margin-top:12px;
 border:none;
 border-radius:12px;
 font-size:17px;
 font-weight:bold;
 cursor:pointer;
 }
-.save{
+
+.gold{
+background:#ffd700;
+color:#000;
+}
+
+.green{
 background:#35c759;
 color:#fff;
 }
-.back{
-background:#ffd700;
-color:#000;
+
+.blue{
+background:#25d366;
+color:#fff;
+}
+
+.topbtn{
+position:sticky;
+top:0;
+z-index:5;
+margin-bottom:15px;
 }
 </style>
 </head>
@@ -72,6 +102,8 @@ color:#000;
 <body>
 
 <div class="wrap">
+
+<button class="btn gold topbtn" onclick="goQr()">⬇ Direct naar QR code</button>
 
 <img src="plee's.png" class="logo">
 
@@ -108,30 +140,81 @@ if(data.paid){
 
 clearInterval(loop);
 
+const qrUrl =
+"https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=" +
+encodeURIComponent(id);
+
 result.innerHTML =
 '<div class="ok">✔ Betaling ontvangen</div>' +
 '<div class="small">Laat deze QR code scannen bij de toegangspoort</div>' +
-'<div class="qr">' +
-'<img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(id) + '">' +
+
+'<div class="qr" id="qrblok">' +
+'<img id="qrimg" src="' + qrUrl + '">' +
 '</div>' +
-'<button class="btn save" onclick="saveInfo()">📸 Maak screenshot</button>' +
-'<button class="btn back" onclick="location.href=`betalen.html`">⬅ Terug</button>';
+
+'<button class="btn green" onclick="downloadQr()">📥 Opslaan op telefoon</button>' +
+
+'<button class="btn blue" onclick="shareQr()">📲 Deel via WhatsApp</button>' +
+
+'<button class="btn gold" onclick="goQr()">⬆ Naar QR code</button>';
 
 }else{
+
 result.innerHTML =
 '<div class="small">Betaling verwerken...</div>';
+
 }
 
 }catch(e){
+
 result.innerHTML =
 '<div class="bad">✖ Controle mislukt</div>' +
-'<div class="small">Probeer pagina te verversen</div>';
-}
+'<div class="small">Ververs de pagina opnieuw</div>';
 
 }
 
-function saveInfo(){
-alert("Maak nu een screenshot van deze QR code zodat u hem bewaart.");
+}
+
+function goQr(){
+const el = document.getElementById("qrblok");
+if(el){
+el.scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+}
+}
+
+function downloadQr(){
+const img = document.getElementById("qrimg");
+if(!img) return;
+
+const a = document.createElement("a");
+a.href = img.src;
+a.download = "plees-ticket.png";
+document.body.appendChild(a);
+a.click();
+a.remove();
+}
+
+async function shareQr(){
+
+const url = location.href;
+
+if(navigator.share){
+try{
+await navigator.share({
+title:"Mijn Toilet Ticket",
+text:"Hier is mijn ticket QR code",
+url:url
+});
+}catch(e){}
+}else{
+window.open(
+"https://wa.me/?text=" + encodeURIComponent("Mijn ticket: " + url),
+"_blank"
+);
+}
 }
 
 checkPayment();
