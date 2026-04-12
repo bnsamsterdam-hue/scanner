@@ -13,7 +13,6 @@ background:#000;
 color:#fff;
 text-align:center;
 }
-
 .hero{
 width:100%;
 max-width:430px;
@@ -21,32 +20,27 @@ margin:15px auto;
 display:block;
 border-radius:18px;
 }
-
 .wrap{
 max-width:430px;
 margin:auto;
 padding:10px;
 }
-
 h1{
 color:#ffd700;
 font-size:30px;
 margin:8px 0;
 }
-
 .sub{
 font-size:18px;
 line-height:1.5;
 margin-bottom:14px;
 }
-
 .langs{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:8px;
 margin-bottom:18px;
 }
-
 .langs button{
 padding:12px;
 font-size:16px;
@@ -57,7 +51,6 @@ background:#1c1c1c;
 color:#fff;
 cursor:pointer;
 }
-
 .card{
 background:#111;
 border:1px solid #333;
@@ -66,7 +59,6 @@ padding:18px;
 margin:12px 0;
 box-shadow:0 0 12px rgba(255,215,0,.15);
 }
-
 .badge{
 display:inline-block;
 padding:5px 10px;
@@ -77,30 +69,25 @@ margin-bottom:8px;
 background:#ffd700;
 color:#000;
 }
-
 .badge2{
 background:#ff6600;
 color:#fff;
 }
-
 .price{
 font-size:34px;
 font-weight:bold;
 color:#ffd700;
 }
-
 .name{
 font-size:24px;
 font-weight:bold;
 margin-top:6px;
 }
-
 .desc{
 line-height:1.5;
 margin:10px 0;
 opacity:.9;
 }
-
 .buy{
 width:100%;
 padding:14px;
@@ -112,13 +99,11 @@ background:#ffd700;
 color:#000;
 cursor:pointer;
 }
-
 .cash{
 background:#35c759;
 color:#fff;
 cursor:default;
 }
-
 .footer{
 padding:20px;
 font-size:13px;
@@ -147,7 +132,7 @@ opacity:.6;
 </div>
 
 <div class="card">
-<div class="badge">⭐ Mega Deal</div>
+<div class="badge" id="badge0"></div>
 <div class="price">€1,00</div>
 <div class="name" id="cashname"></div>
 <div class="desc" id="cashdesc"></div>
@@ -162,7 +147,7 @@ opacity:.6;
 </div>
 
 <div class="card">
-<div class="badge">⭐ Meest gekozen</div>
+<div class="badge" id="badge1"></div>
 <div class="price">€10</div>
 <div class="name" id="n2"></div>
 <div class="desc" id="d2"></div>
@@ -170,7 +155,7 @@ opacity:.6;
 </div>
 
 <div class="card">
-<div class="badge badge2">🔥 Beste Deal</div>
+<div class="badge badge2" id="badge2"></div>
 <div class="price">€20</div>
 <div class="name" id="n3"></div>
 <div class="desc" id="d3"></div>
@@ -186,15 +171,18 @@ const texts = {
 
 nl:{
 sub:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
-cashname:"Cash Pass",
-cashdesc:"1 bezoek<br>Bij kassa<br>Snelle toegang • Geen wachtrijen",
+badge0:"⭐ Beste Prijs",
+badge1:"⭐ Meest Gekozen",
+badge2:"🔥 Beste Deal",
+cashname:"Contante Betaling",
+cashdesc:"1 toilet bezoek<br>Betalen bij kassa<br>Snelle toegang",
 cashbtn:"Bij Kassa",
-n1:"Single Pass",
+n1:"1 Toilet Bezoek",
 d1:"1 bezoek<br>Direct op telefoon",
-n2:"Share Pass",
+n2:"Deel Uw Toilet Pas",
 d2:"10 bezoeken<br>Deelbaar met vrienden",
-n3:"Group Pass",
-d3:"20 bezoeken<br>Deelbaar met vrienden",
+n3:"Familie Pas",
+d3:"20 bezoeken<br>Ideaal voor gezin",
 buy:"Koop Nu",
 footer:"Vandaag kozen veel bezoekers The Plee's Pass",
 error:"Betaling tijdelijk niet beschikbaar"
@@ -202,15 +190,18 @@ error:"Betaling tijdelijk niet beschikbaar"
 
 en:{
 sub:"Use at gates and desk<br>Choose your access",
-cashname:"Cash Pass",
-cashdesc:"1 visit<br>At desk<br>Fast access • No waiting lines",
+badge0:"⭐ Best Price",
+badge1:"⭐ Most Chosen",
+badge2:"🔥 Best Deal",
+cashname:"Cash Payment",
+cashdesc:"1 toilet visit<br>Pay at desk<br>Fast access",
 cashbtn:"At Desk",
-n1:"Single Pass",
+n1:"1 Toilet Visit",
 d1:"1 visit<br>Direct on phone",
-n2:"Share Pass",
+n2:"Share Your Toilet Pass",
 d2:"10 visits<br>Share with friends",
-n3:"Group Pass",
-d3:"20 visits<br>Share with friends",
+n3:"Family Pass",
+d3:"20 visits<br>Perfect for family",
 buy:"Buy Now",
 footer:"Many visitors chose The Plee's Pass today",
 error:"Payment temporarily unavailable"
@@ -218,15 +209,18 @@ error:"Payment temporarily unavailable"
 
 de:{
 sub:"Nutzbar an Toren und Kasse<br>Wähle Zugang",
-cashname:"Bar Pass",
-cashdesc:"1 Besuch<br>An der Kasse<br>Schneller Zugang",
+badge0:"⭐ Bester Preis",
+badge1:"⭐ Beliebt",
+badge2:"🔥 Bestes Angebot",
+cashname:"Barzahlung",
+cashdesc:"1 Toilettenbesuch<br>An Kasse zahlen<br>Schneller Zugang",
 cashbtn:"An Kasse",
-n1:"Einzel Pass",
+n1:"1 Toilettenbesuch",
 d1:"1 Besuch<br>Direkt aufs Handy",
-n2:"Share Pass",
-d2:"10 Besuche<br>Teilbar mit Freunden",
-n3:"Group Pass",
-d3:"20 Besuche<br>Teilbar mit Freunden",
+n2:"Teilen Sie Ihren Pass",
+d2:"10 Besuche<br>Mit Freunden teilbar",
+n3:"Familienpass",
+d3:"20 Besuche<br>Perfekt für Familie",
 buy:"Jetzt Kaufen",
 footer:"Viele Besucher wählten heute The Plee's Pass",
 error:"Zahlung vorübergehend nicht verfügbar"
@@ -234,15 +228,18 @@ error:"Zahlung vorübergehend nicht verfügbar"
 
 fr:{
 sub:"Utilisable aux portiques et caisse<br>Choisissez accès",
-cashname:"Pass Caisse",
-cashdesc:"1 visite<br>À la caisse<br>Accès rapide",
+badge0:"⭐ Meilleur Prix",
+badge1:"⭐ Populaire",
+badge2:"🔥 Meilleure Offre",
+cashname:"Paiement Espèces",
+cashdesc:"1 visite toilette<br>Payer en caisse<br>Accès rapide",
 cashbtn:"À la caisse",
-n1:"Pass Simple",
-d1:"1 visite<br>Direct sur téléphone",
-n2:"Pass Partage",
+n1:"1 Visite Toilette",
+d1:"1 visite<br>Direct téléphone",
+n2:"Partagez Votre Pass",
 d2:"10 visites<br>Partageable",
-n3:"Pass Groupe",
-d3:"20 visites<br>Partageable",
+n3:"Pass Famille",
+d3:"20 visites<br>Parfait famille",
 buy:"Acheter",
 footer:"Beaucoup de visiteurs ont choisi The Plee's Pass",
 error:"Paiement temporairement indisponible"
@@ -250,15 +247,18 @@ error:"Paiement temporairement indisponible"
 
 es:{
 sub:"Usar en puertas y caja<br>Elige acceso",
-cashname:"Pase Caja",
-cashdesc:"1 visita<br>En caja<br>Acceso rápido",
+badge0:"⭐ Mejor Precio",
+badge1:"⭐ Popular",
+badge2:"🔥 Mejor Oferta",
+cashname:"Pago en Efectivo",
+cashdesc:"1 visita baño<br>Pagar en caja<br>Acceso rápido",
 cashbtn:"En Caja",
-n1:"Pase Individual",
+n1:"1 Visita Baño",
 d1:"1 visita<br>Directo al móvil",
-n2:"Pase Compartido",
-d2:"10 visitas<br>Compartir con amigos",
-n3:"Pase Grupo",
-d3:"20 visitas<br>Compartir con amigos",
+n2:"Comparte Tu Pase",
+d2:"10 visitas<br>Compartir amigos",
+n3:"Pase Familiar",
+d3:"20 visitas<br>Ideal familia",
 buy:"Comprar",
 footer:"Muchos visitantes eligieron The Plee's Pass hoy",
 error:"Pago temporalmente no disponible"
@@ -266,15 +266,18 @@ error:"Pago temporalmente no disponible"
 
 it:{
 sub:"Usabile ai tornelli e cassa<br>Scegli accesso",
-cashname:"Pass Cassa",
-cashdesc:"1 visita<br>Alla cassa<br>Accesso rapido",
+badge0:"⭐ Miglior Prezzo",
+badge1:"⭐ Popolare",
+badge2:"🔥 Migliore Offerta",
+cashname:"Pagamento Contanti",
+cashdesc:"1 visita toilette<br>Paga in cassa<br>Accesso rapido",
 cashbtn:"Alla Cassa",
-n1:"Pass Singolo",
+n1:"1 Visita Toilette",
 d1:"1 visita<br>Diretto sul telefono",
-n2:"Pass Condiviso",
+n2:"Condividi Il Tuo Pass",
 d2:"10 visite<br>Condivisibile",
-n3:"Pass Gruppo",
-d3:"20 visite<br>Condivisibile",
+n3:"Pass Famiglia",
+d3:"20 visite<br>Perfetto famiglia",
 buy:"Acquista",
 footer:"Molti visitatori hanno scelto The Plee's Pass oggi",
 error:"Pagamento temporaneamente non disponibile"
@@ -282,52 +285,54 @@ error:"Pagamento temporaneamente non disponibile"
 
 };
 
-let currentLang = "nl";
+let currentLang="nl";
 
 function setLang(lang){
 
-currentLang = lang;
-const t = texts[lang];
+currentLang=lang;
+const t=texts[lang];
 
-document.getElementById("sub").innerHTML = t.sub;
-document.getElementById("cashname").innerHTML = t.cashname;
-document.getElementById("cashdesc").innerHTML = t.cashdesc;
-document.getElementById("cashbtn").innerHTML = t.cashbtn;
+document.getElementById("sub").innerHTML=t.sub;
 
-document.getElementById("n1").innerHTML = t.n1;
-document.getElementById("d1").innerHTML = t.d1;
+document.getElementById("badge0").innerHTML=t.badge0;
+document.getElementById("badge1").innerHTML=t.badge1;
+document.getElementById("badge2").innerHTML=t.badge2;
 
-document.getElementById("n2").innerHTML = t.n2;
-document.getElementById("d2").innerHTML = t.d2;
+document.getElementById("cashname").innerHTML=t.cashname;
+document.getElementById("cashdesc").innerHTML=t.cashdesc;
+document.getElementById("cashbtn").innerHTML=t.cashbtn;
 
-document.getElementById("n3").innerHTML = t.n3;
-document.getElementById("d3").innerHTML = t.d3;
+document.getElementById("n1").innerHTML=t.n1;
+document.getElementById("d1").innerHTML=t.d1;
 
-document.getElementById("b1").innerHTML = t.buy;
-document.getElementById("b2").innerHTML = t.buy;
-document.getElementById("b3").innerHTML = t.buy;
+document.getElementById("n2").innerHTML=t.n2;
+document.getElementById("d2").innerHTML=t.d2;
 
-document.getElementById("footer").innerHTML = t.footer;
+document.getElementById("n3").innerHTML=t.n3;
+document.getElementById("d3").innerHTML=t.d3;
+
+document.getElementById("b1").innerHTML=t.buy;
+document.getElementById("b2").innerHTML=t.buy;
+document.getElementById("b3").innerHTML=t.buy;
+
+document.getElementById("footer").innerHTML=t.footer;
 }
 
 async function pay(type){
-
 try{
 
-const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
+const r=await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body: JSON.stringify({
-type:type
-})
+body:JSON.stringify({type:type})
 });
 
-const data = await r.json();
+const data=await r.json();
 
 if(data.checkoutUrl){
-window.location.href = data.checkoutUrl;
+window.location.href=data.checkoutUrl;
 }else{
 alert(texts[currentLang].error);
 }
@@ -335,7 +340,6 @@ alert(texts[currentLang].error);
 }catch(e){
 alert(texts[currentLang].error);
 }
-
 }
 
 setLang("nl");
