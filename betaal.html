@@ -123,7 +123,8 @@ opacity:.65;
 <div class="wrap">
 
 <img src="plee's.png" class="hero">
-
+<h1 id="title">🚽 Voor Jou en Je Plee-maten 😄</h1>
+  
 <div class="sub" id="sub">
 Te gebruiken op toegangspoorten én kassa<br>
 Kies jouw toegang
@@ -338,12 +339,13 @@ setTxt("groupPrijs", euro(group.prijs || "20"));
 setTxt("groupNaam", group.naam || txt.groupNaam[lang]);
 show("groupCard", group.visible !== false);
 
-/* ALGEMEEN */
-setTxt("title", data.titel || "The Plee's To Bee");
+applyLang();
+}
+
 function applyLang(){
 
-setTxt("title", txt.title[currentLang]);
-setHtml("sub", txt.sub[currentLang]);
+setTxt("title", txt.title[lang]);
+setHtml("sub", txt.sub[lang]);
 
 setTxt("cashDesc", txt.cashDesc[lang]);
 setTxt("singleDesc", txt.singleDesc[lang]);
@@ -351,9 +353,11 @@ setTxt("shareDesc", txt.shareDesc[lang]);
 setTxt("groupDesc", txt.groupDesc[lang]);
 
 setTxt("cashBtn", txt.cashBtn[lang]);
+
 setTxt("buy1", txt.buy[lang]);
 setTxt("buy2", txt.buy[lang]);
 setTxt("buy3", txt.buy[lang]);
+
 }
 
 /* BETALING */
