@@ -1,202 +1,3 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Ticket Scanner PRO</title>
-
-<link rel="icon" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
-<meta name="theme-color" content="#000000">
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-<style>
-body{
-margin:0;
-background:#000;
-color:#fff;
-font-family:Arial,Helvetica,sans-serif;
-text-align:center;
-}
-
-.wrap{
-max-width:430px;
-margin:auto;
-padding:14px;
-}
-
-.hero{
-width:100%;
-max-width:320px;
-margin:10px auto 20px;
-display:block;
-border-radius:18px;
-}
-
-h1{
-font-size:30px;
-color:#ffd700;
-margin:5px 0;
-}
-
-.sub{
-font-size:17px;
-line-height:1.5;
-opacity:.95;
-margin-bottom:15px;
-}
-
-.langs{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:8px;
-margin-bottom:18px;
-}
-
-.langs button{
-padding:12px;
-border:none;
-border-radius:12px;
-background:#111;
-color:#fff;
-font-size:16px;
-font-weight:bold;
-}
-
-.card{
-background:#111;
-border:1px solid #333;
-border-radius:18px;
-padding:18px;
-margin-bottom:14px;
-box-shadow:0 0 15px rgba(255,215,0,.12);
-}
-
-.badge{
-display:inline-block;
-padding:6px 12px;
-border-radius:20px;
-font-size:12px;
-font-weight:bold;
-margin-bottom:8px;
-background:#ffd700;
-color:#000;
-}
-
-.badge2{
-background:#ff6600;
-color:#fff;
-}
-
-.price{
-font-size:34px;
-font-weight:bold;
-color:#ffd700;
-}
-
-.name{
-font-size:24px;
-font-weight:bold;
-margin-top:8px;
-}
-
-.desc{
-margin-top:8px;
-line-height:1.5;
-opacity:.9;
-}
-
-.buy{
-margin-top:14px;
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-font-size:18px;
-font-weight:bold;
-background:#ffd700;
-color:#000;
-}
-
-.cash{
-background:#35c759;
-color:#fff;
-}
-
-.footer{
-padding:18px;
-font-size:13px;
-opacity:.65;
-}
-</style>
-</head>
-
-<body>
-
-<div class="wrap">
-
-<img src="plee's.png" class="hero">
-
-<h1 id="title">The Plee's To Bee</h1>
-
-<div class="sub" id="sub">
-Te gebruiken op toegangspoorten én kassa<br>
-Kies jouw toegang
-</div>
-
-<div class="langs">
-<button onclick="setLang('nl')">🇳🇱 Nederlands</button>
-<button onclick="setLang('en')">🇬🇧 English</button>
-<button onclick="setLang('de')">🇩🇪 Deutsch</button>
-<button onclick="setLang('fr')">🇫🇷 Français</button>
-<button onclick="setLang('es')">🇪🇸 Español</button>
-<button onclick="setLang('it')">🇮🇹 Italiano</button>
-</div>
-
-<!-- CASH -->
-<div class="card" id="cashCard">
-<div class="badge">⭐ DEAL</div>
-<div class="price" id="cashPrijs">€1.00</div>
-<div class="name" id="cashNaam">Contant betalen</div>
-<div class="desc" id="cashDesc">Direct bij kassa</div>
-<button class="buy cash" id="cashBtn">Bij Kassa</button>
-</div>
-
-<!-- ENKEL -->
-<div class="card" id="singleCard">
-<div class="price" id="singlePrijs">€1.50</div>
-<div class="name" id="singleNaam">1 Toilet Bezoek</div>
-<div class="desc" id="singleDesc">Direct op telefoon</div>
-<button class="buy" onclick="pay('single')" id="buy1">Koop Nu</button>
-</div>
-
-<!-- DEEL -->
-<div class="card" id="shareCard">
-<div class="badge">⭐ POPULAIR</div>
-<div class="price" id="sharePrijs">€10</div>
-<div class="name" id="shareNaam">Deel Uw Toilet Pas</div>
-<div class="desc" id="shareDesc">Samen gebruiken</div>
-<button class="buy" onclick="pay('ten')" id="buy2">Koop Nu</button>
-</div>
-
-<!-- GROEP -->
-<div class="card" id="groupCard">
-<div class="badge badge2">🔥 BESTE DEAL</div>
-<div class="price" id="groupPrijs">€20</div>
-<div class="name" id="groupNaam">Familie Pas</div>
-<div class="desc" id="groupDesc">Voor groepen</div>
-<button class="buy" onclick="pay('twenty')" id="buy3">Koop Nu</button>
-</div>
-
-<div class="footer">
-The Plee's To Bee 2026
-</div>
-
-</div>
-
 <script>
 firebase.initializeApp({
 apiKey:"AIza...",
@@ -209,58 +10,125 @@ const db = firebase.firestore();
 let adminData = {};
 let currentLang = "nl";
 
-/* LIVE DATABASE */
-db.collection("instellingen").doc("winkel").onSnapshot(doc=>{
+/* =========================
+   EURO FIX V5
+========================= */
+function euro(v){
+
+if(v === undefined || v === null || v === ""){
+return "€0,00";
+}
+
+v = String(v).trim();
+
+/* komma naar punt */
+v = v.replace(",", ".");
+
+let n = parseFloat(v);
+
+if(isNaN(n)){
+return "€0,00";
+}
+
+return "€" + n.toFixed(2).replace(".", ",");
+}
+
+/* =========================
+   LIVE FIRESTORE
+========================= */
+db.collection("instellingen").doc("winkel")
+.onSnapshot(doc=>{
+
 if(!doc.exists) return;
+
 adminData = doc.data();
+
 render();
+
 });
 
-/* RENDER */
+/* =========================
+   RENDER
+========================= */
 function render(){
 
 /* CASH */
 if(adminData["contant geld"]){
+
 let x = adminData["contant geld"];
-setTxt("cashNaam", x.naam || txt.cashNaam[currentLang]);
-setTxt("cashPrijs","€"+(x.prijs || "1.00"));
-show("cashCard", x.zichtbaar !== false);
+
+setTxt("cashNaam",
+x.naam || txt.cashNaam[currentLang]);
+
+setTxt("cashPrijs",
+euro(x.prijs));
+
+show("cashCard",
+x.zichtbaar !== false);
+
 }
 
 /* ENKEL */
 if(adminData.enkel){
+
 let x = adminData.enkel;
-setTxt("singleNaam", x.naam || txt.singleNaam[currentLang]);
-setTxt("singlePrijs","€"+(x.prijs || "1.50"));
-show("singleCard", x.zichtbaar !== false);
+
+setTxt("singleNaam",
+x.naam || txt.singleNaam[currentLang]);
+
+setTxt("singlePrijs",
+euro(x.prijs || "1,50"));
+
+show("singleCard",
+x.zichtbaar !== false);
+
 }
 
 /* DEEL */
 if(adminData.deel){
+
 let x = adminData.deel;
-setTxt("shareNaam", x.naam || txt.shareNaam[currentLang]);
-setTxt("sharePrijs","€"+(x.prijs || "10"));
-show("shareCard", x.zichtbaar !== false);
+
+setTxt("shareNaam",
+x.naam || txt.shareNaam[currentLang]);
+
+setTxt("sharePrijs",
+euro(x.prijs || "10"));
+
+show("shareCard",
+x.zichtbaar !== false);
+
 }
 
 /* GROEP */
 if(adminData.groep){
+
 let x = adminData.groep;
-setTxt("groupNaam", x.naam || txt.groupNaam[currentLang]);
-setTxt("groupPrijs","€"+(x.prijs || "20"));
-show("groupCard", x.zichtbaar !== false);
+
+setTxt("groupNaam",
+x.naam || txt.groupNaam[currentLang]);
+
+setTxt("groupPrijs",
+euro(x.prijs || "20"));
+
+show("groupCard",
+x.zichtbaar !== false);
+
 }
 
 applyLang();
+
 }
 
-/* TALEN */
+/* =========================
+   TALEN
+========================= */
 const txt = {
 
 sub:{
 nl:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
 en:"Use at gates and desk<br>Choose your access",
-de:"Benutzung an Toren und Kasse<br>Wähle Zugang",
+de:"Benutzung an Toren und Kasse<br>Zugang wählen",
 fr:"Utilisable aux portiques et caisse<br>Choisissez accès",
 es:"Uso en puertas y caja<br>Elige acceso",
 it:"Uso ai tornelli e cassa<br>Scegli accesso"
@@ -334,8 +202,8 @@ nl:"Samen gebruiken",
 en:"Use together",
 de:"Gemeinsam nutzen",
 fr:"À partager",
-es:"Usar juntos",
-it:"Da condividere"
+es:"Compartir",
+it:"Condividere"
 },
 
 groupDesc:{
@@ -349,6 +217,9 @@ it:"Per gruppi"
 
 };
 
+/* =========================
+   TAAL WIJZIGEN
+========================= */
 function setLang(x){
 currentLang = x;
 applyLang();
@@ -356,67 +227,98 @@ applyLang();
 
 function applyLang(){
 
-setHtml("sub", txt.sub[currentLang]);
+setHtml("sub",
+txt.sub[currentLang]);
 
-setTxt("cashDesc", txt.cashDesc[currentLang]);
-setTxt("singleDesc", txt.singleDesc[currentLang]);
-setTxt("shareDesc", txt.shareDesc[currentLang]);
-setTxt("groupDesc", txt.groupDesc[currentLang]);
+setTxt("cashDesc",
+txt.cashDesc[currentLang]);
 
-setTxt("cashBtn", currentLang=="nl"?"Bij Kassa":
+setTxt("singleDesc",
+txt.singleDesc[currentLang]);
+
+setTxt("shareDesc",
+txt.shareDesc[currentLang]);
+
+setTxt("groupDesc",
+txt.groupDesc[currentLang]);
+
+setTxt("cashBtn",
+currentLang=="nl"?"Bij Kassa":
 currentLang=="en"?"At Desk":
 currentLang=="de"?"An Kasse":
 currentLang=="fr"?"À la caisse":
-currentLang=="es"?"En caja":"Alla cassa");
+currentLang=="es"?"En Caja":
+"Alla Cassa");
 
-setTxt("buy1", txt.buy[currentLang]);
-setTxt("buy2", txt.buy[currentLang]);
-setTxt("buy3", txt.buy[currentLang]);
+setTxt("buy1",
+txt.buy[currentLang]);
+
+setTxt("buy2",
+txt.buy[currentLang]);
+
+setTxt("buy3",
+txt.buy[currentLang]);
 
 /* Alleen vertalen als admin leeg is */
-if(!adminData["contant geld"]?.naam) setTxt("cashNaam", txt.cashNaam[currentLang]);
-if(!adminData.enkel?.naam) setTxt("singleNaam", txt.singleNaam[currentLang]);
-if(!adminData.deel?.naam) setTxt("shareNaam", txt.shareNaam[currentLang]);
-if(!adminData.groep?.naam) setTxt("groupNaam", txt.groupNaam[currentLang]);
+if(!adminData["contant geld"]?.naam)
+setTxt("cashNaam",txt.cashNaam[currentLang]);
+
+if(!adminData.enkel?.naam)
+setTxt("singleNaam",txt.singleNaam[currentLang]);
+
+if(!adminData.deel?.naam)
+setTxt("shareNaam",txt.shareNaam[currentLang]);
+
+if(!adminData.groep?.naam)
+setTxt("groupNaam",txt.groupNaam[currentLang]);
 
 }
 
-/* BETALEN */
+/* =========================
+   BETALEN
+========================= */
 async function pay(type){
 
 try{
 
-const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
+const r = await fetch(
+"https://api-atygyvzjoq-uc.a.run.app/create-payment",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
+headers:{
+"Content-Type":"application/json"
+},
 body:JSON.stringify({type:type})
 });
 
 const data = await r.json();
 
 if(data.checkoutUrl){
-window.location.href = data.checkoutUrl;
+window.location.href =
+data.checkoutUrl;
 }
 
 }catch(e){
+
 alert("Betaling tijdelijk niet beschikbaar");
-}
 
 }
 
-/* HELPERS */
+}
+
+/* =========================
+   HELPERS
+========================= */
 function setTxt(id,v){
-document.getElementById(id).innerText=v;
+document.getElementById(id).innerText = v;
 }
 
 function setHtml(id,v){
-document.getElementById(id).innerHTML=v;
+document.getElementById(id).innerHTML = v;
 }
 
 function show(id,on){
-document.getElementById(id).style.display=on?"block":"none";
+document.getElementById(id).style.display =
+on ? "block":"none";
 }
 </script>
-
-</body>
-</html>
