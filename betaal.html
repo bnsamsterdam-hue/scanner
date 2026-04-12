@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Ticket Scanner PRO</title>
+<title>The Plee's To Bee</title>
 
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
@@ -29,20 +28,19 @@ padding:14px;
 .hero{
 width:100%;
 max-width:320px;
-margin:10px auto 20px;
+margin:10px auto 18px;
 display:block;
 border-radius:18px;
 }
 h1{
+margin:6px 0;
 font-size:30px;
 color:#ffd700;
-margin:5px 0;
 }
 .sub{
 font-size:17px;
 line-height:1.5;
-opacity:.95;
-margin-bottom:15px;
+margin-bottom:14px;
 }
 .langs{
 display:grid;
@@ -56,8 +54,8 @@ border:none;
 border-radius:12px;
 background:#111;
 color:#fff;
-font-size:16px;
 font-weight:bold;
+font-size:15px;
 cursor:pointer;
 }
 .card{
@@ -66,7 +64,7 @@ border:1px solid #333;
 border-radius:18px;
 padding:18px;
 margin-bottom:14px;
-box-shadow:0 0 15px rgba(255,215,0,.12);
+box-shadow:0 0 14px rgba(255,215,0,.12);
 }
 .badge{
 display:inline-block;
@@ -94,12 +92,12 @@ margin-top:8px;
 }
 .desc{
 margin-top:8px;
-line-height:1.5;
-opacity:.9;
+line-height:1.45;
+opacity:.92;
 }
 .buy{
-margin-top:14px;
 width:100%;
+margin-top:14px;
 padding:14px;
 border:none;
 border-radius:12px;
@@ -120,7 +118,6 @@ opacity:.65;
 }
 </style>
 </head>
-
 <body>
 
 <div class="wrap">
@@ -146,7 +143,7 @@ Kies jouw toegang
 <!-- CASH -->
 <div class="card" id="cashCard">
 <div class="badge">⭐ DEAL</div>
-<div class="price" id="cashPrijs">€0,50</div>
+<div class="price" id="cashPrijs">€1,00</div>
 <div class="name" id="cashNaam">Contant betalen</div>
 <div class="desc" id="cashDesc">Direct bij kassa</div>
 <button class="buy cash" id="cashBtn">Bij Kassa</button>
@@ -191,49 +188,23 @@ projectId:"ticket-systeem-18a08"
 
 const db = firebase.firestore();
 
-let adminData = {};
-let currentLang = "nl";
+let data = {};
+let lang = "nl";
 
-/* FIREBASE LIVE */
-db.collection("instellingen").doc("winkel").onSnapshot((doc)=>{
+/* LIVE ADMIN KOPPELING */
+db.collection("settings").doc("shop").onSnapshot(doc=>{
 if(!doc.exists) return;
-adminData = doc.data() || {};
+data = doc.data() || {};
 render();
 });
 
-/* PRIJS FORMAT */
+/* FORMAT PRIJS */
 function euro(v){
 if(v===undefined || v===null || v==="") return "€0,00";
 v = String(v).replace(",",".");
 let n = parseFloat(v);
 if(isNaN(n)) n = 0;
 return "€" + n.toFixed(2).replace(".",",");
-}
-
-/* RENDER */
-function render(){
-
-/* CASH */
-let cash = adminData["contant geld"] || {};
-setTxt("cashPrijs", euro(cash.prijs || cash.price || "0.50"));
-show("cashCard", cash.zichtbaar !== false);
-
-/* SINGLE */
-let enkel = adminData.enkel || {};
-setTxt("singlePrijs", euro(enkel.prijs || "1.50"));
-show("singleCard", enkel.zichtbaar !== false);
-
-/* SHARE */
-let deel = adminData.deel || {};
-setTxt("sharePrijs", euro(deel.prijs || "10"));
-show("shareCard", deel.zichtbaar !== false);
-
-/* GROUP */
-let groep = adminData.groep || {};
-setTxt("groupPrijs", euro(groep.prijs || "20"));
-show("groupCard", groep.zichtbaar !== false);
-
-applyLang();
 }
 
 /* TALEN */
@@ -246,7 +217,6 @@ fr:"Utilisable aux portiques et caisse<br>Choisissez accès",
 es:"Uso en puertas y caja<br>Elige acceso",
 it:"Uso ai tornelli e cassa<br>Scegli accesso"
 },
-
 buy:{
 nl:"Koop Nu",
 en:"Buy Now",
@@ -255,16 +225,22 @@ fr:"Acheter",
 es:"Comprar",
 it:"Compra"
 },
-
+cashBtn:{
+nl:"Bij Kassa",
+en:"At Desk",
+de:"An Kasse",
+fr:"À la caisse",
+es:"En caja",
+it:"Alla cassa"
+},
 cashNaam:{
 nl:"Contant betaling",
 en:"Cash Payment",
 de:"Barzahlung",
-fr:"Paiement Espèces",
+fr:"Paiement espèces",
 es:"Pago en efectivo",
 it:"Pagamento contanti"
 },
-
 singleNaam:{
 nl:"1 Toilet Bezoek",
 en:"1 Toilet Visit",
@@ -273,25 +249,22 @@ fr:"1 Visite Toilette",
 es:"1 Visita Baño",
 it:"1 Visita Toilette"
 },
-
 shareNaam:{
 nl:"Deel Uw Toilet Pas",
 en:"Shared Toilet Pass",
 de:"Geteilter Toilettenpass",
-fr:"Pass Toilette Partagé",
-es:"Pase Compartido",
-it:"Pass Condiviso"
+fr:"Pass partagé",
+es:"Pase compartido",
+it:"Pass condiviso"
 },
-
 groupNaam:{
 nl:"Familie Pas",
 en:"Family Pass",
 de:"Familienpass",
-fr:"Pass Famille",
-es:"Pase Familiar",
-it:"Pass Famiglia"
+fr:"Pass famille",
+es:"Pase familiar",
+it:"Pass famiglia"
 },
-
 cashDesc:{
 nl:"Direct bij kassa",
 en:"Pay at desk",
@@ -300,7 +273,6 @@ fr:"Payer à la caisse",
 es:"Pagar en caja",
 it:"Pagare alla cassa"
 },
-
 singleDesc:{
 nl:"Direct op telefoon",
 en:"Instant on phone",
@@ -309,7 +281,6 @@ fr:"Direct sur téléphone",
 es:"Directo al móvil",
 it:"Diretto sul telefono"
 },
-
 shareDesc:{
 nl:"Samen gebruiken",
 en:"Use together",
@@ -318,7 +289,6 @@ fr:"À partager",
 es:"Usar juntos",
 it:"Da condividere"
 },
-
 groupDesc:{
 nl:"Voor groepen",
 en:"For groups",
@@ -330,38 +300,53 @@ it:"Per gruppi"
 };
 
 function setLang(x){
-currentLang = x;
-applyLang();
+lang = x;
+render();
 }
 
-function applyLang(){
+/* HOOFD RENDER */
+function render(){
 
-setHtml("sub", txt.sub[currentLang]);
+/* CASH */
+let cash = data.cash || {};
+setTxt("cashPrijs", euro(cash.prijs || "1"));
+setTxt("cashNaam", cash.naam || txt.cashNaam[lang]);
+show("cashCard", cash.visible !== false);
 
-setTxt("cashNaam", adminData["contant geld"]?.naam || txt.cashNaam[currentLang]);
-setTxt("singleNaam", adminData.enkel?.naam || txt.singleNaam[currentLang]);
-setTxt("shareNaam", adminData.deel?.naam || txt.shareNaam[currentLang]);
-setTxt("groupNaam", adminData.groep?.naam || txt.groupNaam[currentLang]);
+/* SINGLE */
+let single = data.single || {};
+setTxt("singlePrijs", euro(single.prijs || "1.50"));
+setTxt("singleNaam", single.naam || txt.singleNaam[lang]);
+show("singleCard", single.visible !== false);
 
-setTxt("cashDesc", txt.cashDesc[currentLang]);
-setTxt("singleDesc", txt.singleDesc[currentLang]);
-setTxt("shareDesc", txt.shareDesc[currentLang]);
-setTxt("groupDesc", txt.groupDesc[currentLang]);
+/* SHARE */
+let share = data.share || {};
+setTxt("sharePrijs", euro(share.prijs || "10"));
+setTxt("shareNaam", share.naam || txt.shareNaam[lang]);
+show("shareCard", share.visible !== false);
 
-setTxt("cashBtn",
-currentLang=="nl"?"Bij Kassa":
-currentLang=="en"?"At Desk":
-currentLang=="de"?"An Kasse":
-currentLang=="fr"?"À la caisse":
-currentLang=="es"?"En caja":
-"Alla cassa");
+/* GROUP */
+let group = data.group || {};
+setTxt("groupPrijs", euro(group.prijs || "20"));
+setTxt("groupNaam", group.naam || txt.groupNaam[lang]);
+show("groupCard", group.visible !== false);
 
-setTxt("buy1", txt.buy[currentLang]);
-setTxt("buy2", txt.buy[currentLang]);
-setTxt("buy3", txt.buy[currentLang]);
+/* ALGEMEEN */
+setTxt("title", data.titel || "The Plee's To Bee");
+setHtml("sub", txt.sub[lang]);
+
+setTxt("cashDesc", txt.cashDesc[lang]);
+setTxt("singleDesc", txt.singleDesc[lang]);
+setTxt("shareDesc", txt.shareDesc[lang]);
+setTxt("groupDesc", txt.groupDesc[lang]);
+
+setTxt("cashBtn", txt.cashBtn[lang]);
+setTxt("buy1", txt.buy[lang]);
+setTxt("buy2", txt.buy[lang]);
+setTxt("buy3", txt.buy[lang]);
 }
 
-/* BETALEN */
+/* BETALING */
 async function pay(type){
 try{
 const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
@@ -370,10 +355,10 @@ headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({type:type})
 });
 
-const data = await r.json();
+const j = await r.json();
 
-if(data.checkoutUrl){
-window.location.href = data.checkoutUrl;
+if(j.checkoutUrl){
+window.location.href = j.checkoutUrl;
 }
 }catch(e){
 alert("Betaling tijdelijk niet beschikbaar");
@@ -384,11 +369,9 @@ alert("Betaling tijdelijk niet beschikbaar");
 function setTxt(id,v){
 document.getElementById(id).innerText = v;
 }
-
 function setHtml(id,v){
 document.getElementById(id).innerHTML = v;
 }
-
 function show(id,on){
 document.getElementById(id).style.display = on ? "block" : "none";
 }
