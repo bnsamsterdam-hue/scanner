@@ -187,21 +187,22 @@ Vandaag kozen veel bezoekers The Plee's Pass
 </div>
 
 <script>
-function pay(type){
-window.location.href="https://mollie.com";
-}
-
-<script>
 async function pay(type){
-  const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment", {
-    method: "POST"
-  });
+try{
+ const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment", {
+   method:"POST"
+ });
 
-  const data = await r.json();
-  window.location.href = data.checkoutUrl;
+ const data = await r.json();
+
+ window.location.href = data.checkoutUrl;
+
+}catch(e){
+ alert("Betaling tijdelijk niet beschikbaar");
+ console.log(e);
 }
-
-function setlang(x){
+}  
+function setLang(x){
   const sub = document.getElementById("sub");
 
   if(x=="nl"){
