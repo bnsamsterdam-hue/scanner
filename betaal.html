@@ -21,13 +21,11 @@ color:#fff;
 font-family:Arial,Helvetica,sans-serif;
 text-align:center;
 }
-
 .wrap{
 max-width:430px;
 margin:auto;
 padding:14px;
 }
-
 .hero{
 width:100%;
 max-width:320px;
@@ -35,27 +33,23 @@ margin:10px auto 20px;
 display:block;
 border-radius:18px;
 }
-
 h1{
 font-size:30px;
 color:#ffd700;
 margin:5px 0;
 }
-
 .sub{
 font-size:17px;
 line-height:1.5;
 opacity:.95;
 margin-bottom:15px;
 }
-
 .langs{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:8px;
 margin-bottom:18px;
 }
-
 .langs button{
 padding:12px;
 border:none;
@@ -64,8 +58,8 @@ background:#111;
 color:#fff;
 font-size:16px;
 font-weight:bold;
+cursor:pointer;
 }
-
 .card{
 background:#111;
 border:1px solid #333;
@@ -74,7 +68,6 @@ padding:18px;
 margin-bottom:14px;
 box-shadow:0 0 15px rgba(255,215,0,.12);
 }
-
 .badge{
 display:inline-block;
 padding:6px 12px;
@@ -85,30 +78,25 @@ margin-bottom:8px;
 background:#ffd700;
 color:#000;
 }
-
 .badge2{
 background:#ff6600;
 color:#fff;
 }
-
 .price{
 font-size:34px;
 font-weight:bold;
 color:#ffd700;
 }
-
 .name{
 font-size:24px;
 font-weight:bold;
 margin-top:8px;
 }
-
 .desc{
 margin-top:8px;
 line-height:1.5;
 opacity:.9;
 }
-
 .buy{
 margin-top:14px;
 width:100%;
@@ -119,13 +107,12 @@ font-size:18px;
 font-weight:bold;
 background:#ffd700;
 color:#000;
+cursor:pointer;
 }
-
 .cash{
 background:#35c759;
 color:#fff;
 }
-
 .footer{
 padding:18px;
 font-size:13px;
@@ -159,41 +146,39 @@ Kies jouw toegang
 <!-- CASH -->
 <div class="card" id="cashCard">
 <div class="badge">⭐ DEAL</div>
-<div class="price" id="cashPrijs">€1.00</div>
+<div class="price" id="cashPrijs">€0,50</div>
 <div class="name" id="cashNaam">Contant betalen</div>
 <div class="desc" id="cashDesc">Direct bij kassa</div>
 <button class="buy cash" id="cashBtn">Bij Kassa</button>
 </div>
 
-<!-- ENKEL -->
+<!-- SINGLE -->
 <div class="card" id="singleCard">
-<div class="price" id="singlePrijs">€1.50</div>
+<div class="price" id="singlePrijs">€1,50</div>
 <div class="name" id="singleNaam">1 Toilet Bezoek</div>
 <div class="desc" id="singleDesc">Direct op telefoon</div>
 <button class="buy" onclick="pay('single')" id="buy1">Koop Nu</button>
 </div>
 
-<!-- DEEL -->
+<!-- SHARE -->
 <div class="card" id="shareCard">
 <div class="badge">⭐ POPULAIR</div>
-<div class="price" id="sharePrijs">€10</div>
+<div class="price" id="sharePrijs">€10,00</div>
 <div class="name" id="shareNaam">Deel Uw Toilet Pas</div>
 <div class="desc" id="shareDesc">Samen gebruiken</div>
 <button class="buy" onclick="pay('ten')" id="buy2">Koop Nu</button>
 </div>
 
-<!-- GROEP -->
+<!-- GROUP -->
 <div class="card" id="groupCard">
 <div class="badge badge2">🔥 BESTE DEAL</div>
-<div class="price" id="groupPrijs">€20</div>
+<div class="price" id="groupPrijs">€20,00</div>
 <div class="name" id="groupNaam">Familie Pas</div>
 <div class="desc" id="groupDesc">Voor groepen</div>
 <button class="buy" onclick="pay('twenty')" id="buy3">Koop Nu</button>
 </div>
 
-<div class="footer">
-The Plee's To Bee 2026
-</div>
+<div class="footer">The Plee's To Bee 2026</div>
 
 </div>
 
@@ -209,56 +194,50 @@ const db = firebase.firestore();
 let adminData = {};
 let currentLang = "nl";
 
-/* LIVE DATABASE */
-db.collection("instellingen").doc("winkel").onSnapshot(doc=>{
+/* FIREBASE LIVE */
+db.collection("instellingen").doc("winkel").onSnapshot((doc)=>{
 if(!doc.exists) return;
-adminData = doc.data();
-console.log(adminData);
+adminData = doc.data() || {};
 render();
 });
 
+/* PRIJS FORMAT */
+function euro(v){
+if(v===undefined || v===null || v==="") return "€0,00";
+v = String(v).replace(",",".");
+let n = parseFloat(v);
+if(isNaN(n)) n = 0;
+return "€" + n.toFixed(2).replace(".",",");
+}
+
 /* RENDER */
 function render(){
-console.log("render gestart", adminData);
+
 /* CASH */
-if(adminData["contant geld"]){
-let x = adminData["contant geld"];
-setTxt("cashNaam", x.naam || txt.cashNaam[currentLang]);
-setTxt("cashPrijs",
-euro(x.prijs || x.price || "0,50"));
-show("cashCard", x.zichtbaar !== false);
-}
+let cash = adminData["contant geld"] || {};
+setTxt("cashPrijs", euro(cash.prijs || cash.price || "0.50"));
+show("cashCard", cash.zichtbaar !== false);
 
-/* ENKEL */
-if(adminData.enkel){
-let x = adminData.enkel;
-setTxt("singleNaam", x.naam || txt.singleNaam[currentLang]);
-setTxt("singlePrijs","€"+(x.prijs || "1.50"));
-show("singleCard", x.zichtbaar !== false);
-}
+/* SINGLE */
+let enkel = adminData.enkel || {};
+setTxt("singlePrijs", euro(enkel.prijs || "1.50"));
+show("singleCard", enkel.zichtbaar !== false);
 
-/* DEEL */
-if(adminData.deel){
-let x = adminData.deel;
-setTxt("shareNaam", x.naam || txt.shareNaam[currentLang]);
-setTxt("sharePrijs","€"+(x.prijs || "10"));
-show("shareCard", x.zichtbaar !== false);
-}
+/* SHARE */
+let deel = adminData.deel || {};
+setTxt("sharePrijs", euro(deel.prijs || "10"));
+show("shareCard", deel.zichtbaar !== false);
 
-/* GROEP */
-if(adminData.groep){
-let x = adminData.groep;
-setTxt("groupNaam", x.naam || txt.groupNaam[currentLang]);
-setTxt("groupPrijs","€"+(x.prijs || "20"));
-show("groupCard", x.zichtbaar !== false);
-}
+/* GROUP */
+let groep = adminData.groep || {};
+setTxt("groupPrijs", euro(groep.prijs || "20"));
+show("groupCard", groep.zichtbaar !== false);
 
 applyLang();
 }
 
 /* TALEN */
 const txt = {
-
 sub:{
 nl:"Te gebruiken op toegangspoorten én kassa<br>Kies jouw toegang",
 en:"Use at gates and desk<br>Choose your access",
@@ -278,7 +257,7 @@ it:"Compra"
 },
 
 cashNaam:{
-nl:"Contant betalen",
+nl:"Contant betaling",
 en:"Cash Payment",
 de:"Barzahlung",
 fr:"Paiement Espèces",
@@ -348,7 +327,6 @@ fr:"Pour groupes",
 es:"Para grupos",
 it:"Per gruppi"
 }
-
 };
 
 function setLang(x){
@@ -360,34 +338,32 @@ function applyLang(){
 
 setHtml("sub", txt.sub[currentLang]);
 
+setTxt("cashNaam", adminData["contant geld"]?.naam || txt.cashNaam[currentLang]);
+setTxt("singleNaam", adminData.enkel?.naam || txt.singleNaam[currentLang]);
+setTxt("shareNaam", adminData.deel?.naam || txt.shareNaam[currentLang]);
+setTxt("groupNaam", adminData.groep?.naam || txt.groupNaam[currentLang]);
+
 setTxt("cashDesc", txt.cashDesc[currentLang]);
 setTxt("singleDesc", txt.singleDesc[currentLang]);
 setTxt("shareDesc", txt.shareDesc[currentLang]);
 setTxt("groupDesc", txt.groupDesc[currentLang]);
 
-setTxt("cashBtn", currentLang=="nl"?"Bij Kassa":
+setTxt("cashBtn",
+currentLang=="nl"?"Bij Kassa":
 currentLang=="en"?"At Desk":
 currentLang=="de"?"An Kasse":
 currentLang=="fr"?"À la caisse":
-currentLang=="es"?"En caja":"Alla cassa");
+currentLang=="es"?"En caja":
+"Alla cassa");
 
 setTxt("buy1", txt.buy[currentLang]);
 setTxt("buy2", txt.buy[currentLang]);
 setTxt("buy3", txt.buy[currentLang]);
-
-/* Alleen vertalen als admin leeg is */
-if(!adminData["contant geld"]?.naam) setTxt("cashNaam", txt.cashNaam[currentLang]);
-if(!adminData.enkel?.naam) setTxt("singleNaam", txt.singleNaam[currentLang]);
-if(!adminData.deel?.naam) setTxt("shareNaam", txt.shareNaam[currentLang]);
-if(!adminData.groep?.naam) setTxt("groupNaam", txt.groupNaam[currentLang]);
-
 }
 
 /* BETALEN */
 async function pay(type){
-
 try{
-
 const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
@@ -399,24 +375,22 @@ const data = await r.json();
 if(data.checkoutUrl){
 window.location.href = data.checkoutUrl;
 }
-
 }catch(e){
 alert("Betaling tijdelijk niet beschikbaar");
 }
-
 }
 
 /* HELPERS */
 function setTxt(id,v){
-document.getElementById(id).innerText=v;
+document.getElementById(id).innerText = v;
 }
 
 function setHtml(id,v){
-document.getElementById(id).innerHTML=v;
+document.getElementById(id).innerHTML = v;
 }
 
 function show(id,on){
-document.getElementById(id).style.display=on?"block":"none";
+document.getElementById(id).style.display = on ? "block" : "none";
 }
 </script>
 
