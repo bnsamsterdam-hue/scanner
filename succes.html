@@ -261,27 +261,49 @@ a.click();
 a.remove();
 }
 
+<script>
 async function shareQr(){
 
-const text = t.shareText + ticketCode;
+const img = document.getElementById("qrimg");
+if(!img) return;
 
-if(navigator.share){
 try{
+
+const response = await fetch(img.src);
+const blob = await response.blob();
+
+const file = new File(
+[blob],
+"toilet-qr.png",
+{type:"image/png"}
+);
+
+const text =
+"Laat deze QR code scannen bij toegangspoorten of kassa.\n\n" +
+"Powered by Tapwagen.nl\n" +
+"Uw partner in events.";
+
+if(navigator.canShare && navigator.canShare({files:[file]})){
+
 await navigator.share({
-title:"Toilet Ticket",
+files:[file],
 text:text
 });
-}catch(e){}
+
 }else{
+
 window.open(
 "https://wa.me/?text=" + encodeURIComponent(text),
 "_blank"
 );
-}
+
 }
 
-checkPayment();
-loop = setInterval(checkPayment,2000);
+}catch(e){
+console.log(e);
+}
+
+}
 </script>
 
 </body>
