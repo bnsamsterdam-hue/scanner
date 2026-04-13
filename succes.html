@@ -261,7 +261,6 @@ a.click();
 a.remove();
 }
 
-<script>
 async function shareQr(){
 
 const img = document.getElementById("qrimg");
@@ -304,6 +303,9 @@ console.log(e);
 }
 
 }
+
+checkPayment();
+loop = setInterval(checkPayment,2000);
 </script>
 
 </body>
