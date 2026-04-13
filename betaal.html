@@ -360,7 +360,6 @@ setTxt("buy3", txt.buy[lang]);
 }
 
 /* BETALING */
-<script>
 async function pay(type){
 try{
 
@@ -390,6 +389,23 @@ alert("Betaling tijdelijk niet beschikbaar");
 alert("Betaling tijdelijk niet beschikbaar");
 }
 }
+
+/* HELPERS */
+function setTxt(id,v){
+document.getElementById(id).innerText = v;
+}
+
+function setHtml(id,v){
+document.getElementById(id).innerHTML = v;
+}
+
+function show(id,on){
+document.getElementById(id).style.display = on ? "block" : "none";
+}
+
+/* START */
+render();
+
 </script>
 
 </body>
