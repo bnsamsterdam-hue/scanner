@@ -360,33 +360,35 @@ setTxt("buy3", txt.buy[lang]);
 }
 
 /* BETALING */
+<script>
 async function pay(type){
 try{
-const r = await fetch("https://api-atygyvzjoq-uc.a.run.app/create-payment",{
+
+const r = await fetch(
+"https://api-atygyvzjoq-uc.a.run.app/create-payment",
+{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
-body:JSON.stringify({type:type})
-});
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+type:type,
+lang:lang
+})
+}
+);
 
 const j = await r.json();
 
 if(j.checkoutUrl){
 window.location.href = j.checkoutUrl;
+}else{
+alert("Betaling tijdelijk niet beschikbaar");
 }
+
 }catch(e){
 alert("Betaling tijdelijk niet beschikbaar");
 }
-}
-
-/* HELPERS */
-function setTxt(id,v){
-document.getElementById(id).innerText = v;
-}
-function setHtml(id,v){
-document.getElementById(id).innerHTML = v;
-}
-function show(id,on){
-document.getElementById(id).style.display = on ? "block" : "none";
 }
 </script>
 
