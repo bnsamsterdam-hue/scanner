@@ -140,9 +140,11 @@ if(data.paid){
 
 clearInterval(loop);
 
+const code = data.ticket || id;
+
 const qrUrl =
 "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=" +
-encodeURIComponent(id);
+encodeURIComponent(code);
 
 result.innerHTML =
 '<div class="ok">✔ Betaling ontvangen</div>' +
