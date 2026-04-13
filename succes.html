@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#000000">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>The Plee's To Bee</title>
 
 <style>
@@ -16,19 +15,13 @@ color:#fff;
 font-family:Arial,Helvetica,sans-serif;
 text-align:center;
 }
-
-.wrap{
-max-width:430px;
-margin:auto;
-}
-
+.wrap{max-width:430px;margin:auto;}
 .logo{
 width:100%;
 max-width:320px;
 margin:10px auto 20px;
 display:block;
 }
-
 .box{
 background:#111;
 border:1px solid #333;
@@ -36,26 +29,14 @@ border-radius:20px;
 padding:25px;
 box-shadow:0 0 15px rgba(255,215,0,.15);
 }
-
-.ok{
-font-size:30px;
-font-weight:bold;
-color:#35c759;
-}
-
-.bad{
-font-size:28px;
-font-weight:bold;
-color:#ff3b30;
-}
-
+.ok{font-size:30px;font-weight:bold;color:#35c759;}
+.bad{font-size:28px;font-weight:bold;color:#ff3b30;}
 .small{
 margin-top:12px;
 font-size:14px;
 opacity:.75;
 line-height:1.5;
 }
-
 .qr{
 margin-top:20px;
 display:inline-block;
@@ -63,7 +44,6 @@ background:#fff;
 padding:15px;
 border-radius:15px;
 }
-
 .btn{
 width:100%;
 padding:15px;
@@ -74,22 +54,9 @@ font-size:17px;
 font-weight:bold;
 cursor:pointer;
 }
-
-.gold{
-background:#ffd700;
-color:#000;
-}
-
-.green{
-background:#35c759;
-color:#fff;
-}
-
-.blue{
-background:#25d366;
-color:#fff;
-}
-
+.gold{background:#ffd700;color:#000;}
+.green{background:#35c759;color:#fff;}
+.blue{background:#25d366;color:#fff;}
 .topbtn{
 position:sticky;
 top:0;
@@ -103,12 +70,12 @@ margin-bottom:15px;
 
 <div class="wrap">
 
-<button class="btn gold topbtn" onclick="goQr()">⬇ Direct naar QR code</button>
+<button class="btn gold topbtn" onclick="goQr()">⬇ QR</button>
 
 <img src="plee's.png" class="logo">
 
 <div class="box" id="result">
-Betaling controleren...
+Loading...
 </div>
 
 </div>
@@ -116,15 +83,115 @@ Betaling controleren...
 <script>
 const result = document.getElementById("result");
 const id = new URLSearchParams(location.search).get("id");
+const lang = new URLSearchParams(location.search).get("lang") || "nl";
 
 let loop = null;
+let ticketCode = "";
+
+const txt = {
+
+nl:{
+loading:"Betaling controleren...",
+wait:"Betaling verwerken...",
+ok:"✔ Betaling ontvangen",
+bad:"✖ U dient eerst te betalen",
+bad2:"Geen geldige betaling gevonden.",
+scan:"Laat deze QR code scannen bij toegangspoort of kassa",
+save:"📥 Opslaan op telefoon",
+share:"📲 Deel QR via WhatsApp",
+goto:"⬆ Naar QR code",
+fail:"✖ Controle mislukt",
+retry:"Probeer opnieuw",
+shareText:"Hier is jouw Toilet QR code: "
+},
+
+en:{
+loading:"Checking payment...",
+wait:"Processing payment...",
+ok:"✔ Payment received",
+bad:"✖ Payment required",
+bad2:"No valid payment found.",
+scan:"Show this QR code at gate or desk",
+save:"📥 Save to phone",
+share:"📲 Share via WhatsApp",
+goto:"⬆ Go to QR code",
+fail:"✖ Check failed",
+retry:"Please try again",
+shareText:"Here is your Toilet QR code: "
+},
+
+de:{
+loading:"Zahlung wird geprüft...",
+wait:"Zahlung wird verarbeitet...",
+ok:"✔ Zahlung erhalten",
+bad:"✖ Zahlung erforderlich",
+bad2:"Keine gültige Zahlung gefunden.",
+scan:"QR-Code am Tor oder Kasse zeigen",
+save:"📥 Auf Telefon speichern",
+share:"📲 Per WhatsApp teilen",
+goto:"⬆ Zum QR-Code",
+fail:"✖ Prüfung fehlgeschlagen",
+retry:"Bitte erneut versuchen",
+shareText:"Hier ist dein Toiletten QR-Code: "
+},
+
+fr:{
+loading:"Vérification du paiement...",
+wait:"Paiement en cours...",
+ok:"✔ Paiement reçu",
+bad:"✖ Paiement requis",
+bad2:"Aucun paiement valide trouvé.",
+scan:"Présentez ce QR code à l’entrée ou caisse",
+save:"📥 Enregistrer sur téléphone",
+share:"📲 Partager via WhatsApp",
+goto:"⬆ Aller au QR code",
+fail:"✖ Vérification échouée",
+retry:"Veuillez réessayer",
+shareText:"Voici votre QR code toilette : "
+},
+
+es:{
+loading:"Comprobando pago...",
+wait:"Procesando pago...",
+ok:"✔ Pago recibido",
+bad:"✖ Pago requerido",
+bad2:"No se encontró pago válido.",
+scan:"Muestra este QR en puerta o caja",
+save:"📥 Guardar en teléfono",
+share:"📲 Compartir por WhatsApp",
+goto:"⬆ Ir al QR",
+fail:"✖ Error de comprobación",
+retry:"Inténtalo de nuevo",
+shareText:"Aquí está tu código QR del baño: "
+},
+
+it:{
+loading:"Controllo pagamento...",
+wait:"Pagamento in elaborazione...",
+ok:"✔ Pagamento ricevuto",
+bad:"✖ Pagamento richiesto",
+bad2:"Nessun pagamento valido trovato.",
+scan:"Mostra questo QR al cancello o cassa",
+save:"📥 Salva sul telefono",
+share:"📲 Condividi via WhatsApp",
+goto:"⬆ Vai al QR",
+fail:"✖ Controllo fallito",
+retry:"Riprova",
+shareText:"Ecco il tuo QR code toilette: "
+}
+
+};
+
+const t = txt[lang] || txt.nl;
+
+result.innerHTML = t.loading;
 
 async function checkPayment(){
 
 if(!id){
 result.innerHTML =
-'<div class="bad">✖ Geen geldige betaling</div>' +
-'<div class="small">Deze pagina werkt alleen na betaling.</div>';
+'<div class="bad">'+t.bad+'</div>' +
+'<div class="small">'+t.bad2+'</div>';
 return;
 }
 
@@ -140,38 +207,36 @@ if(data.paid){
 
 clearInterval(loop);
 
-const code = data.ticket || id;
+ticketCode = data.ticket;
 
 const qrUrl =
 "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=" +
-encodeURIComponent(code);
+encodeURIComponent(ticketCode);
 
 result.innerHTML =
-'<div class="ok">✔ Betaling ontvangen</div>' +
-'<div class="small">Laat deze QR code scannen bij de toegangspoort</div>' +
+'<div class="ok">'+t.ok+'</div>' +
+'<div class="small">'+t.scan+'</div>' +
 
 '<div class="qr" id="qrblok">' +
 '<img id="qrimg" src="' + qrUrl + '">' +
 '</div>' +
 
-'<button class="btn green" onclick="downloadQr()">📥 Opslaan op telefoon</button>' +
+'<button class="btn green" onclick="downloadQr()">'+t.save+'</button>' +
 
-'<button class="btn blue" onclick="shareQr()">📲 Deel via WhatsApp</button>' +
+'<button class="btn blue" onclick="shareQr()">'+t.share+'</button>' +
 
-'<button class="btn gold" onclick="goQr()">⬆ Naar QR code</button>';
+'<button class="btn gold" onclick="goQr()">'+t.goto+'</button>';
 
 }else{
-
 result.innerHTML =
-'<div class="small">Betaling verwerken...</div>';
-
+'<div class="small">'+t.wait+'</div>';
 }
 
 }catch(e){
 
 result.innerHTML =
-'<div class="bad">✖ Controle mislukt</div>' +
-'<div class="small">Ververs de pagina opnieuw</div>';
+'<div class="bad">'+t.fail+'</div>' +
+'<div class="small">'+t.retry+'</div>';
 
 }
 
@@ -180,10 +245,7 @@ result.innerHTML =
 function goQr(){
 const el = document.getElementById("qrblok");
 if(el){
-el.scrollIntoView({
-behavior:"smooth",
-block:"center"
-});
+el.scrollIntoView({behavior:"smooth",block:"center"});
 }
 }
 
@@ -193,7 +255,7 @@ if(!img) return;
 
 const a = document.createElement("a");
 a.href = img.src;
-a.download = "plees-ticket.png";
+a.download = "toilet-ticket.png";
 document.body.appendChild(a);
 a.click();
 a.remove();
@@ -201,19 +263,18 @@ a.remove();
 
 async function shareQr(){
 
-const url = location.href;
+const text = t.shareText + ticketCode;
 
 if(navigator.share){
 try{
 await navigator.share({
-title:"Mijn Toilet Ticket",
-text:"Hier is mijn ticket QR code",
-url:url
+title:"Toilet Ticket",
+text:text
 });
 }catch(e){}
 }else{
 window.open(
-"https://wa.me/?text=" + encodeURIComponent("Mijn ticket: " + url),
+"https://wa.me/?text=" + encodeURIComponent(text),
 "_blank"
 );
 }
