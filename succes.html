@@ -43,17 +43,18 @@ line-height:1.5;
 margin-top:20px;
 display:inline-block;
 background:#fff;
-padding:25px;
-border-radius:20px;
+padding:15px;
+border-radius:15px;
 }
-
-#qrCanvas{
-width:420px;
-height:420px;
-max-width:92vw;
-max-height:92vw;
-image-rendering:pixelated;
-image-rendering:crisp-edges;
+.btn{
+width:100%;
+padding:15px;
+margin-top:12px;
+border:none;
+border-radius:12px;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
 }
 .gold{background:#ffd700;color:#000;}
 .green{background:#35c759;color:#fff;}
@@ -279,25 +280,24 @@ result.innerHTML =
 '<div class="small">'+t.scan+'</div>' +
 
 '<div class="qr" id="qrblok">' +
-'<canvas id="qrCanvas" width="420" height="420"></canvas>' +
+'<canvas id="qrCanvas"></canvas>' +
 '</div>' +
 
 '<button class="btn green" onclick="downloadQr()">'+t.save+'</button>' +
 
 '<button class="btn blue" onclick="shareQr()">'+t.share+'</button>' +
 
-'<button class="btn gold" onclick="goQr()">'+t.goto+'</button>' +
-
-'<div class="small" style="margin-top:15px;">Powered by Tapwagen.nl<br>Uw partner in events.</div>';
+'<button class="btn gold" onclick="goQr()">'+t.goto+'</button>';
 
 QRCode.toCanvas(
 document.getElementById("qrCanvas"),
-ticketCode.trim().toUpperCase().replace(/\//g,"-"),
+ticketCode,
 {
-width:420,
-margin:3,
+width:340,
+margin:2,
 errorCorrectionLevel:"H"
-});
+}
+);
 
 }
 
