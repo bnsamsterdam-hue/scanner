@@ -2697,10 +2697,9 @@ console.log("shop loader fallback");
 
 }
 
-/* AUTO START */
-setTimeout(()=>{
-laadShopInstellingen();
-},1000);
+document.addEventListener("DOMContentLoaded", ()=>{
+   laadShopInstellingen();
+});
 
 </script>
 </body>
