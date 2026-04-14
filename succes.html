@@ -43,18 +43,17 @@ line-height:1.5;
 margin-top:20px;
 display:inline-block;
 background:#fff;
-padding:15px;
-border-radius:15px;
+padding:25px;
+border-radius:20px;
 }
-.btn{
-width:100%;
-padding:15px;
-margin-top:12px;
-border:none;
-border-radius:12px;
-font-size:17px;
-font-weight:bold;
-cursor:pointer;
+
+#qrCanvas{
+width:420px;
+height:420px;
+max-width:92vw;
+max-height:92vw;
+image-rendering:pixelated;
+image-rendering:crisp-edges;
 }
 .gold{background:#ffd700;color:#000;}
 .green{background:#35c759;color:#fff;}
@@ -279,9 +278,14 @@ result.innerHTML =
 '<div class="ok">'+t.ok+'</div>' +
 '<div class="small">'+t.scan+'</div>' +
 
-'<div class="qr" id="qrblok">' +
-'<canvas id="qrCanvas"></canvas>' +
-'</div>' +
+QRCode.toCanvas(
+document.getElementById("qrCanvas"),
+ticketCode.trim().toUpperCase().replace(/\//g,"-"),
+{
+width:420,
+margin:3,
+errorCorrectionLevel:"H"
+});
 
 '<button class="btn green" onclick="downloadQr()">'+t.save+'</button>' +
 
@@ -291,13 +295,12 @@ result.innerHTML =
 
 QRCode.toCanvas(
 document.getElementById("qrCanvas"),
-ticketCode,
+ticketCode.trim().toUpperCase().replace(/\//g,"-"),
 {
-width:340,
-margin:2,
+width:420,
+margin:3,
 errorCorrectionLevel:"H"
-}
-);
+});
 
 }
 
