@@ -241,11 +241,7 @@ loaded = true;
 clearInterval(loop);
 
 /* ticket beveiligen */
-ticketCode = String(data.ticket)
-.trim()
-.toUpperCase()
-.replace(/[^A-Z0-9-]/g,"")
-.replace(/\//g,"-");
+ticketCode = String(data.ticket).trim();
 
 if(ticketCode.length < 6){
 throw new Error("bad ticket");
@@ -293,9 +289,9 @@ QRCode.toCanvas(
 document.getElementById("qrCanvas"),
 ticketCode,
 {
-width:340,
-margin:2,
-errorCorrectionLevel:"H"
+width:320,
+margin:4,
+errorCorrectionLevel:"M"
 }
 );
 
