@@ -1297,6 +1297,59 @@ visible:document.getElementById("groupVisible").checked
 
 alert("✅ Opgeslagen");
 
-} 
+<!-- 🔥 FINAL SHOP LOADER -->
+<script>
+
+async function laadShopInstellingen(){
+
+try{
+
+const doc = await db.collection("instellingen").doc("shop").get();
+
+if(doc.exists){
+
+const d = doc.data();
+
+/* CASH */
+if(document.getElementById("cashNaam")) 
+document.getElementById("cashNaam").value = d.cashNaam || "Cash Pass";
+
+if(document.getElementById("cashPrijs")) 
+document.getElementById("cashPrijs").value = d.cashPrijs || "1.00";
+
+/* SINGLE */
+if(document.getElementById("singleNaam")) 
+document.getElementById("singleNaam").value = d.singleNaam || "Single Pass";
+
+if(document.getElementById("singlePrijs")) 
+document.getElementById("singlePrijs").value = d.singlePrijs || "0.10";
+
+if(document.getElementById("singleAantal")) 
+document.getElementById("singleAantal").value = d.singleAantal || "1";
+
+/* SHARE */
+if(document.getElementById("shareNaam")) 
+document.getElementById("shareNaam").value = d.shareNaam || "Share Pass";
+
+if(document.getElementById("sharePrijs")) 
+document.getElementById("sharePrijs").value = d.sharePrijs || "10.00";
+
+if(document.getElementById("shareAantal")) 
+document.getElementById("shareAantal").value = d.shareAantal || "10";
+
+}
+
+}catch(e){
+console.log("shop loader fallback");
+}
+
+}
+
+/* AUTO START */
+setTimeout(()=>{
+laadShopInstellingen();
+},1000);
+
+</script>
 </script>
 </body>
