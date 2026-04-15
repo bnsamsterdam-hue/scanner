@@ -332,143 +332,114 @@ z-index:999999;
 </div>
 
 </div> <!-- 🔥 DEZE TOEVOEGEN -->
-
 <!-- ADMIN -->
 <div id="admin" class="tab">
+
 <div id="login">
 <input id="pin" type="text" placeholder="Pincode" autocomplete="off">
-<button onclick="login()">OK</button>
+<button class="noodBtn" onclick="login()">OK</button>
 </div>
 
 <div id="adminPanel" style="display:none;">
-<input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
-<input id="code" placeholder="Code bv TOILET-001"><br>
-<input id="aantal" placeholder="Aantal bv 10"><br>
 
-<button onclick="maakTicket()">Opslaan</button>
+<!-- MENU -->
+<div id="adminHome">
 
-<br><br>
+<button class="noodBtn" onclick="showAdminMenu('shopMenu')">⚙️ Shopbeheer</button><br><br>
 
-<button onclick="bulk(1000)">Bulk 1000</button>
-<button onclick="bulk(2000)">Bulk 2000</button>
-<button onclick="bulk(3000)">Bulk 3000</button>
-<br><br>
-<button onclick="maakEnToonQR()">1 QR tonen</button>
-<button onclick="printLaatsteQR()">Print QR</button>
+<button class="noodBtn" onclick="showAdminMenu('qrMenu')">🎟 QR Beheer</button><br><br>
 
-<br><br>
-<br><br>
-<button style="background:red;color:white;" onclick="wisAlles()">⚠ Wis alle QR codes</button>
-<!-- PLAK IN JE BESTAANDE ADMIN PANEL -->
+<button class="noodBtn" onclick="showAdminMenu('wisMenu')" style="background:red;">🧹 QR Wissen</button><br><br>
 
-<hr>
-<h2>🛠 Shop Beheer</h2>
-
-<div style="background:#111;padding:15px;border-radius:15px;margin:10px;">
-
-<h3>💵 Cash Pass</h3>
-<input id="cashNaam" placeholder="Naam" value="Cash Pass"><br>
-<input id="cashPrijs" placeholder="Prijs" value="1.00"><br>
-<label><input type="checkbox" id="cashVisible" checked> Zichtbaar</label>
-
-<hr>
-
-<h3>🚪 Single Pass</h3>
-<input id="singleNaam" placeholder="Naam" value="Single Pass"><br>
-<input id="singlePrijs" placeholder="Prijs" value="1.50"><br>
-<input id="singleAantal" placeholder="Aantal scans" value="1"><br>
-<label><input type="checkbox" id="singleVisible" checked> Zichtbaar</label>
-
-<hr>
-
-<h3>👥 Share Pass</h3>
-<input id="shareNaam" placeholder="Naam" value="Share Pass"><br>
-<input id="sharePrijs" placeholder="Prijs" value="10.00"><br>
-<input id="shareAantal" placeholder="Aantal scans" value="10"><br>
-<label><input type="checkbox" id="shareVisible" checked> Zichtbaar</label>
-
-<hr>
-
-<h3>🎉 Group Pass</h3>
-<input id="groupNaam" placeholder="Naam" value="Group Pass"><br>
-<input id="groupPrijs" placeholder="Prijs" value="20.00"><br>
-<input id="groupAantal" placeholder="Aantal scans" value="20"><br>
-<label><input type="checkbox" id="groupVisible" checked> Zichtbaar</label>
-
-<hr>
-
-<h3>⚙ Algemene Instellingen</h3>
-<input id="siteTitel" placeholder="Titel" value="The Plee's To Bee"><br>
-<input id="bannerTekst" placeholder="Banner tekst" value="Toegangspoorten én kassa"><br>
-
-<label><input type="checkbox" id="mollieOn" checked> Mollie actief</label><br>
-<label><input type="checkbox" id="cashOn" checked> Cash actief</label>
-
-<br><br>
-
-<button onclick="saveShopSettings()" style="background:green;color:white;padding:14px;border:none;border-radius:12px;width:100%;">
-💾 Opslaan
-</button>
+<button class="noodBtn" onclick="logout()" style="background:#444;">⬅ Terug</button>
 
 </div>
 
+
+<!-- SHOP -->
+<div id="shopMenu" style="display:none;">
+
+<h2>Shopbeheer</h2>
+
+<input id="cashPrijs" placeholder="Cash prijs"><br>
+<input id="singlePrijs" placeholder="Single prijs"><br>
+<input id="sharePrijs" placeholder="Share prijs"><br>
+<input id="groupPrijs" placeholder="Group prijs"><br><br>
+
+<button class="noodBtn open" onclick="saveShopSettings()">💾 Opslaan</button><br><br>
+
+<button class="noodBtn" onclick="terugAdmin()" style="background:#444;">⬅ Terug</button>
+
+</div>
+
+
+<!-- QR -->
+<div id="qrMenu" style="display:none;">
+
+<h2>QR Beheer</h2>
+
+<input id="eventnaam" placeholder="Event"><br>
+<input id="code" placeholder="Code"><br>
+<input id="aantal" placeholder="Aantal"><br><br>
+
+<button class="noodBtn open" onclick="maakTicket()">💾 Opslaan</button><br><br>
+
+<button class="noodBtn" onclick="bulk(1000)">1000 QR</button><br><br>
+<button class="noodBtn" onclick="bulk(2000)">2000 QR</button><br><br>
+<button class="noodBtn" onclick="bulk(3000)">3000 QR</button><br><br>
+
+<button class="noodBtn" onclick="maakEnToonQR()">📱 Toon QR</button><br><br>
+
+<button class="noodBtn" onclick="terugAdmin()" style="background:#444;">⬅ Terug</button>
+
+</div>
+
+
+<!-- WISSEN -->
+<div id="wisMenu" style="display:none;">
+
+<h2>QR Wissen</h2>
+
+<button class="noodBtn" onclick="wisAlles()" style="background:red;">⚠ Wis Alles</button><br><br>
+
+<button class="noodBtn" onclick="terugAdmin()" style="background:#444;">⬅ Terug</button>
+
+</div>
+
+</div>
+</div>
+
 <script>
+
+function showAdminMenu(id){
+document.getElementById("adminHome").style.display="none";
+document.getElementById("shopMenu").style.display="none";
+document.getElementById("qrMenu").style.display="none";
+document.getElementById("wisMenu").style.display="none";
+document.getElementById(id).style.display="block";
+}
+
+function terugAdmin(){
+document.getElementById("adminHome").style.display="block";
+document.getElementById("shopMenu").style.display="none";
+document.getElementById("qrMenu").style.display="none";
+document.getElementById("wisMenu").style.display="none";
+}
 
 async function saveShopSettings(){
 
 await db.collection("settings").doc("shop").set({
 
-cash:{
-naam:document.getElementById("cashNaam").value,
-prijs:document.getElementById("cashPrijs").value,
-visible:document.getElementById("cashVisible").checked
-},
-
-single:{
-naam:document.getElementById("singleNaam").value,
-prijs:document.getElementById("singlePrijs").value,
-aantal:document.getElementById("singleAantal").value,
-visible:document.getElementById("singleVisible").checked
-},
-
-share:{
-naam:document.getElementById("shareNaam").value,
-prijs:document.getElementById("sharePrijs").value,
-aantal:document.getElementById("shareAantal").value,
-visible:document.getElementById("shareVisible").checked
-},
-
-group:{
-naam:document.getElementById("groupNaam").value,
-prijs:document.getElementById("groupPrijs").value,
-aantal:document.getElementById("groupAantal").value,
-visible:document.getElementById("groupVisible").checked
-},
-
-titel:document.getElementById("siteTitel").value,
-banner:document.getElementById("bannerTekst").value,
-
-mollie:document.getElementById("mollieOn").checked,
-cashmode:document.getElementById("cashOn").checked
+cashPrijs:cashPrijs.value,
+singlePrijs:singlePrijs.value,
+sharePrijs:sharePrijs.value,
+groupPrijs:groupPrijs.value
 
 });
 
-alert("✅ Shop instellingen opgeslagen");
+alert("Opgeslagen");
 
 }
-
-</script> 
-<button onclick="logout()">Terug</button>
-</div>
-</div>
-<div id="qrScreen" style="display:none;">
-<h2>QR Code</h2>
-<canvas id="qrCanvas"></canvas>
-<br><br>
-<button onclick="sluitQR()">Terug</button>
-</div> 
-    
-<script>
 
 document.addEventListener("DOMContentLoaded", function(){
 
