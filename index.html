@@ -828,8 +828,17 @@ try{ await scanner.stop(); await scanner.clear(); } catch(e){}
 }
 
 setTimeout(()=>{
-    scanLock=false;
-    if(MODE!=="poort") startCamera(currentCam);
+
+    scanLock = false;
+
+    if(MODE === "poort"){
+        // poort scanner weer vrij na 5 sec
+        return;
+    }
+
+    // alleen kassa camera opnieuw starten
+    startCamera(currentCam);
+
 },5000);
 
 setTimeout(()=>{
@@ -1121,7 +1130,7 @@ t.set(ref,{value:next});
 return next;
 });
 function generateCode(){
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ2346789";
     let part = () => {
         let s = "";
         for(let i=0;i<4;i++){
@@ -1284,5 +1293,43 @@ visible:document.getElementById("groupVisible").checked
 alert("✅ Opgeslagen");
 
 } 
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const doc = await db.collection("settings").doc("shop").get();
+    if (!doc.exists) return;
+
+    const d = doc.data();
+
+   if (d.cash) {
+document.getElementById("cashNaam").value = d.cash.naam || "";
+document.getElementById("cashPrijs").value = d.cash.prijs || "";
+document.getElementById("cashVisible").checked = d.cash.visible ?? true;
+}
+
+    if (d.single) {
+      singleNaam.value = d.single.naam || "";
+      singlePrijs.value = d.single.prijs || "";
+      singleAantal.value = d.single.aantal || "";
+      singleVisible.checked = d.single.visible ?? true;
+    }
+
+    if (d.share) {
+      shareNaam.value = d.share.naam || "";
+      sharePrijs.value = d.share.prijs || "";
+      shareAantal.value = d.share.aantal || "";
+      shareVisible.checked = d.share.visible ?? true;
+    }
+
+    if (d.group) {
+      groupNaam.value = d.group.naam || "";
+      groupPrijs.value = d.group.prijs || "";
+      groupAantal.value = d.group.aantal || "";
+      groupVisible.checked = d.group.visible ?? true;
+    }
+
+  } catch(e){
+    console.log("shop load fout", e);
+  }
+});
 </script>
 </body>
