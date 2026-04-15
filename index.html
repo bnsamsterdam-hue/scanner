@@ -8,6 +8,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="/scanner/manifest.json">
+ 
 <link rel="apple-touch-icon" href="/scanner/logo.png">
 <link rel="icon" href="/scanner/logo.png">
  
@@ -19,7 +20,7 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm//build/qrcode.min.js"></script>
 
  <meta name="autocomplete" content="off">   
  
@@ -1030,9 +1031,10 @@ document.getElementById("adminPanel").style.display="none";
 document.getElementById("qrScreen").style.display="block";
 
 document.getElementById("qrCanvas").innerHTML = "";
-
-QRCode.toCanvas(document.getElementById("qrCanvas"), code, {
-width:300
+QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
+    width:500,
+    margin:4,
+    errorCorrectionLevel:"M"
 });
 }
 
