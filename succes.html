@@ -98,6 +98,7 @@ const lang = params.get("lang") || "nl";
 
 let loop = null;
 let loaded = false;
+let processing = false;  
 let ticketCode = "";
 
 /* ===== TALEN ===== */
@@ -220,7 +221,8 @@ throw new Error("temp blocked");
 
 async function checkPayment(){
 
-if(loaded) return;
+if(loaded || processing) return;
+processing = true;
 
 try{
 
@@ -237,6 +239,7 @@ const data = await r.json();
 if(data.paid && data.ticket){
 
 loaded = true;
+processing = false;
 clearInterval(loop);
 
 /* ticket beveiligen */
@@ -256,6 +259,8 @@ result.innerHTML =
 }
 
 }catch(e){
+
+processing = false;
 
 result.innerHTML =
 '<div class="bad">'+t.fail+'</div>' +
