@@ -358,6 +358,105 @@ z-index:999999;
 <br><br>
 <br><br>
 <button style="background:red;color:white;" onclick="wisAlles()">⚠ Wis alle QR codes</button>
+<!-- PLAK IN JE BESTAANDE ADMIN PANEL -->
+
+<hr>
+<h2>🛠 Shop Beheer</h2>
+
+<div style="background:#111;padding:15px;border-radius:15px;margin:10px;">
+
+<h3>💵 Cash Pass</h3>
+<input id="cashNaam" placeholder="Naam" value="Cash Pass"><br>
+<input id="cashPrijs" placeholder="Prijs" value="1.00"><br>
+<label><input type="checkbox" id="cashVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>🚪 Single Pass</h3>
+<input id="singleNaam" placeholder="Naam" value="Single Pass"><br>
+<input id="singlePrijs" placeholder="Prijs" value="1.50"><br>
+<input id="singleAantal" placeholder="Aantal scans" value="1"><br>
+<label><input type="checkbox" id="singleVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>👥 Share Pass</h3>
+<input id="shareNaam" placeholder="Naam" value="Share Pass"><br>
+<input id="sharePrijs" placeholder="Prijs" value="10.00"><br>
+<input id="shareAantal" placeholder="Aantal scans" value="10"><br>
+<label><input type="checkbox" id="shareVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>🎉 Group Pass</h3>
+<input id="groupNaam" placeholder="Naam" value="Group Pass"><br>
+<input id="groupPrijs" placeholder="Prijs" value="20.00"><br>
+<input id="groupAantal" placeholder="Aantal scans" value="20"><br>
+<label><input type="checkbox" id="groupVisible" checked> Zichtbaar</label>
+
+<hr>
+
+<h3>⚙ Algemene Instellingen</h3>
+<input id="siteTitel" placeholder="Titel" value="The Plee's To Bee"><br>
+<input id="bannerTekst" placeholder="Banner tekst" value="Toegangspoorten én kassa"><br>
+
+<label><input type="checkbox" id="mollieOn" checked> Mollie actief</label><br>
+<label><input type="checkbox" id="cashOn" checked> Cash actief</label>
+
+<br><br>
+
+<button onclick="saveShopSettings()" style="background:green;color:white;padding:14px;border:none;border-radius:12px;width:100%;">
+💾 Opslaan
+</button>
+
+</div>
+
+<script>
+
+async function saveShopSettings(){
+
+await db.collection("settings").doc("shop").set({
+
+cash:{
+naam:document.getElementById("cashNaam").value,
+prijs:document.getElementById("cashPrijs").value,
+visible:document.getElementById("cashVisible").checked
+},
+
+single:{
+naam:document.getElementById("singleNaam").value,
+prijs:document.getElementById("singlePrijs").value,
+aantal:document.getElementById("singleAantal").value,
+visible:document.getElementById("singleVisible").checked
+},
+
+share:{
+naam:document.getElementById("shareNaam").value,
+prijs:document.getElementById("sharePrijs").value,
+aantal:document.getElementById("shareAantal").value,
+visible:document.getElementById("shareVisible").checked
+},
+
+group:{
+naam:document.getElementById("groupNaam").value,
+prijs:document.getElementById("groupPrijs").value,
+aantal:document.getElementById("groupAantal").value,
+visible:document.getElementById("groupVisible").checked
+},
+
+titel:document.getElementById("siteTitel").value,
+banner:document.getElementById("bannerTekst").value,
+
+mollie:document.getElementById("mollieOn").checked,
+cashmode:document.getElementById("cashOn").checked
+
+});
+
+alert("✅ Shop instellingen opgeslagen");
+
+}
+
+</script> 
 <button onclick="logout()">Terug</button>
 </div>
 </div>
@@ -456,12 +555,12 @@ let qrLoggedIn = false;   // 👈 HIER toevoegen
 
 /* POORTEN */
 const POORTEN={
-1:"192.168.1.104",
-2:"192.168.1.105",
-3:"192.168.1.104",
-4:"192.168.1.105",
-5:"192.168.1.104",
-6:"192.168.1.105"
+1:"192.168.1.101",
+2:"192.168.1.102",
+3:"192.168.1.103",
+4:"192.168.1.104",
+5:"192.168.1.105",
+6:"192.168.1.106"
 };
 
 let teller=0;
@@ -516,7 +615,7 @@ if(MODE==="poort"){
 db.collection("openPoort").doc("poort"+POORT_NR)
 .onSnapshot(doc=>{
 if(doc.exists && doc.data().trigger){
-fetch("http://"+RELAIS_IP+"/rpc/Switch.Set?id=0&on=true");
+fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
 db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 }
 });
@@ -583,16 +682,29 @@ buffer+=e.key;
 
 /* CAMERA FUNCTIES */
 async function startCamera(i){
-if(scanner){
-try{ await scanner.stop(); await scanner.clear(); }catch(e){}
-}
-scanner=new Html5Qrcode("reader");
-scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
+
+    if(scanner){
+        try{ 
+            await scanner.stop(); 
+            await scanner.clear(); 
+        }catch(e){}
+    }
+
+    scanner = new Html5Qrcode("reader");
+
+    await scanner.start(
+        cameras[i].id,
+        {
+            fps:10,
+            qrbox: scanSize
+        },
+        code => processScan(code)
+    );
 }
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
-if(MODE !== "poort") startCamera(currentCam);
+startCamera(currentCam);
 }
 
 let readerBig = false;
@@ -610,15 +722,6 @@ function toggleScanSize(){
     }
 
 }
-
-scanner.start(
-    cameras[currentCam].id,
-    {
-        fps:10,
-        qrbox: scanSize
-    },
-    code=>processScan(code)
-);
  
 /* SCAN */
 async function processScan(code){
@@ -626,7 +729,13 @@ async function processScan(code){
 if(scanLock) return;
 scanLock=true;
 
-code=code.trim().toUpperCase();
+code = code.trim().toUpperCase();
+
+// 🔥 FIX: scanner gebruikt / i.p.v -
+code = code.replace(/\//g, "-");
+
+console.log("SCAN:", code);
+
 let s=document.getElementById("status");
 try {
     if (document.documentElement.requestFullscreen) {
@@ -649,29 +758,34 @@ await db.runTransaction(async (t)=>{
     if(r <= 0){
         throw "empty";
     }
+/* 🔥 LAATSTE KEER */
+if(r === 1){
 
-    /* 🔥 LAATSTE KEER */
-    if(r === 1){
+    t.update(ref,{remaining:0});
 
-        t.update(ref,{remaining:0});
+ if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+}
+    s.className="blink-orange";
+    s.innerHTML = `
+        <div style="font-size:60px;">🚽</div>
+        <div class="wave" style="font-size:40px;">👋</div>
+        <div style="font-size:20px; margin-top:10px;">
+            ⚠ Laatste toilet bezoek
+        </div>
+    `;
 
-        s.className="blink-orange";
-        s.innerHTML = `
-            <div style="font-size:60px;">🚽</div>
-            <div class="wave" style="font-size:40px;">👋</div>
-            <div style="font-size:20px; margin-top:10px;">
-                ⚠ Laatste toilet bezoek
-            </div>
-        `;
+} else {
 
-    } else {
+    t.update(ref,{remaining:r-1});
 
-        t.update(ref,{remaining:r-1});
+    s.className="ok";
+    s.innerText="✔ TOEGANG ("+(r-1)+")";
 
-        s.className="ok";
-        s.innerText="✔ TOEGANG ("+(r-1)+")";
-
-    }
+  if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+}
+}
 
 }); // ✅ transaction dicht
 
@@ -714,12 +828,8 @@ try{ await scanner.stop(); await scanner.clear(); } catch(e){}
 }
 
 setTimeout(()=>{
-scanLock=false;
-
-if(MODE !== "poort"){
-   if(MODE !== "poort") startCamera(currentCam);
-}
-
+    scanLock=false;
+    if(MODE!=="poort") startCamera(currentCam);
 },5000);
 
 setTimeout(()=>{
@@ -1011,19 +1121,15 @@ t.set(ref,{value:next});
 return next;
 });
 function generateCode(){
-
-const chars = "ABCDEFGHJKLMNPQRTUVWXY346789";
-
-function part(){
-let s = "";
-for(let i=0;i<4;i++){
-s += chars[Math.floor(Math.random()*chars.length)];
-}
-return s;
-}
-
-return part() + "-" + part() + "-" + part();
-
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let part = () => {
+        let s = "";
+        for(let i=0;i<4;i++){
+            s += chars[Math.floor(Math.random()*chars.length)];
+        }
+        return s;
+    };
+    return part() + "-" + part() + "-" + part();
 }
 
 let code = generateCode();
@@ -1141,6 +1247,42 @@ document.getElementById("poortTellers").innerHTML = html;
 });
 
 }
-updatePoortTellers(); 
+updatePoortTellers();
+async function saveShopSettings(){
+
+await db.collection("settings").doc("shop").set({
+
+cash:{
+naam:document.getElementById("cashNaam").value,
+prijs:document.getElementById("cashPrijs").value,
+visible:document.getElementById("cashVisible").checked
+},
+
+single:{
+naam:document.getElementById("singleNaam").value,
+prijs:document.getElementById("singlePrijs").value,
+aantal:document.getElementById("singleAantal").value,
+visible:document.getElementById("singleVisible").checked
+},
+
+share:{
+naam:document.getElementById("shareNaam").value,
+prijs:document.getElementById("sharePrijs").value,
+aantal:document.getElementById("shareAantal").value,
+visible:document.getElementById("shareVisible").checked
+},
+
+group:{
+naam:document.getElementById("groupNaam").value,
+prijs:document.getElementById("groupPrijs").value,
+aantal:document.getElementById("groupAantal").value,
+visible:document.getElementById("groupVisible").checked
+}
+
+});
+
+alert("✅ Opgeslagen");
+
+} 
 </script>
 </body>
