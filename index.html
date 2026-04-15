@@ -1007,9 +1007,19 @@ t.set(ref,{value:next});
 return next;
 });
 function generateCode(){
-return Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
-       Math.random().toString(36).substring(2,6).toUpperCase() + "-" +
-       Math.random().toString(36).substring(2,6).toUpperCase();
+
+const chars = "ABCDEFGHJKLMNPQRTUVWXY346789";
+
+function part(){
+let s = "";
+for(let i=0;i<4;i++){
+s += chars[Math.floor(Math.random()*chars.length)];
+}
+return s;
+}
+
+return part() + "-" + part() + "-" + part();
+
 }
 
 let code = generateCode();
