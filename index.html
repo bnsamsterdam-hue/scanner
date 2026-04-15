@@ -407,9 +407,10 @@ z-index:999999;
 <input id="aantal" placeholder="Aantal scans"><br><br>
 
 <button class="noodBtn open" onclick="maakTicket()">💾 Ticket Opslaan</button><br>
-<button class="noodBtn" onclick="maakEnToonQR()">📱 1 QR Tonen</button><br>
+<button class="noodBtn" onclick="maakEnToonQR()">🖥 1 QR Tonen</button><br>
 <button class="noodBtn" onclick="printLaatsteQR()">🖨 Print QR</button><br>
-<button class="noodBtn" onclick="deelWhatsApp()">📲 Deel WhatsApp</button><br><br>
+<button class="noodBtn" onclick="deelWhatsApp()">📲 Deel WhatsApp</button><br>
+<button class="noodBtn" onclick="deelMail()">📧 Deel Mail</button><br><br>
 
 <button class="noodBtn" onclick="bulk(1000)">1000 QR</button><br>
 <button class="noodBtn" onclick="bulk(2000)">2000 QR</button><br>
@@ -482,6 +483,22 @@ let txt = "Jouw QR code: " + code;
 window.open("https://wa.me/?text=" + encodeURIComponent(txt));
 }
 
+ function deelMail(){
+let code = document.getElementById("code").value;
+
+if(!code){
+alert("Geen code");
+return;
+}
+
+let onderwerp = "Jouw QR Ticket";
+let tekst = "Jouw QR code: " + code + "\nGebruik deze bij entree.";
+
+window.location.href =
+"mailto:?subject=" + encodeURIComponent(onderwerp) +
+"&body=" + encodeURIComponent(tekst);
+}
+ 
 async function saveShopSettings(){
 
 await db.collection("settings").doc("shop").set({
