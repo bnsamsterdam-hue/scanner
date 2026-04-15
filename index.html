@@ -1121,7 +1121,7 @@ t.set(ref,{value:next});
 return next;
 });
 function generateCode(){
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const chars = "ABCDEFGHJKLMNPQRTUVWXY346789";
     let part = () => {
         let s = "";
         for(let i=0;i<4;i++){
@@ -1139,9 +1139,10 @@ remaining:10
 });
 
 QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
-width:400
+width:500,
+margin:8,
+errorCorrectionLevel:"L"
 });
-}
 
 /* OUDE FUNCTIE */
 function printLaatsteQR(){
