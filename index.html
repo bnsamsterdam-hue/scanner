@@ -592,7 +592,7 @@ scanner.start(cameras[i].id,{fps:10,qrbox: scanSize},code=>processScan(code));
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
-startCamera(currentCam);
+if(MODE !== "poort") startCamera(currentCam);
 }
 
 let readerBig = false;
@@ -714,9 +714,13 @@ try{ await scanner.stop(); await scanner.clear(); } catch(e){}
 }
 
 setTimeout(()=>{
-    scanLock=false;
-    if(MODE!=="poort") startCamera(currentCam);
-},3000);
+scanLock=false;
+
+if(MODE !== "poort"){
+   if(MODE !== "poort") startCamera(currentCam);
+}
+
+},5000);
 
 setTimeout(()=>{
     s.innerText="SCAN KLAAR";
