@@ -332,87 +332,155 @@ z-index:999999;
 </div>
 
 </div> <!-- 🔥 DEZE TOEVOEGEN -->
-
 <!-- ADMIN -->
 <div id="admin" class="tab">
+
+<!-- LOGIN -->
 <div id="login">
-<input id="pin" type="text" placeholder="Pincode" autocomplete="off">
-<button onclick="login()">OK</button>
+<h2>🔐 Admin Login</h2>
+<input id="pin" type="text" placeholder="Pincode" autocomplete="off"><br>
+<button class="noodBtn" onclick="login()">OK</button>
 </div>
 
+<!-- PANEL -->
 <div id="adminPanel" style="display:none;">
-<input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
-<input id="code" placeholder="Code bv TOILET-001"><br>
-<input id="aantal" placeholder="Aantal bv 10"><br>
 
-<button onclick="maakTicket()">Opslaan</button>
+<!-- MENU -->
+<div id="adminMenu">
 
-<br><br>
+<h2>⚙️ ADMIN MENU</h2>
 
-<button onclick="bulk(1000)">Bulk 1000</button>
-<button onclick="bulk(2000)">Bulk 2000</button>
-<button onclick="bulk(3000)">Bulk 3000</button>
-<br><br>
-<button onclick="maakEnToonQR()">1 QR tonen</button>
-<button onclick="printLaatsteQR()">Print QR</button>
+<button class="noodBtn" onclick="openAdminPage('shopPage')">🛒 Shopbeheer</button><br>
+<button class="noodBtn" onclick="openAdminPage('qrPage')">🎟 QR Beheer</button><br>
+<button class="noodBtn" onclick="openAdminPage('ticketPage')">📦 Ticket Beheer</button><br>
+<button class="noodBtn" onclick="openAdminPage('systemPage')">🖥 Systeem</button><br>
+<button class="noodBtn" style="background:#444;" onclick="logout()">⬅ Terug</button>
 
-<br><br>
-<br><br>
-<button style="background:red;color:white;" onclick="wisAlles()">⚠ Wis alle QR codes</button>
-<!-- PLAK IN JE BESTAANDE ADMIN PANEL -->
+</div>
 
-<hr>
-<h2>🛠 Shop Beheer</h2>
+<!-- SHOP -->
+<div id="shopPage" style="display:none;">
 
-<div style="background:#111;padding:15px;border-radius:15px;margin:10px;">
+<h2>🛒 Shopbeheer</h2>
 
 <h3>💵 Cash Pass</h3>
-<input id="cashNaam" placeholder="Naam" value="Cash Pass"><br>
-<input id="cashPrijs" placeholder="Prijs" value="1.00"><br>
-<label><input type="checkbox" id="cashVisible" checked> Zichtbaar</label>
-
-<hr>
+<input id="cashNaam" placeholder="Naam"><br>
+<input id="cashPrijs" placeholder="Prijs"><br>
+<label><input type="checkbox" id="cashVisible"> Zichtbaar</label><br><br>
 
 <h3>🚪 Single Pass</h3>
-<input id="singleNaam" placeholder="Naam" value="Single Pass"><br>
-<input id="singlePrijs" placeholder="Prijs" value="1.50"><br>
-<input id="singleAantal" placeholder="Aantal scans" value="1"><br>
-<label><input type="checkbox" id="singleVisible" checked> Zichtbaar</label>
-
-<hr>
+<input id="singleNaam" placeholder="Naam"><br>
+<input id="singlePrijs" placeholder="Prijs"><br>
+<input id="singleAantal" placeholder="Aantal scans"><br>
+<label><input type="checkbox" id="singleVisible"> Zichtbaar</label><br><br>
 
 <h3>👥 Share Pass</h3>
-<input id="shareNaam" placeholder="Naam" value="Share Pass"><br>
-<input id="sharePrijs" placeholder="Prijs" value="10.00"><br>
-<input id="shareAantal" placeholder="Aantal scans" value="10"><br>
-<label><input type="checkbox" id="shareVisible" checked> Zichtbaar</label>
-
-<hr>
+<input id="shareNaam" placeholder="Naam"><br>
+<input id="sharePrijs" placeholder="Prijs"><br>
+<input id="shareAantal" placeholder="Aantal scans"><br>
+<label><input type="checkbox" id="shareVisible"> Zichtbaar</label><br><br>
 
 <h3>🎉 Group Pass</h3>
-<input id="groupNaam" placeholder="Naam" value="Group Pass"><br>
-<input id="groupPrijs" placeholder="Prijs" value="20.00"><br>
-<input id="groupAantal" placeholder="Aantal scans" value="20"><br>
-<label><input type="checkbox" id="groupVisible" checked> Zichtbaar</label>
+<input id="groupNaam" placeholder="Naam"><br>
+<input id="groupPrijs" placeholder="Prijs"><br>
+<input id="groupAantal" placeholder="Aantal scans"><br>
+<label><input type="checkbox" id="groupVisible"> Zichtbaar</label><br><br>
 
-<hr>
+<h3>⚙ Instellingen</h3>
+<input id="siteTitel" placeholder="Titel"><br>
+<input id="bannerTekst" placeholder="Banner tekst"><br>
+<label><input type="checkbox" id="mollieOn"> Mollie actief</label><br>
+<label><input type="checkbox" id="cashOn"> Cash actief</label><br><br>
 
-<h3>⚙ Algemene Instellingen</h3>
-<input id="siteTitel" placeholder="Titel" value="The Plee's To Bee"><br>
-<input id="bannerTekst" placeholder="Banner tekst" value="Toegangspoorten én kassa"><br>
+<button class="noodBtn open" onclick="saveShopSettings()">💾 Opslaan</button><br>
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
 
-<label><input type="checkbox" id="mollieOn" checked> Mollie actief</label><br>
-<label><input type="checkbox" id="cashOn" checked> Cash actief</label>
+</div>
 
-<br><br>
+<!-- QR -->
+<div id="qrPage" style="display:none;">
 
-<button onclick="saveShopSettings()" style="background:green;color:white;padding:14px;border:none;border-radius:12px;width:100%;">
-💾 Opslaan
-</button>
+<h2>🎟 QR Beheer</h2>
 
+<input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
+<input id="code" placeholder="Code"><br>
+<input id="aantal" placeholder="Aantal scans"><br><br>
+
+<button class="noodBtn open" onclick="maakTicket()">💾 Ticket Opslaan</button><br>
+<button class="noodBtn" onclick="maakEnToonQR()">📱 1 QR Tonen</button><br>
+<button class="noodBtn" onclick="printLaatsteQR()">🖨 Print QR</button><br>
+<button class="noodBtn" onclick="deelWhatsApp()">📲 Deel WhatsApp</button><br><br>
+
+<button class="noodBtn" onclick="bulk(1000)">1000 QR</button><br>
+<button class="noodBtn" onclick="bulk(2000)">2000 QR</button><br>
+<button class="noodBtn" onclick="bulk(3000)">3000 QR</button><br><br>
+
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+<!-- TICKET -->
+<div id="ticketPage" style="display:none;">
+
+<h2>📦 Ticket Beheer</h2>
+
+<button class="noodBtn" style="background:red;" onclick="wisAlles()">⚠ Wis Alle Tickets</button><br>
+<button class="noodBtn" onclick="resetTeller()">🔄 Reset Teller</button><br>
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+<!-- SYSTEM -->
+<div id="systemPage" style="display:none;">
+
+<h2>🖥 Systeem</h2>
+
+<div style="background:#111;padding:15px;border-radius:12px;margin:10px;">
+Scanner actief<br>
+Poorten actief<br>
+Firebase online
+</div>
+
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+</div>
+</div>
+
+<!-- QR SCREEN -->
+<div id="qrScreen" style="display:none;">
+<h2>QR Code</h2>
+<canvas id="qrCanvas"></canvas><br><br>
+<button class="noodBtn" onclick="sluitQR()">⬅ Terug</button>
 </div>
 
 <script>
+
+function openAdminPage(id){
+document.getElementById("adminMenu").style.display="none";
+document.getElementById("shopPage").style.display="none";
+document.getElementById("qrPage").style.display="none";
+document.getElementById("ticketPage").style.display="none";
+document.getElementById("systemPage").style.display="none";
+document.getElementById(id).style.display="block";
+}
+
+function backAdmin(){
+document.getElementById("adminMenu").style.display="block";
+document.getElementById("shopPage").style.display="none";
+document.getElementById("qrPage").style.display="none";
+document.getElementById("ticketPage").style.display="none";
+document.getElementById("systemPage").style.display="none";
+}
+
+function deelWhatsApp(){
+let code = document.getElementById("code").value;
+if(!code){ alert("Geen code"); return; }
+
+let txt = "Jouw QR code: " + code;
+window.open("https://wa.me/?text=" + encodeURIComponent(txt));
+}
 
 async function saveShopSettings(){
 
