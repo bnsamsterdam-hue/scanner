@@ -998,20 +998,28 @@ await db.collection("tickets").doc(code).set({remaining:10});
 alert(aantal+" tickets aangemaakt");
 }
 function toonQR(code){
-document.getElementById("admin").style.display="none";
+
+document.getElementById("adminPanel").style.display="none";
 document.getElementById("qrScreen").style.display="block";
 
-document.getElementById("qrCanvas").innerHTML = "";
-QRCode.toCanvas(document.getElementById("qrCanvas"), code, {
-    width:500,
-    margin:4,
-    errorCorrectionLevel:"M"
+document.getElementById("qrCanvas").innerHTML="";
+
+QRCode.toCanvas(
+document.getElementById("qrCanvas"),
+code,
+{
+width:500,
+margin:4,
+errorCorrectionLevel:"M"
 });
+
 }
 
 function sluitQR(){
+
 document.getElementById("qrScreen").style.display="none";
-document.getElementById("admin").style.display="block";
+document.getElementById("adminPanel").style.display="block";
+
 }
 
 async function maakEnToonQR(){
