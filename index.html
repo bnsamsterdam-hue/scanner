@@ -784,21 +784,18 @@ async function startCamera(i){
             fps:10,
             qrbox: scanSize,
             aspectRatio:1.777,
-  experimentalFeatures:{
-    useBarCodeDetectorIfSupported:true
-},
-
-videoConstraints:{
-    facingMode:(window.innerWidth > 900 ? "user" : "environment"),
-    width:{ideal:1920},
-    height:{ideal:1080}
-},
-
- code => processScan(code)
-);
-
-}   // sluit startCamera()
-
+            experimentalFeatures:{
+                useBarCodeDetectorIfSupported:true
+            },
+            videoConstraints:{
+                facingMode:(window.innerWidth > 900 ? "user" : "environment"),
+                width:{ideal:1920},
+                height:{ideal:1080}
+            }
+        },
+        (code) => processScan(code)
+    );
+}
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
 startCamera(currentCam);
