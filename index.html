@@ -1397,42 +1397,43 @@ alert("✅ Opgeslagen");
 
 } 
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const doc = await db.collection("settings").doc("shop").get();
-    if (!doc.exists) return;
+    try {
 
-    const d = doc.data();
+        const doc = await db.collection("settings").doc("shop").get();
+        if (!doc.exists) return;
 
-   if (d.cash) {
-document.getElementById("cashNaam").value = d.cash.naam || "";
-document.getElementById("cashPrijs").value = d.cash.prijs || "";
-document.getElementById("cashVisible").checked = d.cash.visible ?? true;
-}
+        const d = doc.data();
 
-    if (d.single) {
-      singleNaam.value = d.single.naam || "";
-      singlePrijs.value = d.single.prijs || "";
-      singleAantal.value = d.single.aantal || "";
-      singleVisible.checked = d.single.visible ?? true;
+        if (d.cash) {
+            document.getElementById("cashNaam").value = d.cash.naam || "";
+            document.getElementById("cashPrijs").value = d.cash.prijs || "";
+            document.getElementById("cashVisible").checked = d.cash.visible ?? true;
+        }
+
+        if (d.single) {
+            singleNaam.value = d.single.naam || "";
+            singlePrijs.value = d.single.prijs || "";
+            singleAantal.value = d.single.aantal || "";
+            singleVisible.checked = d.single.visible ?? true;
+        }
+
+        if (d.share) {
+            shareNaam.value = d.share.naam || "";
+            sharePrijs.value = d.share.prijs || "";
+            shareAantal.value = d.share.aantal || "";
+            shareVisible.checked = d.share.visible ?? true;
+        }
+
+        if (d.group) {
+            groupNaam.value = d.group.naam || "";
+            groupPrijs.value = d.group.prijs || "";
+            groupAantal.value = d.group.aantal || "";
+            groupVisible.checked = d.group.visible ?? true;
+        }
+
+    } catch(e) {
+        console.log("shop load fout", e);
     }
-
-    if (d.share) {
-      shareNaam.value = d.share.naam || "";
-      sharePrijs.value = d.share.prijs || "";
-      shareAantal.value = d.share.aantal || "";
-      shareVisible.checked = d.share.visible ?? true;
-    }
-
-    if (d.group) {
-      groupNaam.value = d.group.naam || "";
-      groupPrijs.value = d.group.prijs || "";
-      groupAantal.value = d.group.aantal || "";
-      groupVisible.checked = d.group.visible ?? true;
-}     
-}
- } catch(e){
-    console.log("shop load fout", e);
-}
 });
 </script>
 </body>
