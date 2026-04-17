@@ -613,7 +613,17 @@ alert("✅ Shop instellingen opgeslagen");
 </div> 
     
 <script>
+function checkQRPersoneelPin(){
 
+let pin = document.getElementById("qrCheckPin").value.trim();
+
+if(pin === "1234"){   // <-- hier jouw gewenste code
+    showTab("qrCheckPage");
+} else {
+    alert("Verkeerde code");
+}
+
+}
 document.addEventListener("DOMContentLoaded", function(){
 
 /* 🔥 CHECK: is dit een poort? */
@@ -1615,8 +1625,7 @@ await checkQR();
 <div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
 
 <h2>🎫 QR Controleren</h2>
-
-<input type="password" id="qrCheckPin" placeholder="Code invoeren">
+<input type="password" id="qrCheckPin" placeholder="Code invoeren" value="" autocomplete="off">
 
 <br><br>
 
