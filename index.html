@@ -456,7 +456,6 @@ z-index:999999;
 
 </div>
 
-<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
 
 </div>
 
@@ -1506,24 +1505,45 @@ setBtn("sysPay","red","❌ Betalen fout");
 
 function checkShelly(n){
 
-let ip="192.168.1."+(100+n);
-let start=Date.now();
+let btn = document.getElementById("p"+n);
+if(!btn) return;
 
-fetch("http://"+ip+"/rpc/Shelly.GetStatus")
-.then(r=>r.json())
-.then(()=>{
+btn.style.background = "blue";
+btn.innerText = "⌛ Poort "+n+" laden...";
 
-let ms=Date.now()-start;
+db.collection("status").doc("poort"+n)
+.get()
+.then(doc=>{
 
-if(ms<500){
-setBtn("p"+n,"green","✅ Poort "+n+" online ("+ms+"ms)");
-}else{
-setBtn("p"+n,"orange","⚠ Poort "+n+" traag ("+ms+"ms)");
+if(!doc.exists){
+setBtn("p"+n,"gray","⚫ Poort "+n+" geen data");
+return;
+}
+
+let s = doc.data().status || "";
+
+if(s==="ONLINE"){
+setBtn("p"+n,"green","🟢 Poort "+n+" online");
+}
+else if(s==="ACTIEF"){
+setBtn("p"+n,"blue","🔵 Poort "+n+" actief");
+}
+else if(s==="GEEN_INTERNET"){
+setBtn("p"+n,"orange","🟠 Poort "+n+" geen internet");
+}
+else if(s==="RASPI_OFFLINE"){
+setBtn("p"+n,"red","🔴 Poort "+n+" offline");
+}
+else if(s==="GEEN_STROOM"){
+setBtn("p"+n,"black","⚫ Poort "+n+" geen stroom");
+}
+else{
+setBtn("p"+n,"purple","🟣 Poort "+n+" onbekend");
 }
 
 })
 .catch(()=>{
-setBtn("p"+n,"red","❌ Poort "+n+" offline");
+setBtn("p"+n,"red","❌ Poort "+n+" fout");
 });
 
 }
