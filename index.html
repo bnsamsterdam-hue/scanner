@@ -432,160 +432,33 @@ z-index:999999;
 <!-- SYSTEM -->
 <div id="systemPage" style="display:none;">
 
-<h2>🖥 Systeem</h2>
+<!-- DIAGNOSE PANEEL - PLAK IN systemPage -->
 
-<!-- 📱 DIAGNOSE PANEEL -->
-<div id="diagnosePanel" style="margin-top:25px;">
+<h2>📋 Systeem Beheer</h2>
 
-<h2 style="text-align:center; margin-bottom:20px;">📱 Systeem Beheer</h2>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkInternet()">Internet</button>
-<div id="statInternet" class="diagStatus blue">Niet getest</div>
-</div>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkFirebase()">Firebase</button>
-<div id="statFirebase" class="diagStatus blue">Niet getest</div>
-</div>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkScanner()">Scanner</button>
-<div id="statScanner" class="diagStatus blue">Niet getest</div>
-</div>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkCameraDiag()">Camera</button>
-<div id="statCamera" class="diagStatus blue">Niet getest</div>
-</div>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkPoorten()">Poorten</button>
-<div id="statPoorten" class="diagStatus blue">Niet getest</div>
-</div>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkMollie()">Mollie</button>
-<div id="statMollie" class="diagStatus blue">Niet getest</div>
-</div>
-
-<div class="diagRow">
-<button class="diagBtn" onclick="checkAlles()">🔄 Controleer Alles</button>
-<div id="statAlles" class="diagStatus blue">Klaar</div>
-</div>
-
-</div>
-
-<style>
-.diagRow{
-display:flex;
+<div id="diagGrid" style="
+display:grid;
+grid-template-columns:1fr 1fr;
 gap:10px;
-margin-bottom:10px;
-}
+max-width:1000px;
+margin:auto;
+">
 
-.diagBtn{
-flex:1;
-padding:14px;
-font-size:18px;
-font-weight:bold;
-border:none;
-border-radius:8px;
-background:#444;
-color:white;
-}
+<button class="noodBtn" id="btnInternet" onclick="checkInternet()">🌐 Internet</button>
+<button class="noodBtn" id="btnFirebase" onclick="checkFirebase()">☁️ Database</button>
 
-.diagStatus{
-flex:1;
-padding:14px;
-font-size:16px;
-font-weight:bold;
-border-radius:8px;
-text-align:center;
-}
+<button class="noodBtn" id="btnScanner" onclick="checkScanner()">📷 Scanner</button>
+<button class="noodBtn" id="btnCamera" onclick="checkCamera()">🎥 Camera</button>
 
-.blue{background:#2196f3;color:white;}
-.green{background:#4caf50;color:white;}
-.red{background:#f44336;color:white;}
-.orange{background:#ff9800;color:white;}
-</style>
+<button class="noodBtn" id="btnPoorten" onclick="checkPoorten()">🚪 Poorten</button>
+<button class="noodBtn" id="btnBetalen" onclick="checkBetalen()">💳 Betalen</button>
 
-<script>
-function setStat(id,text,color){
-let el=document.getElementById(id);
-el.className="diagStatus "+color;
-el.innerText=text;
-}
+<button class="noodBtn" id="btnQR" onclick="checkQR()">🎫 QR Ticket</button>
+<button class="noodBtn" onclick="checkAlles()">🔄 Controleer Alles</button>
 
-async function checkInternet(){
-setStat("statInternet","Bezig...","orange");
-if(navigator.onLine){
-setStat("statInternet","🟢 Internet OK","green");
-}else{
-setStat("statInternet","🔴 Geen internet","red");
-}
-}
+</div>
 
-async function checkFirebase(){
-setStat("statFirebase","Bezig...","orange");
-try{
-await db.collection("teller").doc("main").get();
-setStat("statFirebase","🟢 Verbonden","green");
-}catch(e){
-setStat("statFirebase","🔴 Firebase fout","red");
-}
-}
-
-function checkScanner(){
-setStat("statScanner","🟢 Scanner actief","green");
-}
-
-async function checkCameraDiag(){
-setStat("statCamera","Bezig...","orange");
-try{
-let cams = await Html5Qrcode.getCameras();
-if(cams.length>0){
-setStat("statCamera","🟢 "+cams.length+" camera(s)","green");
-}else{
-setStat("statCamera","🔴 Geen camera","red");
-}
-}catch(e){
-setStat("statCamera","🔴 Geen toestemming","red");
-}
-}
-
-async function checkPoorten(){
-setStat("statPoorten","Bezig...","orange");
-try{
-await fetch("http://"+RELAIS_IP+"/relay/0?turn=off");
-setStat("statPoorten","🟢 Bereikbaar","green");
-}catch(e){
-setStat("statPoorten","🔴 Geen reactie","red");
-}
-}
-
-async function checkMollie(){
-setStat("statMollie","Bezig...","orange");
-try{
-await fetch("https://www.mollie.com");
-setStat("statMollie","🟢 Bereikbaar","green");
-}catch(e){
-setStat("statMollie","🔴 Niet bereikbaar","red");
-}
-}
-
-async function checkAlles(){
-setStat("statAlles","Controleren...","orange");
-
-await checkInternet();
-await checkFirebase();
-await checkScanner();
-await checkCameraDiag();
-await checkPoorten();
-await checkMollie();
-
-setStat("statAlles","🟢 Controle klaar","green");
-}
-</script>
+<br>
 
 <button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
 
@@ -1577,6 +1450,111 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("shop load fout", e);
     }
 });
+/* ===== DIAGNOSE SCRIPT ===== */
+
+function blauw(id,txt){
+let b=document.getElementById(id);
+b.style.background="#3498db";
+b.innerText=txt;
+}
+
+function groen(id,txt){
+let b=document.getElementById(id);
+b.style.background="#2ecc71";
+b.innerText=txt;
+}
+
+function rood(id,txt){
+let b=document.getElementById(id);
+b.style.background="#e74c3c";
+b.innerText=txt;
+}
+
+async function checkInternet(){
+blauw("btnInternet","Test...");
+if(navigator.onLine){
+groen("btnInternet","🌐 INTERNET GOED");
+}else{
+rood("btnInternet","🌐 GEEN INTERNET");
+}
+}
+
+async function checkFirebase(){
+blauw("btnFirebase","Test...");
+try{
+await db.collection("settings").doc("shop").get();
+groen("btnFirebase","☁️ DATABASE GOED");
+}catch(e){
+rood("btnFirebase","☁️ DATABASE FOUT");
+}
+}
+
+async function checkScanner(){
+blauw("btnScanner","Test...");
+if(scanner){
+groen("btnScanner","📷 SCANNER GOED");
+}else{
+rood("btnScanner","📷 SCANNER FOUT");
+}
+}
+
+async function checkCamera(){
+blauw("btnCamera","Test...");
+try{
+let cams = await Html5Qrcode.getCameras();
+if(cams.length>0){
+groen("btnCamera","🎥 CAMERA GOED");
+}else{
+rood("btnCamera","🎥 GEEN CAMERA");
+}
+}catch(e){
+rood("btnCamera","🎥 CAMERA FOUT");
+}
+}
+
+async function checkPoorten(){
+blauw("btnPoorten","Test...");
+try{
+await fetch(POORT_URL + "/status",{mode:"no-cors"});
+groen("btnPoorten","🚪 POORTEN GOED");
+}catch(e){
+rood("btnPoorten","🚪 POORT STORING");
+}
+}
+
+async function checkBetalen(){
+blauw("btnBetalen","Test...");
+try{
+let ok=navigator.onLine;
+if(ok){
+groen("btnBetalen","💳 BETALEN GOED");
+}else{
+rood("btnBetalen","💳 BETALEN STORING");
+}
+}catch(e){
+rood("btnBetalen","💳 BETALEN FOUT");
+}
+}
+
+async function checkQR(){
+blauw("btnQR","Test...");
+try{
+await db.collection("tickets").limit(1).get();
+groen("btnQR","🎫 QR GOED");
+}catch(e){
+rood("btnQR","🎫 QR FOUT");
+}
+}
+
+async function checkAlles(){
+await checkInternet();
+await checkFirebase();
+await checkScanner();
+await checkCamera();
+await checkPoorten();
+await checkBetalen();
+await checkQR();
+} 
 </script>
 </body>
 </html>
