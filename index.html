@@ -872,7 +872,7 @@ async function startCamera(i){
         }catch(e){}
     }
 
-    scanner = new Html5Qrcode("reader");
+  scanner = new Html5Qrcode("readerCheck");
 
     await scanner.start(
         cameras[i].id,
