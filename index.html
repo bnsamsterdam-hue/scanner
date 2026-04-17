@@ -722,8 +722,19 @@ let scanLock=false;
 
 /* TAB */
 function openQRCheckLogin(){
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById('qrCheckLogin').classList.add('active');
+
+document.querySelectorAll('.tab').forEach(el=>{
+el.classList.remove('active');
+el.style.display='none';
+});
+
+let x = document.getElementById('qrCheckLogin');
+
+if(x){
+x.style.display='block';
+x.classList.add('active');
+}
+
 }
 function showTab(id){
 
