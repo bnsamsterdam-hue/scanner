@@ -620,16 +620,17 @@ alert("✅ Shop instellingen opgeslagen");
 function checkQRPersoneelPin(){
 
  let pin = document.getElementById("qrCheckPin").value.trim();
+if(pin === "9990"){
+document.getElementById("qrCheckLogin").style.display="none";
+document.getElementById("qrCheckPage").style.display="block";
 
- if(pin === "9990"){
+Html5Qrcode.getCameras().then(cameras=>{
+if(cameras.length){ startCamera(cameras.length-1); }
+});
 
-   document.getElementById("qrCheckLogin").style.display = "none";
-   document.getElementById("qrCheckPage").style.display = "block";
-startCheckScanner();
-
- } else {
-   alert("Verkeerde code");
- }
+}else{
+alert("Verkeerde code");
+}
 
 }
 
