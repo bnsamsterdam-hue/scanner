@@ -1494,13 +1494,17 @@ setBtn("sysFire","red","❌ Firebase fout");
 }
 
 function checkMollie(){
-fetch("https://www.mollie.com")
-.then(()=>{
-setBtn("sysPay","green","✅ Betalen bereikbaar");
-})
-.catch(()=>{
-setBtn("sysPay","red","❌ Betalen fout");
-});
+
+setBtn("sysPay","blue","⌛ Betalen controleren");
+
+if(navigator.onLine){
+setTimeout(()=>{
+setBtn("sysPay","green","🟢 Betalen beschikbaar");
+},600);
+}else{
+setBtn("sysPay","red","🔴 Geen internet voor betalen");
+}
+
 }
 
 function checkShelly(n){
@@ -1567,29 +1571,41 @@ for(let i=1;i<=6;i++){
 setTimeout(()=>checkShelly(i),i*250);
 }
 } 
+let modemIndex = 0;
+
+const modems = [
+ { naam:"Modem 1", ip:"192.168.8.1" },
+ { naam:"Modem 2", ip:"192.168.8.2" },
+ { naam:"Modem 3", ip:"192.168.8.3" },
+ { naam:"Modem 4", ip:"192.168.8.4" },
+ { naam:"Modem 5", ip:"192.168.8.5" },
+ { naam:"Modem 6", ip:"192.168.8.6" }
+];
+
 function checkModem(){
 
-setBtn("sysModem","blue","⌛ Modem laden");
+let m = modems[modemIndex];
 
-const modemIP = "192.168.1.1";
+setBtn("sysModem","blue","⌛ "+m.naam+" controleren");
 
-let start = Date.now();
-
-fetch("http://" + modemIP, { mode:"no-cors" })
-
+fetch("http://" + m.ip,{mode:"no-cors"})
 .then(()=>{
 
-let ms = Date.now() - start;
-
-if(ms < 50){
-setBtn("sysModem","green","📡 Modem snel ("+ms+"ms)");
-}
-else{
-setBtn("sysModem","orange","📡 Modem traag ("+ms+"ms)");
-}
+setBtn("sysModem","green","🟢 "+m.naam+" online");
 
 })
+.catch(()=>{
 
+setBtn("sysModem","black","⚫ "+m.naam+" geen stroom");
+
+});
+
+modemIndex++;
+if(modemIndex >= modems.length){
+modemIndex = 0;
+}
+
+}
 .catch(()=>{
 
 setBtn("sysModem","red","❌ Modem offline");
