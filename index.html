@@ -915,7 +915,13 @@ function toggleScanSize(){
  
 /* SCAN */
 async function processScan(code){
+if(document.getElementById("qrCheckPage") &&
+   document.getElementById("qrCheckPage").style.display === "block"){
 
+   zoekQRHandmatig(code);
+   scanLock = false;
+   return;
+}
 if(scanLock) return;
 scanLock=true;
 
@@ -926,7 +932,14 @@ code = code.replace(/\//g, "-");
 
 console.log("SCAN:", code);
 
-let s=document.getElementById("status");
+if(document.getElementById("qrCheckPage") &&
+   document.getElementById("qrCheckPage").style.display === "block"){
+   zoekQRHandmatig(code);
+   scanLock = false;
+   return;
+}
+
+let s = document.getElementById("status");
 try {
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
