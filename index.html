@@ -721,6 +721,9 @@ let POORT_NR=0;
 let scanLock=false;
 
 /* TAB */
+function openQRCheckLogin(){
+  showTab('qrCheckLogin');
+} 
 function showTab(id){
 
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -1627,7 +1630,7 @@ await checkQR();
 
 <br><br>
 
-<button class="noodBtn" onclick="zoekQRHandmatig()">🔍 Controleren</button>
+<button onclick="zoekQRHandmatig()" style="background:#ffd800;color:#000;font-weight:bold;border:none;padding:12px 18px;border-radius:6px;">🔍 Controleren</button>
 
 <br><br>
 
