@@ -787,11 +787,13 @@ async function startCamera(i){
             experimentalFeatures:{
                 useBarCodeDetectorIfSupported:true
             },
-            videoConstraints:{
-                facingMode:"environment",
-                width:{ideal:1920},
-                height:{ideal:1080}
-            }
+         const isTablet = window.innerWidth > 900;
+
+videoConstraints:{
+   facingMode: isTablet ? "user" : "environment",
+   width:{ideal:1920},
+   height:{ideal:1080}
+}
         },
 
  code => processScan(code)
