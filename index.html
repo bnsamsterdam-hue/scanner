@@ -619,15 +619,19 @@ alert("✅ Shop instellingen opgeslagen");
 <script>
 function checkQRPersoneelPin(){
 
-let pin = document.getElementById("qrCheckPin").value.trim();
+ let pin = document.getElementById("qrCheckPin").value.trim();
 
-if(pin === "9990"){   // <-- hier jouw gewenste code
-    showTab("qrCheckPage");
-} else {
-    alert("Verkeerde code");
-}
+ if(pin === "9990"){
+
+   document.getElementById("qrCheckLogin").style.display = "none";
+   document.getElementById("qrCheckPage").style.display = "block";
+
+ } else {
+   alert("Verkeerde code");
+ }
 
 }
+</script>
 document.addEventListener("DOMContentLoaded", function(){
 
 /* 🔥 CHECK: is dit een poort? */
