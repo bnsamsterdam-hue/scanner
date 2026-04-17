@@ -256,53 +256,8 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
-<button onclick="openQRCheckLogin()" style="background:#ffd800;color:#000;font-weight:bold;border:none;">🔍 QR Controleren</button>
-</div>
-<div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
-
-<h2>🎫 QR Controleren</h2>
-
-<input type="password" id="qrCheckPin" placeholder="Code invoeren">
-<br><br>
-
-<br><br>
-<button onclick="checkQRPersoneelPin()" style="padding:14px 28px; background:#ff6600; color:#fff; border:none; border-radius:8px; font-size:20px; font-weight:bold;">OKE</button>
-
-<br><br>
-
-<button onclick="showTab('scan')" style="padding:10px 22px; background:#444; color:#fff; border:none; border-radius:8px;">Terug</button>
 </div>
 
-
-<div id="qrCheckPage" class="tab" style="display:none; padding:20px; text-align:center;">
-
-<h2>🎫 QR Controleren</h2>
-
-<div id="readerCheck" style="width:320px; margin:auto;"></div>
-
-<br>
-
-<input id="qrHandmatig" placeholder="QR code typen">
-
-<br><br>
-
-<button class="noodBtn" onclick="zoekQRHandmatig()">🔍 Controleren</button>
-
-<br><br>
-
-<div id="qrResultaat" style="
-background:#111;
-padding:15px;
-border-radius:12px;
-font-size:18px;
-line-height:1.6;
-"></div>
-
-<br>
-
-<button class="noodBtn" style="background:#444;" onclick="sluitQRCheck()">Terug</button>
-
-</div>
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
@@ -477,33 +432,13 @@ line-height:1.6;
 <!-- SYSTEM -->
 <div id="systemPage" style="display:none;">
 
-<!-- DIAGNOSE PANEEL - PLAK IN systemPage -->
+<h2>🖥 Systeem</h2>
 
-<h2>📋 Systeem Beheer</h2>
-
-<div id="diagGrid" style="
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-max-width:1000px;
-margin:auto;
-">
-
-<button class="noodBtn" id="btnInternet" onclick="checkInternet()">🌐 Internet</button>
-<button class="noodBtn" id="btnFirebase" onclick="checkFirebase()">☁️ Database</button>
-
-<button class="noodBtn" id="btnScanner" onclick="checkScanner()">📷 Scanner</button>
-<button class="noodBtn" id="btnCamera" onclick="checkCamera()">🎥 Camera</button>
-
-<button class="noodBtn" id="btnPoorten" onclick="checkPoorten()">🚪 Poorten</button>
-<button class="noodBtn" id="btnBetalen" onclick="checkBetalen()">💳 Betalen</button>
-
-<button class="noodBtn" id="btnQR" onclick="checkQR()">🎫 QR Ticket</button>
-<button class="noodBtn" onclick="checkAlles()">🔄 Controleer Alles</button>
-
+<div style="background:#111;padding:15px;border-radius:12px;margin:10px;">
+Scanner actief<br>
+Poorten actief<br>
+Firebase online
 </div>
-
-<br>
 
 <button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
 
@@ -617,22 +552,6 @@ alert("✅ Shop instellingen opgeslagen");
 </div> 
     
 <script>
-function checkQRPersoneelPin(){
-
- let pin = document.getElementById("qrCheckPin").value.trim();
-if(pin === "9990"){
-document.getElementById("qrCheckLogin").style.display="none";
-document.getElementById("qrCheckPage").style.display="block";
-
-Html5Qrcode.getCameras().then(cameras=>{
-if(cameras.length){ startCamera(cameras.length-1); }
-});
-
-}else{
-alert("Verkeerde code");
-}
-
-}
 
 document.addEventListener("DOMContentLoaded", function(){
 
@@ -738,25 +657,8 @@ let POORT_NR=0;
 let scanLock=false;
 
 /* TAB */
-function openQRCheckLogin(){
-
-document.querySelectorAll('.tab').forEach(el=>{
-el.classList.remove('active');
-el.style.display='none';
-});
-
-let x = document.getElementById('qrCheckLogin');
-
-if(x){
-x.style.display='block';
-x.classList.add('active');
-document.getElementById('qrCheckPin').value = "";
-}
-
-}
-
-
 function showTab(id){
+
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 
@@ -872,7 +774,7 @@ async function startCamera(i){
         }catch(e){}
     }
 
-  scanner = new Html5Qrcode("readerCheck");
+    scanner = new Html5Qrcode("reader");
 
     await scanner.start(
         cameras[i].id,
@@ -884,7 +786,7 @@ async function startCamera(i){
                 useBarCodeDetectorIfSupported:true
             },
             videoConstraints:{
-                facingMode:(window.innerWidth > 768 ? "user" : "environment"),
+                facingMode:(window.innerWidth > 900 ? "user" : "environment"),
                 width:{ideal:1920},
                 height:{ideal:1080}
             }
@@ -915,13 +817,7 @@ function toggleScanSize(){
  
 /* SCAN */
 async function processScan(code){
-if(document.getElementById("qrCheckPage") &&
-   document.getElementById("qrCheckPage").style.display === "block"){
 
-   zoekQRHandmatig(code);
-   scanLock = false;
-   return;
-}
 if(scanLock) return;
 scanLock=true;
 
@@ -932,14 +828,7 @@ code = code.replace(/\//g, "-");
 
 console.log("SCAN:", code);
 
-if(document.getElementById("qrCheckPage") &&
-   document.getElementById("qrCheckPage").style.display === "block"){
-   zoekQRHandmatig(code);
-   scanLock = false;
-   return;
-}
-
-let s = document.getElementById("status");
+let s=document.getElementById("status");
 try {
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
@@ -1541,162 +1430,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("shop load fout", e);
     }
 });
-/* ===== DIAGNOSE SCRIPT ===== */
-
-function blauw(id,txt){
-let b=document.getElementById(id);
-b.style.background="#3498db";
-b.innerText=txt;
-}
-
-function groen(id,txt){
-let b=document.getElementById(id);
-b.style.background="#2ecc71";
-b.innerText=txt;
-}
-
-function rood(id,txt){
-let b=document.getElementById(id);
-b.style.background="#e74c3c";
-b.innerText=txt;
-}
-
-async function checkInternet(){
-blauw("btnInternet","Test...");
-if(navigator.onLine){
-groen("btnInternet","🌐 INTERNET GOED");
-}else{
-rood("btnInternet","🌐 GEEN INTERNET");
-}
-}
-
-async function checkFirebase(){
-blauw("btnFirebase","Test...");
-try{
-await db.collection("settings").doc("shop").get();
-groen("btnFirebase","☁️ DATABASE GOED");
-}catch(e){
-rood("btnFirebase","☁️ DATABASE FOUT");
-}
-}
-
-async function checkScanner(){
-blauw("btnScanner","Test...");
-if(scanner){
-groen("btnScanner","📷 SCANNER GOED");
-}else{
-rood("btnScanner","📷 SCANNER FOUT");
-}
-}
-
-async function checkCamera(){
-blauw("btnCamera","Test...");
-try{
-let cams = await Html5Qrcode.getCameras();
-if(cams.length>0){
-groen("btnCamera","🎥 CAMERA GOED");
-}else{
-rood("btnCamera","🎥 GEEN CAMERA");
-}
-}catch(e){
-rood("btnCamera","🎥 CAMERA FOUT");
-}
-}
-
-async function checkPoorten(){
-blauw("btnPoorten","Test...");
-try{
-await fetch(POORT_URL + "/status",{mode:"no-cors"});
-groen("btnPoorten","🚪 POORTEN GOED");
-}catch(e){
-rood("btnPoorten","🚪 POORT STORING");
-}
-}
-
-async function checkBetalen(){
-blauw("btnBetalen","Test...");
-try{
-let ok=navigator.onLine;
-if(ok){
-groen("btnBetalen","💳 BETALEN GOED");
-}else{
-rood("btnBetalen","💳 BETALEN STORING");
-}
-}catch(e){
-rood("btnBetalen","💳 BETALEN FOUT");
-}
-}
-
-async function checkQR(){
-blauw("btnQR","Test...");
-try{
-await db.collection("tickets").limit(1).get();
-groen("btnQR","🎫 QR GOED");
-}catch(e){
-rood("btnQR","🎫 QR FOUT");
-}
-}
-
-async function checkAlles(){
-await checkInternet();
-await checkFirebase();
-await checkScanner();
-await checkCamera();
-await checkPoorten();
-await checkBetalen();
-await checkQR();
-}
-</script> 
-<div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
-
-<h2>🎫 QR Controleren</h2>
-<input type="tel" id="qrCheckPin" placeholder="Code invoeren" value=""
-inputmode="numeric"
-autocomplete="off"
-autocorrect="off"
-autocapitalize="off"
-spellcheck="false">
-
-<br><br>
-
-<button class="noodBtn" onclick="checkQRPersoneelPin()">Openen</button>
-
-<br><br>
-
-<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">Terug</button>
-
-</div>
-
-
-<div id="qrCheckPage" class="tab" style="display:none; padding:20px; text-align:center;">
-
-<h2>🎫 QR Controleren</h2>
-
-<div id="readerCheck" style="width:320px; margin:auto;"></div>
-
-<br>
-
-<input id="qrHandmatig" placeholder="QR code typen">
-
-<br><br>
-
-<button onclick="zoekQRHandmatig()" style="background:#ffd800;color:#000;font-weight:bold;border:none;padding:12px 18px;border-radius:6px;">🔍 Controleren</button>
-
-<br><br>
-
-<div id="qrResultaat" style="
-background:#111;
-padding:15px;
-border-radius:12px;
-font-size:18px;
-line-height:1.6;
-"></div>
-
-<br>
-
-<button class="noodBtn" style="background:#444;" onclick="sluitQRCheck()">Terug</button>
-
-</div> 
 </script>
 </body>
 </html>
