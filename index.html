@@ -784,17 +784,15 @@ async function startCamera(i){
             fps:10,
             qrbox: scanSize,
             aspectRatio:1.777,
-            experimentalFeatures:{
-                useBarCodeDetectorIfSupported:true
-            },
-         const isTablet = window.innerWidth > 900;
+  experimentalFeatures:{
+    useBarCodeDetectorIfSupported:true
+},
 
 videoConstraints:{
-   facingMode: isTablet ? "user" : "environment",
-   width:{ideal:1920},
-   height:{ideal:1080}
-}
-        },
+    facingMode:(window.innerWidth > 900 ? "user" : "environment"),
+    width:{ideal:1920},
+    height:{ideal:1080}
+},
 
  code => processScan(code)
 );
