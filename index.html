@@ -740,11 +740,13 @@ let x = document.getElementById('qrCheckLogin');
 if(x){
 x.style.display='block';
 x.classList.add('active');
+document.getElementById('qrCheckPin').value = "";
 }
 
 }
+
+
 function showTab(id){
-
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 
@@ -1626,8 +1628,6 @@ await checkQR();
 
 <h2>🎫 QR Controleren</h2>
 <input type="password" id="qrCheckPin" placeholder="Code invoeren" value="" autocomplete="off">
-
-<br><br>
 
 <br><br>
 
