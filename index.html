@@ -256,8 +256,52 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
+<button class="tabBtn" onclick="openQRCheckLogin()">🎫 QR Controleren</button>
+</div>
+<div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
+
+<h2>🎫 QR Controleren</h2>
+
+<input type="password" id="qrCheckPin" placeholder="Code invoeren">
+
+<br><br>
+
+<button class="noodBtn" onclick="checkQRPersoneelPin()">Openen</button>
+<br><br>
+<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">Terug</button>
+
 </div>
 
+
+<div id="qrCheckPage" class="tab" style="display:none; padding:20px; text-align:center;">
+
+<h2>🎫 QR Controleren</h2>
+
+<div id="readerCheck" style="width:320px; margin:auto;"></div>
+
+<br>
+
+<input id="qrHandmatig" placeholder="QR code typen">
+
+<br><br>
+
+<button class="noodBtn" onclick="zoekQRHandmatig()">🔍 Controleren</button>
+
+<br><br>
+
+<div id="qrResultaat" style="
+background:#111;
+padding:15px;
+border-radius:12px;
+font-size:18px;
+line-height:1.6;
+"></div>
+
+<br>
+
+<button class="noodBtn" style="background:#444;" onclick="sluitQRCheck()">Terug</button>
+
+</div>
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
@@ -1554,7 +1598,51 @@ await checkCamera();
 await checkPoorten();
 await checkBetalen();
 await checkQR();
-} 
+ 
+<div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
+
+<h2>🎫 QR Controleren</h2>
+
+<input type="password" id="qrCheckPin" placeholder="Code invoeren">
+
+<br><br>
+
+<button class="noodBtn" onclick="checkQRPersoneelPin()">Openen</button>
+<br><br>
+<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">Terug</button>
+
+</div>
+
+
+<div id="qrCheckPage" class="tab" style="display:none; padding:20px; text-align:center;">
+
+<h2>🎫 QR Controleren</h2>
+
+<div id="readerCheck" style="width:320px; margin:auto;"></div>
+
+<br>
+
+<input id="qrHandmatig" placeholder="QR code typen">
+
+<br><br>
+
+<button class="noodBtn" onclick="zoekQRHandmatig()">🔍 Controleren</button>
+
+<br><br>
+
+<div id="qrResultaat" style="
+background:#111;
+padding:15px;
+border-radius:12px;
+font-size:18px;
+line-height:1.6;
+"></div>
+
+<br>
+
+<button class="noodBtn" style="background:#444;" onclick="sluitQRCheck()">Terug</button>
+
+</div> 
 </script>
 </body>
 </html>
