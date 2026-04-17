@@ -1601,16 +1601,39 @@ setBtn("sysModem","black","⚫ "+m.naam+" geen stroom");
 });
 
 modemIndex++;
+let modemIndex = 0;
+
+const modems = [
+ { naam:"Modem 1", ip:"192.168.8.1" },
+ { naam:"Modem 2", ip:"192.168.8.2" },
+ { naam:"Modem 3", ip:"192.168.8.3" },
+ { naam:"Modem 4", ip:"192.168.8.4" },
+ { naam:"Modem 5", ip:"192.168.8.5" },
+ { naam:"Modem 6", ip:"192.168.8.6" }
+];
+
+function checkModem(){
+
+let m = modems[modemIndex];
+
+setBtn("sysModem","blue","⌛ "+m.naam+" controleren");
+
+fetch("http://" + m.ip,{mode:"no-cors"})
+.then(()=>{
+
+setBtn("sysModem","green","🟢 "+m.naam+" online");
+
+})
+.catch(()=>{
+
+setBtn("sysModem","black","⚫ "+m.naam+" geen stroom");
+
+});
+
+modemIndex++;
 if(modemIndex >= modems.length){
 modemIndex = 0;
 }
-
-}
-.catch(()=>{
-
-setBtn("sysModem","red","❌ Modem offline");
-
-});
 
 }
 
