@@ -1559,18 +1559,7 @@ setBtn("p"+n,"red","❌ Poort "+n+" fout");
 });
 
 }
-
-function checkAlles(){
-checkCamera();
-checkInternet();
-checkFirebase();
-checkMollie();
-checkModem();
- 
-for(let i=1;i<=6;i++){
-setTimeout(()=>checkShelly(i),i*250);
-}
-} 
+<script>
 let modemIndex = 0;
 
 const modems = [
@@ -1582,103 +1571,79 @@ const modems = [
  { naam:"Modem 6", ip:"192.168.8.6" }
 ];
 
-function checkModem(){
+function checkAlles(){
+  checkCamera();
+  checkInternet();
+  checkFirebase();
+  checkMollie();
+  checkModem();
 
-let m = modems[modemIndex];
-
-setBtn("sysModem","blue","⌛ "+m.naam+" controleren");
-
-fetch("http://" + m.ip,{mode:"no-cors"})
-.then(()=>{
-
-setBtn("sysModem","green","🟢 "+m.naam+" online");
-
-})
-.catch(()=>{
-
-setBtn("sysModem","black","⚫ "+m.naam+" geen stroom");
-
-});
-
-modemIndex++;
-
-const modems = [
- { naam:"Modem 1", ip:"192.168.8.1" },
- { naam:"Modem 2", ip:"192.168.8.2" },
- { naam:"Modem 3", ip:"192.168.8.3" },
- { naam:"Modem 4", ip:"192.168.8.4" },
- { naam:"Modem 5", ip:"192.168.8.5" },
- { naam:"Modem 6", ip:"192.168.8.6" }
-];
+  for(let i=1; i<=6; i++){
+    setTimeout(() => checkShelly(i), i*250);
+  }
+}
 
 function checkModem(){
 
-let m = modems[modemIndex];
+  let m = modems[modemIndex];
 
-setBtn("sysModem","blue","⌛ "+m.naam+" controleren");
+  setBtn("sysModem","blue","⌛ " + m.naam + " controleren");
 
-fetch("http://" + m.ip,{mode:"no-cors"})
-.then(()=>{
+  fetch("http://" + m.ip, {mode:"no-cors"})
+  .then(() => {
+    setBtn("sysModem","green","🟢 " + m.naam + " online");
+  })
+  .catch(() => {
+    setBtn("sysModem","black","⚫ " + m.naam + " geen stroom");
+  });
 
-setBtn("sysModem","green","🟢 "+m.naam+" online");
+  modemIndex++;
 
-})
-.catch(()=>{
-
-setBtn("sysModem","black","⚫ "+m.naam+" geen stroom");
-
-});
-
-modemIndex++;
-if(modemIndex >= modems.length){
-modemIndex = 0;
+  if(modemIndex >= modems.length){
+    modemIndex = 0;
+  }
 }
-}
-
 
 let updateTimers = {};
 
 function startUpdateBlink(btnId, normalColor, normalText){
 
-if(updateTimers[btnId]) return;
+  if(updateTimers[btnId]) return;
 
-let state = false;
+  let state = false;
 
-updateTimers[btnId] = setInterval(()=>{
+  updateTimers[btnId] = setInterval(() => {
 
-let btn = document.getElementById(btnId);
-if(!btn) return;
+    let btn = document.getElementById(btnId);
+    if(!btn) return;
 
-if(state){
-btn.style.background = normalColor;
-btn.innerText = normalText;
+    if(state){
+      btn.style.background = normalColor;
+      btn.innerText = normalText;
+    } else {
+      btn.style.background = "purple";
+      btn.innerText = "🟣 Update beschikbaar";
+    }
+
+    state = !state;
+
+  }, 2000);
 }
-else{
-btn.style.background = "purple";
-btn.innerText = "🟣 Update beschikbaar";
-}
 
-state = !state;
-
-},2000);
-
-}
-}
 function stopUpdateBlink(btnId, color, text){
 
-if(updateTimers[btnId]){
-clearInterval(updateTimers[btnId]);
-delete updateTimers[btnId];
+  if(updateTimers[btnId]){
+    clearInterval(updateTimers[btnId]);
+    delete updateTimers[btnId];
+  }
+
+  let btn = document.getElementById(btnId);
+
+  if(btn){
+    btn.style.background = color;
+    btn.innerText = text;
+  }
 }
-
-let btn = document.getElementById(btnId);
-if(btn){
-btn.style.background = color;
-btn.innerText = text;
-}
-
-} 
-
 </script>
 </body>
 </html>
