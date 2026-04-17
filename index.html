@@ -1426,8 +1426,9 @@ document.getElementById("cashVisible").checked = d.cash.visible ?? true;
       groupPrijs.value = d.group.prijs || "";
       groupAantal.value = d.group.aantal || "";
       groupVisible.checked = d.group.visible ?? true;
+      }
+    
     }
-     
 } catch(e){
     console.log("shop load fout", e);
 }
