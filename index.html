@@ -432,12 +432,28 @@ z-index:999999;
 <!-- SYSTEM -->
 <div id="systemPage" style="display:none;">
 
-<h2>🖥 Systeem</h2>
+<h2>🖥 Systeembeheer PRO</h2>
 
-<div style="background:#111;padding:15px;border-radius:12px;margin:10px;">
-Scanner actief<br>
-Poorten actief<br>
-Firebase online
+<button id="sysCam" class="noodBtn" style="background:blue;" onclick="checkCamera()">📷 Camera controleren</button><br>
+
+<button id="sysNet" class="noodBtn" style="background:blue;" onclick="checkInternet()">🌐 Internet controleren</button><br>
+
+<button id="sysFire" class="noodBtn" style="background:blue;" onclick="checkFirebase()">🔥 Firebase controleren</button><br>
+
+<button id="sysPay" class="noodBtn" style="background:blue;" onclick="checkMollie()">💳 Betalen controleren</button><br><br>
+
+<button id="p1" class="noodBtn" style="background:blue;" onclick="checkShelly(1)">Poort 1 testen</button>
+<button id="p2" class="noodBtn" style="background:blue;" onclick="checkShelly(2)">Poort 2 testen</button>
+<button id="p3" class="noodBtn" style="background:blue;" onclick="checkShelly(3)">Poort 3 testen</button><br>
+
+<button id="p4" class="noodBtn" style="background:blue;" onclick="checkShelly(4)">Poort 4 testen</button>
+<button id="p5" class="noodBtn" style="background:blue;" onclick="checkShelly(5)">Poort 5 testen</button>
+<button id="p6" class="noodBtn" style="background:blue;" onclick="checkShelly(6)">Poort 6 testen</button><br><br>
+
+<button class="noodBtn open" onclick="checkAlles()">🧪 Controleer alles</button><br><br>
+
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
 </div>
 
 <button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
@@ -1430,6 +1446,98 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("shop load fout", e);
     }
 });
+function setBtn(id,color,text){
+let b=document.getElementById(id);
+if(!b) return;
+b.style.background=color;
+b.innerText=text;
+}
+
+function checkCamera(){
+Html5Qrcode.getCameras().then(cams=>{
+if(cams.length>0){
+setBtn("sysCam","green","✅ Camera werkt");
+}else{
+setBtn("sysCam","red","❌ Geen camera");
+}
+}).catch(()=>{
+setBtn("sysCam","red","❌ Camera fout");
+});
+}
+
+function checkInternet(){
+let start=Date.now();
+
+fetch("https://www.google.com/favicon.ico",{mode:"no-cors"})
+.then(()=>{
+let ms=Date.now()-start;
+
+if(ms<300){
+setBtn("sysNet","green","✅ Internet snel ("+ms+"ms)");
+}else{
+setBtn("sysNet","orange","⚠ Internet traag ("+ms+"ms)");
+}
+
+})
+.catch(()=>{
+setBtn("sysNet","red","❌ Geen internet");
+});
+}
+
+function checkFirebase(){
+db.collection("settings").doc("shop").get()
+.then(()=>{
+setBtn("sysFire","green","✅ Firebase online");
+})
+.catch(()=>{
+setBtn("sysFire","red","❌ Firebase fout");
+});
+}
+
+function checkMollie(){
+fetch("https://api.mollie.com",{mode:"no-cors"})
+.then(()=>{
+setBtn("sysPay","green","✅ Betalen bereikbaar");
+})
+.catch(()=>{
+setBtn("sysPay","red","❌ Betalen fout");
+});
+}
+
+function checkShelly(n){
+
+let ip="192.168.1."+(100+n);
+let start=Date.now();
+
+fetch("http://"+ip+"/rpc/Shelly.GetStatus")
+.then(r=>r.json())
+.then(()=>{
+
+let ms=Date.now()-start;
+
+if(ms<500){
+setBtn("p"+n,"green","✅ Poort "+n+" online ("+ms+"ms)");
+}else{
+setBtn("p"+n,"orange","⚠ Poort "+n+" traag ("+ms+"ms)");
+}
+
+})
+.catch(()=>{
+setBtn("p"+n,"red","❌ Poort "+n+" offline");
+});
+
+}
+
+function checkAlles(){
+checkCamera();
+checkInternet();
+checkFirebase();
+checkMollie();
+
+for(let i=1;i<=6;i++){
+setTimeout(()=>checkShelly(i),i*250);
+}
+}
 </script>
 </body>
 </html>
