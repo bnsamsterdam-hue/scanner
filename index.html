@@ -884,7 +884,7 @@ async function startCamera(i){
                 useBarCodeDetectorIfSupported:true
             },
             videoConstraints:{
-                facingMode:(window.innerWidth > 900 ? "user" : "environment"),
+                facingMode:(window.innerWidth > 768 ? "user" : "environment"),
                 width:{ideal:1920},
                 height:{ideal:1080}
             }
@@ -1637,7 +1637,12 @@ await checkQR();
 <div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
 
 <h2>🎫 QR Controleren</h2>
-<input type="password" id="qrCheckPin" placeholder="Code invoeren" value="" autocomplete="off">
+<input type="tel" id="qrCheckPin" placeholder="Code invoeren" value=""
+inputmode="numeric"
+autocomplete="off"
+autocorrect="off"
+autocapitalize="off"
+spellcheck="false">
 
 <br><br>
 
