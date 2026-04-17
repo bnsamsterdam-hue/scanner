@@ -256,7 +256,7 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
-<button class="tabBtn" onclick="openQRCheckLogin()">🎫 QR Controleren</button>
+<button onclick="openQRCheckLogin()" style="background:#ffd800;color:#000;font-weight:bold;border:none;">🔍 QR Controleren</button>
 </div>
 <div id="qrCheckLogin" class="tab" style="display:none; padding:20px; text-align:center;">
 
@@ -722,8 +722,9 @@ let scanLock=false;
 
 /* TAB */
 function openQRCheckLogin(){
-  showTab('qrCheckLogin');
-} 
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById('qrCheckLogin').classList.add('active');
+}
 function showTab(id){
 
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
