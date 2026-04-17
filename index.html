@@ -770,9 +770,9 @@ buffer+=e.key;
 async function startCamera(i){
 
     if(scanner){
-        try{ 
-            await scanner.stop(); 
-            await scanner.clear(); 
+        try{
+            await scanner.stop();
+            await scanner.clear();
         }catch(e){}
     }
 
@@ -782,11 +782,20 @@ async function startCamera(i){
         cameras[i].id,
         {
             fps:10,
-            qrbox: scanSize
+            qrbox: scanSize,
+            aspectRatio:1.777,
+            experimentalFeatures:{
+                useBarCodeDetectorIfSupported:true
+            },
+            videoConstraints:{
+                facingMode:"environment",
+                width:{ideal:1920},
+                height:{ideal:1080}
+            }
         },
+
         code => processScan(code)
     );
-}
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
