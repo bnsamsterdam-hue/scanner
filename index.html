@@ -794,8 +794,10 @@ async function startCamera(i){
             }
         },
 
-        code => processScan(code)
-    );
+ code => processScan(code)
+);
+
+}   // sluit startCamera()
 
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
