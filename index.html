@@ -1758,14 +1758,7 @@ async function processControleScan(code){
         let data = doc.data();
         let over = data.remaining || data.overig || 0;
 
-        await db.collection("qrcontrole").add({
-            code: code,
-            tijd: new Date(),
-            resterend: over
-        });
-
-        if(over <= 0){
-            vak.innerHTML = "🟥 AL GEBRUIKT";
+        console.log("controle", code, over);
         }else{
             vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
         }
