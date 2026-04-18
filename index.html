@@ -1340,9 +1340,6 @@ if(!confirm("⚠ Weet je zeker dat je ALLE QR codes wilt verwijderen?")){
     return;
 }
 
-doWisAlles();
-}
-
 async function doWisAlles(){
 
 let s = document.getElementById("status");
@@ -1351,16 +1348,26 @@ try{
 
 s.innerText = "⏳ Bezig...";
 
-const snapshot = await db.collection("tickets").get();
-
-if(snapshot.empty){
-    s.innerText = "⚠ Geen tickets gevonden";
-    return;
-}
-
 let promises = [];
 
+/* TICKETS WISSEN */
+const snapshot = await db.collection("tickets").get();
+
 snapshot.forEach(doc=>{
+    promises.push(doc.ref.delete());
+});
+
+/* QR CONTROLE WISSEN */
+const snapshot2 = await db.collection("qrcontrole").get();
+
+snapshot2.forEach(doc=>{
+    promises.push(doc.ref.delete());
+});
+
+/* EVENTUELE LOGS WISSEN */
+const snapshot3 = await db.collection("scan_logs").get();
+
+snapshot3.forEach(doc=>{
     promises.push(doc.ref.delete());
 });
 
