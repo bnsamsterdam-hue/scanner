@@ -1789,7 +1789,9 @@ console.log("controle", code, over);
 
 if(over <= 0){
     vak.innerHTML = "🟥 AL GEBRUIKT";
-}else{
+    }
+    
+}catch(e){
     vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
 }
     }catch(e){
@@ -1798,8 +1800,7 @@ if(over <= 0){
         console.log(e);
 
     }
-} 
-}  
+}
 </script>
 </body>
 </html>
