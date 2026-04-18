@@ -1683,15 +1683,12 @@ function stopUpdateBlink(btnId, color, text){
   }
 function openQrControle(){
 
-    let pin = prompt("Voer code 9990 in");
+MODE = "controle"; 
+document.getElementById("qrControleLogin").style.display = "block";
+document.getElementById("qrControlePanel").style.display = "none";
 
-    if(pin !== "9990"){
-        alert("Foute code");
-        return;
-    }
+showTab("qrcontrole");
 
-    MODE = "controle";
-    showTab("qrcontrole");
 }
 
 async function startQrControle(){
