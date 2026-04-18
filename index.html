@@ -1781,15 +1781,16 @@ async function processControleScan(code){
         let over = data.remaining || 0;
 
         if(over <= 0){
-    vak.innerHTML = "🟥 AL GEBRUIKT";
-}else{
-    vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
-}
+            vak.innerHTML = "🟥 AL GEBRUIKT";
+        }else{
+            vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
+        }
 
-}catch(e){
-    vak.innerHTML = "❌ FOUT";
-}
+    }catch(e){
+        vak.innerHTML = "❌ FOUT";
+        console.log(e);
+    }
 }
 </script>
 </body>
-</html>
+</html> 
