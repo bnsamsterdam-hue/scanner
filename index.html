@@ -916,8 +916,11 @@ if(r === 1){
 t.update(ref,{
 remaining:0,
 laatsteScan: Date.now(),
-laatstePoort: (MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
-laatsteDevice: navigator.userAgent
+laatsteDatum: new Date().toLocaleDateString("nl-NL"),
+laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
+laatstePoort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
+laatsteDevice:navigator.userAgent,
+laatsteNaam:navigator.platform
 });
 
  if(MODE === "poort"){
@@ -937,8 +940,11 @@ laatsteDevice: navigator.userAgent
    t.update(ref,{
 overig:r-1,
 laatsteScan: Date.now(),
+laatsteDatum: new Date().toLocaleDateString("nl-NL"),
+laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
 laatstePoort:(MODE==="poort" ? "Poort "+POORT_NR : "Kassa"),
-laatsteDevice:navigator.userAgent
+laatsteDevice:navigator.userAgent,
+laatsteNaam:navigator.platform
 });
 
     s.className="ok";
