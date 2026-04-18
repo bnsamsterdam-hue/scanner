@@ -1713,6 +1713,48 @@ return;
 showTab('qrcontrole');
 
 }
+async function startQrControle(){
+
+let btn = document.getElementById("btnQrControle");
+let res = document.getElementById("qrResultaat");
+
+btn.style.background = "gold";
+btn.style.color = "black";
+btn.innerText = "Moment... QR wordt gelezen";
+
+res.innerHTML = "Camera opent...";
+
+if(window.qrScannerControle){
+try{
+await window.qrScannerControle.stop();
+await window.qrScannerControle.clear();
+}catch(e){}
+}
+
+window.qrScannerControle = new Html5Qrcode("qrResultaat");
+
+await window.qrScannerControle.start(
+{ facingMode: "environment" },
+{
+fps:10,
+qrbox:250
+},
+(code)=>{
+
+btn.style.background = "#1976d2";
+btn.style.color = "white";
+btn.innerText = "QR Controle Starten";
+
+res.innerHTML =
+"QR gelezen:<br><br>" + code +
+"<br><br>Controle bezig...";
+
+window.qrScannerControle.stop();
+
+}
+);
+
+} 
 </script>
 </body>
 </html>
