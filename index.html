@@ -1730,7 +1730,9 @@ fps:10,
 qrbox:250
 },
 async (code)=>{
-if(scanLock) return;
+
+if(window.qrBusy) return;
+window.qrBusy = true;
 
 btn.innerText = "Moment... QR wordt gelezen";
 btn.style.background = "#1976d2";
@@ -1739,13 +1741,36 @@ btn.style.color = "white";
 res.innerHTML =
 "QR gelezen:<br><br>" + code +
 "<br><br>Controle bezig...";
-await processScan(code);
 
+try{
+await window.qrScannerControle.stop();
+await window.qrScannerControle.clear();
+}catch(e){}
+
+async (code)=>{
+
+    if(window.qrBusy) return;
+    window.qrBusy = true;
+
+    btn.innerText = "Moment... QR wordt gelezen";
+    btn.style.background = "#1976d2";
+    btn.style.color = "white";
+
+    res.innerHTML =
+        "QR gelezen:<br><br>" + code +
+        "<br><br>Controle bezig...";
+
+    try{
+        await window.qrScannerControle.stop();
+        await window.qrScannerControle.clear();
+    }catch(e){}
+
+    await processScan(code);
+
+    window.qrBusy = false;
 
 }
 );
-
-} 
 </script>
 </body>
 </html>
