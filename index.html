@@ -256,6 +256,7 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
+<button class="btn-admin" onclick="openQrControle()">QR Controle</button> 
 </div>
 
 <!-- SCAN -->
@@ -1644,6 +1645,18 @@ function stopUpdateBlink(btnId, color, text){
     btn.innerText = text;
   }
 }
+function openQrControle(){
+
+let pin = prompt("Voer code in");
+
+if(pin !== "9990"){
+alert("Foute code");
+return;
+}
+
+alert("QR Controle opent nu");
+
+} 
 </script>
 </body>
 </html>
