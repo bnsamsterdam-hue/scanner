@@ -1148,11 +1148,12 @@ document.getElementById("qrControlePin").value="";
 
 }else{
 alert("Foute code");
-
 }
-function login(){
- 
-if(document.getElementById("pin").value==="8760"){
+
+}   // <-- DEZE TOEVOEGEN
+
+function login() {
+if(document.getElementById("pin").value==="8760") {
     document.getElementById("login").style.display="none";
     document.getElementById("adminPanel").style.display="block";
 } else {
