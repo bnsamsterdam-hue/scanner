@@ -1782,18 +1782,15 @@ async function processControleScan(code){
             return;
         }
 
- let data = doc.data();
-let over = data.remaining || data.overig || 0;
+        let data = doc.data();
+        let over = data.remaining || data.overig || 0;
 
-console.log("controle", code, over);
+        if(over <= 0){
+            vak.innerHTML = "🟥 AL GEBRUIKT";
+        }else{
+            vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
+        }
 
-if(over <= 0){
-    vak.innerHTML = "🟥 AL GEBRUIKT";
-    }
-    
-}catch(e){
-    vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
-}
     }catch(e){
 
         vak.innerHTML = "❌ FOUT";
