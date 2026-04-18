@@ -1713,7 +1713,36 @@ document.getElementById("qrControlePanel").style.display = "none";
 showTab("qrcontrole");
 
 }
+async function processControleScan(code){
 
+code = code.trim().toUpperCase().replace(/\//g,"-");
+
+let vak = document.getElementById("qrResultaat");
+vak.innerHTML = "⏳ Controleren...";
+
+try{
+
+let doc = await db.collection("tickets").doc(code).get();
+
+if(!doc.exists){
+vak.innerHTML = "❌ ONGELDIG";
+return;
+}
+
+let data = doc.data();
+let over = data.remaining || 0;
+
+if(over <= 0){
+vak.innerHTML = "🟥 AL GEBRUIKT";
+}else{
+vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
+}
+
+}catch(e){
+console.log(e);
+vak.innerHTML = "❌ FOUT";
+}
+}
 async function startQrControle(){
 
     let btn = document.getElementById("btnQrControle");
@@ -1746,7 +1775,7 @@ async function startQrControle(){
 
             res.innerHTML = "Controle bezig...";
 
-            await processScan(code);
+           await processControleScan(code);
 
             window.qrBusy = false;
         }
