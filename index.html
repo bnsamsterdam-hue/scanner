@@ -1701,29 +1701,20 @@ showTab('qrcontrole');
 
 }
 
+function openQrControle(){
+
+let pin = prompt("Voer code 9990 in");
+
+if(pin !== "9990"){
+alert("Foute code");
+return;
+}
+
+showTab('qrcontrole');
+
+}
+
 function startQrControle(){
-
-let btn = document.getElementById("btnQrControle");
-let res = document.getElementById("qrResultaat");
-
-btn.style.background = "gold";
-btn.style.color = "black";
-btn.innerText = "Moment... QR wordt gelezen";
-
-res.innerHTML = "Camera opent...";
-
-setTimeout(()=>{
-
-btn.style.background = "#1976d2";
-btn.style.color = "white";
-btn.innerText = "QR Controle Starten";
-
-res.innerHTML =
-"QR gelezen<br><br>Nog over: 5<br><br>19:44 Poort 2 Samsung<br>19:51 Kassa iPhone";
-
-},2500);
-
-} 
 </script>
 </body>
 </html>
