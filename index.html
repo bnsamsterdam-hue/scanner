@@ -256,52 +256,8 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
-<button class="btn-admin" onclick="openQrControle()" style="background:gold;color:black;">QR Controle</button> 
-
-</div>
-<!-- QR CONTROLE -->
-<div id="qrcontrole" class="tab">
-
-<h2 style="color:white;text-align:center;">QR Controle</h2>
-
-<div style="text-align:center;margin-top:20px;">
-
-<button id="btnQrControle"
-onclick="startQrControle()"
-style="
-background:#1976d2;
-color:white;
-font-size:28px;
-padding:20px 40px;
-border:none;
-border-radius:12px;
-width:80%;
-max-width:500px;
-font-weight:bold;
-">
-
-QR Controle Starten
-
-</button>
-
 </div>
 
-<div id="qrResultaat"
-style="
-color:white;
-font-size:24px;
-text-align:center;
-margin-top:30px;
-padding:20px;
-">
-Klaar voor controle
-</div>
-
-<div style="text-align:center;margin-top:20px;">
-<button onclick="showTab('scan')" class="btn-admin">Terug</button>
-</div>
-
-</div>
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
@@ -888,6 +844,11 @@ code = code.replace(/\//g, "-");
 console.log("SCAN:", code);
 
 let s=document.getElementById("status");
+try {
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    }
+} catch(e){}
  
 try{
 
@@ -923,17 +884,10 @@ if(r === 1){
 
 } else {
 
-    if(MODE !== "controle"){
-t.update(ref,{remaining:r-1});
-}
+    t.update(ref,{remaining:r-1});
 
-   s.className="ok";
-
-if(MODE === "controle"){
-    s.innerText="✔ GELDIG ("+r+" over)";
-}else{
+    s.className="ok";
     s.innerText="✔ TOEGANG ("+(r-1)+")";
-}
 
   if(MODE === "poort"){
     fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
@@ -1690,68 +1644,6 @@ function stopUpdateBlink(btnId, color, text){
     btn.innerText = text;
   }
 }
-function openQrControle(){
-
-    let pin = prompt("Voer code 9990 in");
-
-    if(pin !== "9990"){
-        alert("Foute code");
-        return;
-    }
-
-    MODE = "controle";
-    showTab('qrcontrole');
-}
-
-async function startQrControle(){
-
-    let btn = document.getElementById("btnQrControle");
-    let res = document.getElementById("qrResultaat");
-
-    btn.style.background = "gold";
-    btn.style.color = "black";
-
-    res.innerHTML = "Camera opent...";
-
-    if(window.qrScannerControle){
-        try{
-            await window.qrScannerControle.stop();
-            await window.qrScannerControle.clear();
-        }catch(e){}
-    }
-
-    window.qrScannerControle = new Html5Qrcode("qrResultaat");
-
-    await window.qrScannerControle.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: 250
-        },
-        async (code)=>{
-
-            if(window.qrBusy) return;
-            window.qrBusy = true;
-
-            btn.innerText = "Moment... QR wordt gelezen";
-            btn.style.background = "#1976d2";
-            btn.style.color = "white";
-
-            res.innerHTML =
-                "QR gelezen:<br><br>" + code +
-                "<br><br>Controle bezig...";
-
-            try{
-                await window.qrScannerControle.stop();
-                await window.qrScannerControle.clear();
-            }catch(e){}
-
-            await processScan(code);
-
-            window.qrBusy = false;
-        }
-    );
-} 
 </script>
 </body>
 </html>
