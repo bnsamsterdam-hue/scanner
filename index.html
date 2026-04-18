@@ -256,7 +256,8 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
-<button class="btn-admin" onclick="openQrControle()" style="background:gold;color:black;">QR Controle</button>
+<button class="btn-admin" onclick="openQrControle()" style="background:gold;color:black;">QR Controle</button> 
+ 
 </div>
 
 <!-- SCAN -->
@@ -330,6 +331,7 @@ z-index:999999;
 
 </div>
 
+</div> <!-- 🔥 DEZE TOEVOEGEN -->
 <!-- QR CONTROLE -->
 <div id="qrcontrole" class="tab">
 
@@ -364,8 +366,7 @@ Klaar voor controle
 <br>
 <button onclick="showTab('scan')" class="noodBtn">⬅ Terug</button>
 
-</div>
-</div> <!-- 🔥 DEZE TOEVOEGEN -->
+</div> 
 <!-- ADMIN -->
 <div id="admin" class="tab">
 
@@ -1678,8 +1679,8 @@ function stopUpdateBlink(btnId, color, text){
   if(btn){
     btn.style.background = color;
     btn.innerText = text;
- }
- function openQrControle(){
+  }
+function openQrControle(){
 
 let pin = prompt("Voer code 9990 in");
 
@@ -1694,44 +1695,42 @@ showTab("qrcontrole");
 
 async function startQrControle(){
 
-    let btn = document.getElementById("btnQrControle");
-    let res = document.getElementById("qrResultaat");
+let btn = document.getElementById("btnQrControle");
+let res = document.getElementById("qrResultaat");
 
-    btn.innerText = "Camera opent...";
-    res.innerHTML = "Moment...";
+btn.innerText = "Camera opent...";
+res.innerHTML = "Moment...";
 
-    if(window.qrScannerControle){
-        try{
-            await window.qrScannerControle.stop();
-            await window.qrScannerControle.clear();
-        }catch(e){}
-    }
+if(window.qrScannerControle){
+try{
+await window.qrScannerControle.stop();
+await window.qrScannerControle.clear();
+}catch(e){}
+}
 
-    window.qrScannerControle = new Html5Qrcode("qrResultaat");
+window.qrScannerControle = new Html5Qrcode("qrResultaat");
 
-    await window.qrScannerControle.start(
-        { facingMode:"environment" },
-        {
-            fps:10,
-            qrbox:250
-        },
-        async (code)=>{
+await window.qrScannerControle.start(
+{ facingMode:"environment" },
+{ fps:10, qrbox:250 },
 
-            if(window.qrBusy) return;
-            window.qrBusy = true;
+async (code)=>{
 
-            try{
-                await window.qrScannerControle.stop();
-                await window.qrScannerControle.clear();
-            }catch(e){}
+if(window.qrBusy) return;
+window.qrBusy = true;
 
-            res.innerHTML = "Controle bezig...";
+try{
+await window.qrScannerControle.stop();
+await window.qrScannerControle.clear();
+}catch(e){}
 
-            await processScan(code);
+res.innerHTML = "Controle bezig...";
 
-            window.qrBusy = false;
-        }
-    );
+await processScan(code);
+
+window.qrBusy = false;
+}
+);
 }
 </script>
 </body>
