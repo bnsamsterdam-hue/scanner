@@ -913,7 +913,17 @@ await db.runTransaction(async (t)=>{
 /* 🔥 LAATSTE KEER */
 if(r === 1){
 
-    t.update(ref,{remaining:0});
+  let nu = new Date();
+
+t.update(ref,{
+remaining:0,
+scanCount: firebase.firestore.FieldValue.increment(1),
+lastDatum: nu.toLocaleDateString("nl-NL"),
+lastTijd: nu.toLocaleTimeString("nl-NL"),
+lastLocatie: (MODE==="poort" ? "Poort "+POORT_NR : "Kassa"),
+lastMode: MODE,
+lastToestel: navigator.platform
+});
 
  if(MODE === "poort"){
     fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
@@ -929,7 +939,17 @@ if(r === 1){
 
 } else {
 
-    t.update(ref,{remaining:r-1});
+let nu = new Date();
+
+t.update(ref,{
+remaining:r-1,
+scanCount: firebase.firestore.FieldValue.increment(1),
+lastDatum: nu.toLocaleDateString("nl-NL"),
+lastTijd: nu.toLocaleTimeString("nl-NL"),
+lastLocatie: (MODE==="poort" ? "Poort "+POORT_NR : "Kassa"),
+lastMode: MODE,
+lastToestel: navigator.platform
+});
 
     s.className="ok";
     s.innerText="✔ TOEGANG ("+(r-1)+")";
