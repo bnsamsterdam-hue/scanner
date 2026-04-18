@@ -1175,7 +1175,15 @@ function logout(){ location.reload(); }
 async function maakTicket(){
 let code=document.getElementById("code").value.toUpperCase();
 let aantal=parseInt(document.getElementById("aantal").value);
-await db.collection("tickets").doc(code).set({remaining:aantal});
+await db.collection("tickets").doc(code).set({
+remaining:aantal,
+created: Date.now(),
+bron:"admin",
+type:"handmatig",
+laatsteScan:null,
+laatstePoort:null,
+laatsteDevice:null
+});
 alert("Ticket opgeslagen");
 }
 
@@ -1316,7 +1324,13 @@ function generateCode(){
 let code = generateCode();
 
 await db.collection("tickets").doc(code).set({
-remaining:10
+remaining:10,
+created: Date.now(),
+bron:"qrmaak",
+type:"1qr",
+laatsteScan:null,
+laatstePoort:null,
+laatsteDevice:null
 });
 
 QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
