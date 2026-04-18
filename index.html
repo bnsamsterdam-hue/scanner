@@ -1720,7 +1720,7 @@ let res = document.getElementById("qrResultaat");
 
 btn.style.background = "gold";
 btn.style.color = "black";
-btn.innerText = "Moment... QR wordt gelezen";
+
 
 res.innerHTML = "Camera opent...";
 
@@ -1741,9 +1741,9 @@ qrbox:250
 },
 (code)=>{
 
+btn.innerText = "Moment... QR wordt gelezen";
 btn.style.background = "#1976d2";
 btn.style.color = "white";
-btn.innerText = "QR Controle Starten";
 
 res.innerHTML =
 "QR gelezen:<br><br>" + code +
