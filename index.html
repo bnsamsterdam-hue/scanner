@@ -1734,7 +1734,7 @@ function stopUpdateBlink(btnId, color, text){
 
 /* ===== LOSSE QR CONTROLE ===== */
 
-async function openQrControle(){
+function openQrControle(){
     showTab("qrcontrole");
 }
 
@@ -1753,16 +1753,13 @@ async function startQrControle(){
     window.qrControleScanner = new Html5Qrcode("qrResultaat");
 
     await window.qrControleScanner.start(
-        { facingMode: "environment" },
+        { facingMode:"environment" },
         { fps:10, qrbox:250 },
-
-        async (code)=>{
-
+        async(code)=>{
             try{
                 await window.qrControleScanner.stop();
                 await window.qrControleScanner.clear();
             }catch(e){}
-
             await processControleScan(code);
         }
     );
@@ -1771,12 +1768,8 @@ async function startQrControle(){
 async function processControleScan(code){
 
     let vak = document.getElementById("qrResultaat");
-    vak.innerHTML = "⏳ Controleren...";
 
     try{
-
-        code = code.trim().toUpperCase().replace(/\//g,"-");
-
         let doc = await db.collection("tickets").doc(code).get();
 
         if(!doc.exists){
@@ -1785,7 +1778,7 @@ async function processControleScan(code){
         }
 
         let data = doc.data();
-        let over = data.remaining || data.overig || 0;
+        let over = data.remaining || 0;
 
         if(over <= 0){
             vak.innerHTML = "🟥 AL GEBRUIKT";
@@ -1793,14 +1786,10 @@ async function processControleScan(code){
             vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
         }
 
-        }catch(e){
-
+    }catch(e){
         vak.innerHTML = "❌ FOUT";
-        console.log(e);
-
     }
-}
-
+ 
 }
 </script>
 </body>
