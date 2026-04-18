@@ -122,33 +122,7 @@ opacity:0.8;
 #status { font-size:28px; padding:10px; border-radius:10px; }
 .ok { background:green; }
 .fout { background:red; }
-let readerBig = false;
 
-function toggleScanSize(){
-
-    let reader = document.getElementById("reader");
-    let screenWidth = window.innerWidth;
-
-    if(scanSize === 200){
-
-        // 🔥 TELEFOON vs TABLET verschil
-        if(screenWidth < 600){
-            scanSize = Math.floor(screenWidth * 0.6); // mobiel netjes passend
-        } else {
-            scanSize = 400; // tablet lekker groot
-        }
-
-        reader.classList.add("reader-big");
-
-    } else {
-
-        scanSize = 200;
-        reader.classList.remove("reader-big");
-
-    }
-
-    restartCamera();
-}
 #reader {
 max-width:300px;
 width:90%;
