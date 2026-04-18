@@ -1735,6 +1735,7 @@ fps:10,
 qrbox:250
 },
 async (code)=>{
+if(scanLock) return;
 
 btn.innerText = "Moment... QR wordt gelezen";
 btn.style.background = "#1976d2";
@@ -1743,7 +1744,6 @@ btn.style.color = "white";
 res.innerHTML =
 "QR gelezen:<br><br>" + code +
 "<br><br>Controle bezig...";
-await window.qrScannerControle.stop();
 await processScan(code);
 
 
