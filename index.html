@@ -256,9 +256,62 @@ z-index:999999;
 <button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
 <button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
-<button class="btn-admin" onclick="openQrControle()">QR Controle</button> 
+function openQrControle(){
+
+let pin = prompt("Voer code in");
+
+if(pin !== "9990"){
+alert("Foute code");
+return;
+}
+
+alert("QR Controle opent nu");
+
+}
+</div>
+<!-- QR CONTROLE -->
+<div id="qrcontrole" class="tab">
+
+<h2 style="color:white;text-align:center;">QR Controle</h2>
+
+<div style="text-align:center;margin-top:20px;">
+
+<button id="btnQrControle"
+onclick="startQrControle()"
+style="
+background:#1976d2;
+color:white;
+font-size:28px;
+padding:20px 40px;
+border:none;
+border-radius:12px;
+width:80%;
+max-width:500px;
+font-weight:bold;
+">
+
+QR Controle Starten
+
+</button>
+
 </div>
 
+<div id="qrResultaat"
+style="
+color:white;
+font-size:24px;
+text-align:center;
+margin-top:30px;
+padding:20px;
+">
+Klaar voor controle
+</div>
+
+<div style="text-align:center;margin-top:20px;">
+<button onclick="showTab('scan')" class="btn-admin">Terug</button>
+</div>
+
+</div>
 <!-- SCAN -->
 <div id="scan" class="tab active">
 <div id="status">SCAN KLAAR</div>
@@ -1655,6 +1708,29 @@ return;
 }
 
 alert("QR Controle opent nu");
+
+} 
+function startQrControle(){
+
+let btn = document.getElementById("btnQrControle");
+let res = document.getElementById("qrResultaat");
+
+btn.style.background = "gold";
+btn.style.color = "black";
+btn.innerText = "Moment... QR wordt gelezen";
+
+res.innerHTML = "Camera opent...";
+
+setTimeout(()=>{
+
+btn.style.background = "#1976d2";
+btn.style.color = "white";
+btn.innerText = "QR Controle Starten";
+
+res.innerHTML =
+"QR gelezen<br><br>Nog over: 5<br><br>19:44 Poort 2 Samsung<br>19:51 Kassa iPhone";
+
+},2500);
 
 } 
 </script>
