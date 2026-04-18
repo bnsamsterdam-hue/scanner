@@ -928,7 +928,9 @@ if(r === 1){
 
 } else {
 
-    t.update(ref,{remaining:r-1});
+    if(MODE !== "controle"){
+t.update(ref,{remaining:r-1});
+}
 
     s.className="ok";
     s.innerText="✔ TOEGANG ("+(r-1)+")";
@@ -1696,7 +1698,7 @@ if(pin !== "9990"){
 alert("Foute code");
 return;
 }
-
+MODE = "controle";
 showTab('qrcontrole');
 
 }
@@ -1748,7 +1750,7 @@ btn.style.color = "white";
 res.innerHTML =
 "QR gelezen:<br><br>" + code +
 "<br><br>Controle bezig...";
-processScan(code);
+
 window.qrScannerControle.stop();
 
 }
