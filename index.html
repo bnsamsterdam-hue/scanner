@@ -935,10 +935,10 @@ laatsteDevice: navigator.userAgent
 } else {
 
    t.update(ref,{
-remaining:r-1,
+overig:r-1,
 laatsteScan: Date.now(),
-laatstePoort: (MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
-laatsteDevice: navigator.userAgent
+laatstePoort:(MODE==="poort" ? "Poort "+POORT_NR : "Kassa"),
+laatsteDevice:navigator.userAgent
 });
 
     s.className="ok";
