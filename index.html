@@ -1743,7 +1743,8 @@ btn.style.color = "white";
 res.innerHTML =
 "QR gelezen:<br><br>" + code +
 "<br><br>Controle bezig...";
-await processScan(code); 
+await window.qrScannerControle.stop();
+await processScan(code);
 
 
 }
