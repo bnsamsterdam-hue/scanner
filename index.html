@@ -932,8 +932,13 @@ if(r === 1){
 t.update(ref,{remaining:r-1});
 }
 
-    s.className="ok";
+   s.className="ok";
+
+if(MODE === "controle"){
+    s.innerText="✔ GELDIG ("+r+" over)";
+}else{
     s.innerText="✔ TOEGANG ("+(r-1)+")";
+}
 
   if(MODE === "poort"){
     fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
@@ -1703,18 +1708,6 @@ showTab('qrcontrole');
 
 }
 
-function openQrControle(){
-
-let pin = prompt("Voer code 9990 in");
-
-if(pin !== "9990"){
-alert("Foute code");
-return;
-}
-
-showTab('qrcontrole');
-
-}
 async function startQrControle(){
 
 let btn = document.getElementById("btnQrControle");
