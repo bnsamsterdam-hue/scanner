@@ -335,21 +335,27 @@ z-index:999999;
 <!-- QR CONTROLE -->
 <div id="qrcontrole" class="tab">
 
+<!-- LOGIN -->
+<div id="qrControleLogin">
+
+<h2>🔐 QR Controle</h2>
+
+<input id="qrControlePin" type="text" placeholder="Pincode" autocomplete="off"><br>
+
+<button class="noodBtn" onclick="checkQrControleLogin()">OK</button><br>
+<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">⬅ Terug</button>
+
+</div>
+
+<!-- PANEL -->
+<div id="qrControlePanel" style="display:none;">
+
 <h2 style="color:white;">QR Controle</h2>
 
 <button id="btnQrControle"
 onclick="startQrControle()"
-style="
-background:#1976d2;
-color:white;
-font-size:28px;
-padding:20px 40px;
-border:none;
-border-radius:12px;
-width:80%;
-max-width:500px;
-font-weight:bold;
-">
+class="noodBtn"
+style="background:#1976d2;">
 QR Controle Starten
 </button>
 
@@ -364,9 +370,11 @@ Klaar voor controle
 </div>
 
 <br>
-<button onclick="showTab('scan')" class="noodBtn">⬅ Terug</button>
+<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">⬅ Terug</button>
 
-</div> 
+</div>
+
+</div>
 <!-- ADMIN -->
 <div id="admin" class="tab">
 
@@ -1129,8 +1137,21 @@ document.getElementById("qrPanel").style.display="none";
 
 showTab('scan');
 }
+function checkQrControleLogin(){
 
+if(document.getElementById("qrControlePin").value==="9990"){
+
+document.getElementById("qrControleLogin").style.display="none";
+document.getElementById("qrControlePanel").style.display="block";
+
+document.getElementById("qrControlePin").value="";
+
+}else{
+alert("Foute code");
+
+}
 function login(){
+ 
 if(document.getElementById("pin").value==="8760"){
     document.getElementById("login").style.display="none";
     document.getElementById("adminPanel").style.display="block";
