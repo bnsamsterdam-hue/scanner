@@ -1682,55 +1682,54 @@ function stopUpdateBlink(btnId, color, text){
   }
 function openQrControle(){
 
-let pin = prompt("Voer code 9990 in");
+    let pin = prompt("Voer code 9990 in");
 
-if(pin !== "9990"){
-alert("Foute code");
-return;
-}
+    if(pin !== "9990"){
+        alert("Foute code");
+        return;
+    }
 
-MODE = "controle";
-showTab("qrcontrole");
+    MODE = "controle";
+    showTab("qrcontrole");
 }
 
 async function startQrControle(){
 
-let btn = document.getElementById("btnQrControle");
-let res = document.getElementById("qrResultaat");
+    let btn = document.getElementById("btnQrControle");
+    let res = document.getElementById("qrResultaat");
 
-btn.innerText = "Camera opent...";
-res.innerHTML = "Moment...";
+    btn.innerText = "Camera opent...";
+    res.innerHTML = "Moment...";
 
-if(window.qrScannerControle){
-try{
-await window.qrScannerControle.stop();
-await window.qrScannerControle.clear();
-}catch(e){}
-}
+    if(window.qrScannerControle){
+        try{
+            await window.qrScannerControle.stop();
+            await window.qrScannerControle.clear();
+        }catch(e){}
+    }
 
-window.qrScannerControle = new Html5Qrcode("qrResultaat");
+    window.qrScannerControle = new Html5Qrcode("qrResultaat");
 
-await window.qrScannerControle.start(
-{ facingMode:"environment" },
-{ fps:10, qrbox:250 },
+    await window.qrScannerControle.start(
+        { facingMode:"environment" },
+        { fps:10, qrbox:250 },
+        async (code)=>{
 
-async (code)=>{
+            if(window.qrBusy) return;
+            window.qrBusy = true;
 
-if(window.qrBusy) return;
-window.qrBusy = true;
+            try{
+                await window.qrScannerControle.stop();
+                await window.qrScannerControle.clear();
+            }catch(e){}
 
-try{
-await window.qrScannerControle.stop();
-await window.qrScannerControle.clear();
-}catch(e){}
+            res.innerHTML = "Controle bezig...";
 
-res.innerHTML = "Controle bezig...";
+            await processScan(code);
 
-await processScan(code);
-
-window.qrBusy = false;
-}
-);
+            window.qrBusy = false;
+        }
+    );
 }
 </script>
 </body>
