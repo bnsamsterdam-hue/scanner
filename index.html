@@ -253,8 +253,8 @@ z-index:999999;
 <div id="tabs">
 <button class="btn-scan" onclick="showTab('scan')">Scan QR code</button>
 <button class="btn-nood" onclick="showTab('nood')">Poort open</button>
-<button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
-<button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
+<button class="btn-teller" onclick="showTab('teller')">Tellers</button>
+<button class="btn-qr" onclick="showTab('qrmaak')">10 ritten kaart</button>
 <button class="btn-admin" onclick="showTab('admin')">Admin</button>
 <button class="btn-admin" onclick="openQrControle()" style="background:gold;color:black;">QR Controle</button> 
  
@@ -286,9 +286,13 @@ z-index:999999;
 <div id="teller" class="tab">
 
 <div id="tellerLogin">
-<input id="tellerPin" type="text" placeholder="Pincode" autocomplete="off">
-<br>
-<button onclick="checkTeller()">OK</button>
+
+<h2>🔒 Tellers Login</h2>
+
+<input id="tellerPin" type="text" placeholder="Pincode" autocomplete="off"><br><br>
+
+<button class="noodBtn" onclick="checkTeller()">OK</button>
+
 </div>
 
 <div id="tellerPanel" style="display:none;">
@@ -308,8 +312,10 @@ z-index:999999;
 <div id="qrmaak" class="tab">
 
 <div id="qrLogin">
-<input id="qrPin" type="text" placeholder="Pincode" autocomplete="off">
-<br>
+
+<h2>🎟️ 10 ritten kaart</h2>
+
+<input id="qrPin" type="text" placeholder="Pincode" autocomplete="off"><br><br>
 
 <button class="noodBtn" onclick="checkQRLogin()">OK</button>
 
