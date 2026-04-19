@@ -299,7 +299,6 @@ z-index:999999;
 <div id="poortTellers"></div>
 
 <br>
-<button onclick="resetTeller()">Reset</button>
 <button onclick="terugNaarMenuTeller()">⬅ Terug</button>
 </div>
 
@@ -311,7 +310,7 @@ z-index:999999;
 <div id="qrLogin">
 <input id="qrPin" type="text" placeholder="Pincode" autocomplete="off">
 <br>
-<button onclick="checkQRLogin()">OK</button>
+<button class="noodBtn" style="background:#444;" onclick="terugNaarMenuQR()">← Terug</button>
 <button onclick="terugNaarMenuQR()">⬅ Terug</button>
 </div>
 
@@ -508,7 +507,6 @@ wacht op scan
 <div id="qrScreen" style="display:none;">
 <h2>QR Code</h2>
 <canvas id="qrCanvas"></canvas><br><br>
-<button class="noodBtn" onclick="sluitQR()">⬅ Terug</button>
 </div>
 
 <script>
@@ -598,14 +596,14 @@ alert("✅ Shop instellingen opgeslagen");
 }
 
 </script> 
-<button onclick="logout()">Terug</button>
+<button class="noodBtn" style="background:#444;" onclick="logout()">← Terug</button>
 </div>
 </div>
 <div id="qrScreen" style="display:none;">
 <h2>QR Code</h2>
 <canvas id="qrCanvas"></canvas>
 <br><br>
-<button onclick="sluitQR()">Terug</button>
+<button class="noodBtn" style="background:#444;" onclick="sluitQR()">← Terug</button>
 </div> 
     
 <script>
@@ -1837,7 +1835,7 @@ async function startQrControle(){
     let res = document.getElementById("qrResultaat");
 
    btn.style.background = "#ff9800";
- btn.innerText = "Plaats u QR code voor de camer";
+ btn.innerText = "Plaats u QR code voor de camera";
     res.innerHTML = "📷 Richt camera op QR code";
 
     if(window.qrScannerControle){
