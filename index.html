@@ -366,11 +366,11 @@ font-size:24px;
 padding:20px;
 color:white;
 ">
-Klaar voor controle
+wacht op scan
 </div>
 
 <br>
-<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">⬅ Terug</button>
+<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">⬅ Terug naar hoofdmenu</button>
 
 </div>
 
@@ -1778,8 +1778,9 @@ async function startQrControle(){
     let btn = document.getElementById("btnQrControle");
     let res = document.getElementById("qrResultaat");
 
+    btn.style.background = "#2196f3";
     btn.innerText = "Camera opent...";
-    res.innerHTML = "Moment...";
+    res.innerHTML = "📷 Richt camera op QR code";
 
     if(window.qrScannerControle){
         try{
@@ -1796,6 +1797,10 @@ async function startQrControle(){
         async (code)=>{
 
             if(window.qrBusy) return;
+
+            btn.style.background = "#ff9800";
+            btn.innerText = "Moment alstublieft...";
+
             window.qrBusy = true;
 
             try{
@@ -1805,7 +1810,10 @@ async function startQrControle(){
 
             res.innerHTML = "Controle bezig...";
 
-           await processControleScan(code);
+            await processControleScan(code);
+
+            btn.style.background = "#4caf50";
+            btn.innerText = "Scan voltooid";
 
             window.qrBusy = false;
         }
