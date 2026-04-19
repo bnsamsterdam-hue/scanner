@@ -904,7 +904,7 @@ await db.runTransaction(async (t)=>{
 
     if(!doc.exists) throw "invalid";
 
-    let r = doc.data().remaining;
+    let r = doc.data().overig;
 
     /* ❌ GEEN BEURTEN MEER */
     if(r <= 0){
