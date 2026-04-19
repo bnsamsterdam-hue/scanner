@@ -874,7 +874,24 @@ function toggleScanSize(){
     }
 
 }
- 
+ function getDeviceName(){
+
+let ua = navigator.userAgent;
+
+if(ua.includes("iPhone")) return "📱 iPhone";
+if(ua.includes("iPad")) return "📱 iPad";
+if(ua.includes("SM-S938")) return "📱 Samsung S25 Ultra";
+if(ua.includes("SM-S")) return "📱 Samsung Galaxy";
+if(ua.includes("Samsung")) return "📱 Samsung Galaxy";
+if(ua.includes("Redmi")) return "📱 Xiaomi Redmi";
+if(ua.includes("Mi ")) return "📱 Xiaomi";
+if(ua.includes("OPPO")) return "📱 Oppo";
+if(ua.includes("Windows")) return "💻 Windows PC";
+if(ua.includes("Macintosh")) return "💻 MacBook";
+if(ua.includes("Linux")) return "📱 Android toestel";
+
+return "📱 Onbekend toestel";
+}
 /* SCAN */
 async function processScan(code){
 
@@ -920,7 +937,7 @@ laatsteDatum: new Date().toLocaleDateString("nl-NL"),
 laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
 laatstePoort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
 laatsteDevice:navigator.userAgent,
-laatsteNaam:navigator.platform
+laatsteNaam:getDeviceName()
 });
 
  if(MODE === "poort"){
