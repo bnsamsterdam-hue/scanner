@@ -881,19 +881,19 @@ function toggleScanSize(){
 
 let ua = navigator.userAgent;
 
-if(ua.includes("iPhone")) return "📱 iPhone";
-if(ua.includes("iPad")) return "📱 iPad";
-if(ua.includes("SM-S938")) return "📱 Samsung S25 Ultra";
-if(ua.includes("SM-S")) return "📱 Samsung Galaxy";
-if(ua.includes("Samsung")) return "📱 Samsung Galaxy";
-if(ua.includes("Redmi")) return "📱 Xiaomi Redmi";
-if(ua.includes("Mi ")) return "📱 Xiaomi";
-if(ua.includes("OPPO")) return "📱 Oppo";
-if(ua.includes("Windows")) return "💻 Windows PC";
-if(ua.includes("Macintosh")) return "💻 MacBook";
-if(ua.includes("Linux")) return "📱 Android toestel";
+if(ua.includes("iPhone")) return "iPhone";
+if(ua.includes("iPad")) return "iPad";
+if(ua.includes("SM-S938")) return "Samsung S25 Ultra";
+if(ua.includes("SM-S")) return "Samsung Galaxy";
+if(ua.includes("Samsung")) return "Samsung Galaxy";
+if(ua.includes("Redmi")) return "Xiaomi Redmi";
+if(ua.includes("Mi ")) return "Xiaomi";
+if(ua.includes("OPPO")) return "Oppo";
+if(ua.includes("Windows")) return "Windows PC";
+if(ua.includes("Macintosh")) return "MacBook";
+if(ua.includes("Linux")) return "Android toestel";
 
-return "📱 Onbekend toestel";
+return "Onbekend toestel";
 }
 /* SCAN */
 async function processScan(code){
@@ -1819,7 +1819,7 @@ if(data.history && data.history.length){
 let laatste = data.history.slice(-10).reverse();
 
 laatste.forEach(x=>{
-lijst += "<br>" + x.tijd + " - " + x.toestel;
+lijst += "<br><span style='color:#fff'>" + x.tijd + "</span> <span style='color:#888'>|</span> <span style='color:#00ff99;font-weight:bold'>" + (x.poort || "-").toUpperCase() + "</span> <span style='color:#888'>|</span> <span style='color:#4da6ff'>" + x.toestel + "</span>";
 });
 }
 
