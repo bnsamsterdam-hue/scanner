@@ -382,6 +382,390 @@ onclick="start nieuwe reset ()">
 <div id="admin" class="tab">
 
 <!-- LOGIN -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000"> 
+<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/scanner/manifest.json">
+ 
+<link rel="apple-touch-icon" href="/scanner/logo.png">
+<link rel="icon" href="/scanner/logo.png">
+ 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ticket Scanner PRO</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<meta name="autocomplete" content="off">   
+ 
+<style>
+body { background:#000; color:white; font-family:Arial; margin:0; text-align:center; }
+#tabs button { 
+width:20%; 
+padding:10px; 
+color:white;  
+border:none;
+font-weight:bold;
+}
+#qrFull {
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+#qrCanvasAuto {
+width:90vw;
+max-width:500px;
+}
+
+#qrFull button {
+margin-top:20px;
+padding:15px;
+font-size:18px;
+background:red;
+color:white;
+border:none;
+border-radius:10px;
+}   
+
+#tabs .btn-admin {
+background: white;
+color: black;
+}
+
+#pinPad button {
+padding:20px;
+font-size:20px;
+background:#222;
+color:white;
+border:none;
+border-radius:10px;
+}
+
+@keyframes blinkOrange {
+  0% { background: orange; }
+  50% { background: black; }
+  100% { background: orange; }
+}
+
+.blink-orange {
+  animation: blinkOrange 0.5s infinite;
+}
+
+.wave {
+  display:inline-block;
+  animation: wave 1s infinite;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-20deg); }
+  100% { transform: rotate(0deg); }
+ } 
+
+#pinPad button:active {
+background:#555;
+}
+
+input[type="text"] {
+  -webkit-text-security: disc;
+}
+ 
+/* KLEUREN */
+.btn-scan { background:green; }
+.btn-nood { background:red; }
+.btn-teller { background:purple; }
+.btn-qr { background:blue; }
+
+/* hover effect (optioneel maar mooi) */
+#tabs button:hover {
+opacity:0.8;
+}
+.tab { display:none; padding:10px; }
+.active { display:block; }
+#status { font-size:28px; padding:10px; border-radius:10px; }
+.ok { background:green; }
+.fout { background:red; }
+let readerBig = false;
+
+function toggleScanSize(){
+
+    let reader = document.getElementById("reader");
+    let screenWidth = window.innerWidth;
+
+    if(scanSize === 200){
+
+        // 🔥 TELEFOON vs TABLET verschil
+        if(screenWidth < 600){
+            scanSize = Math.floor(screenWidth * 0.6); // mobiel netjes passend
+        } else {
+            scanSize = 400; // tablet lekker groot
+        }
+
+        reader.classList.add("reader-big");
+
+    } else {
+
+        scanSize = 200;
+        reader.classList.remove("reader-big");
+
+    }
+
+    restartCamera();
+}
+#reader {
+max-width:300px;
+width:90%;
+margin:auto;
+transition: all 0.3s ease;
+}
+
+/* 📲 Tablet automatisch groter */
+@media (min-width: 768px){
+#reader{
+    max-width:500px;
+}
+}
+
+/* 🔍 Knop vergroting */
+.reader-big{
+    max-width:800pc !important;
+}
+
+.noodBtn { background:red; padding:12px; margin:5px; color:white; }
+.noodBtn.open { background:green; }
+.led { padding:10px; margin:5px; }
+input { background:#222; color:white; border:1px solid #555; padding:8px; margin:5px; }
+@keyframes blinkRed {
+  0% { background: red; }
+  50% { background: black; }
+  100% { background: red; }
+}
+
+.blink-red {
+  animation: blinkRed 0.4s infinite;
+}
+ 
+</style>
+</head>
+
+<body>
+    
+<div id="appLock" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+<div style="text-align:center; margin-bottom:15px;">
+
+  <div style="
+    font-size:32px;
+    font-weight:bold;
+    letter-spacing:2px;
+    color:white;
+    text-shadow:0 0 10px rgba(255,255,255,0.6);
+  ">
+    🔒 SCANNER PRO
+  </div>
+
+  <div style="
+    font-size:14px;
+    opacity:0.6;
+    margin-top:5px;
+    letter-spacing:1px;
+  ">
+    The Plee’s To Bee
+  </div>
+
+</div>
+
+<div id="pinDisplay" style="font-size:30px; letter-spacing:10px; margin:20px;">----</div>
+
+<div id="pinError" style="color:red; margin-bottom:10px;"></div>    
+
+<div id="pinPad" style="display:grid; grid-template-columns:repeat(3,80px); gap:10px; justify-content:center;">
+
+<button onclick="pressPin('1')">1</button>
+<button onclick="pressPin('2')">2</button>
+<button onclick="pressPin('3')">3</button>
+
+<button onclick="pressPin('4')">4</button>
+<button onclick="pressPin('5')">5</button>
+<button onclick="pressPin('6')">6</button>
+
+<button onclick="pressPin('7')">7</button>
+<button onclick="pressPin('8')">8</button>
+<button onclick="pressPin('9')">9</button>
+
+<button onclick="clearPin()">C</button>
+<button onclick="pressPin('0')">0</button>
+<button onclick="checkAppLock()">OK</button>
+
+</div>
+
+</div>
+    
+<div id="tabs">
+<button class="btn-scan" onclick="showTab('scan')">Scan QR code</button>
+<button class="btn-nood" onclick="showTab('nood')">Poort open</button>
+<button class="btn-teller" onclick="showTab('teller')">Aantal QR scans</button>
+<button class="btn-qr" onclick="showTab('qrmaak')">1 QR tonen</button>
+<button class="btn-admin" onclick="showTab('admin')">Admin</button>
+<button class="btn-admin" onclick="openQrControle()" style="background:gold;color:black;">QR Controle</button> 
+ 
+</div>
+
+<!-- SCAN -->
+<div id="scan" class="tab active">
+<div id="status">SCAN KLAAR</div>
+<div id="reader" class="cam-small"></div>
+<button onclick="switchCamera()" style="display:none;">🔄 Camera</button>
+<div id="manualBox">
+<input id="manualInput" placeholder="Scan of typ code" autofocus>
+<button onclick="manualScan()">OK</button>
+</div>
+
+</div> <!-- ✅ SLUIT SCAN TAB -->
+
+<!-- NOOD -->
+<div id="nood" class="tab">
+<button class="noodBtn" onclick="nood(1,this)">Poort 1</button>
+<button class="noodBtn" onclick="nood(2,this)">Poort 2</button>
+<button class="noodBtn" onclick="nood(3,this)">Poort 3</button>
+<button class="noodBtn" onclick="nood(4,this)">Poort 4</button>
+<button class="noodBtn" onclick="nood(5,this)">Poort 5</button>
+<button class="noodBtn" onclick="nood(6,this)">Poort 6</button>
+</div>
+
+<!-- TELLER -->
+<div id="teller" class="tab">
+
+<div id="tellerLogin">
+<input id="tellerPin" type="text" placeholder="Pincode" autocomplete="off">
+<br>
+<button onclick="checkTeller()">OK</button>
+</div>
+
+<div id="tellerPanel" style="display:none;">
+<h2>Totaal</h2>
+<h1 id="tellerWaarde">0</h1>
+
+<h3>Per poort</h3>
+<div id="poortTellers"></div>
+
+<br>
+<button onclick="resetTeller()">Reset</button>
+<button onclick="terugNaarMenuTeller()">⬅ Terug</button>
+</div>
+
+</div>
+    
+<!-- QR MAKEN -->
+<div id="qrmaak" class="tab">
+
+<div id="qrLogin">
+<input id="qrPin" type="text" placeholder="Pincode" autocomplete="off">
+<br>
+<button onclick="checkQRLogin()">OK</button>
+<button onclick="terugNaarMenuQR()">⬅ Terug</button>
+</div>
+
+<div id="qrPanel" style="display:none;">
+<div id="qrFull">
+
+<div id="qrText" style="font-size:28px; margin-bottom:20px;"></div>
+
+<canvas id="qrCanvasAuto"></canvas>
+
+<br><br>
+
+<button onclick="terugNaarMenuQR()">⬅ Terug</button>
+
+</div>
+
+</div>
+
+</div> <!-- 🔥 DEZE TOEVOEGEN -->
+<!-- QR CONTROLE -->
+<div id="qrcontrole" class="tab">
+
+<!-- LOGIN -->
+<div id="qrControleLogin">
+
+<h2>🔐 QR Controle</h2>
+
+<input id="qrControlePin" type="text" placeholder="Pincode" autocomplete="off"><br>
+
+<button class="noodBtn" onclick="checkQrControleLogin()">OK</button><br>
+<button class="noodBtn" style="background:#444;" onclick="showTab('scan')">⬅ Terug</button>
+
+</div>
+
+<!-- PANEL -->
+<div id="qrControlePanel" style="display:none;">
+
+<h2 style="color:white;">QR Controle</h2>
+
+<button id="btnQrControle"
+onclick="startQrControle()"
+class="noodBtn"
+style="background:#1976d2;">
+QR Controle Starten
+</button>
+
+<div id="qrResultaat"
+style="
+margin-top:25px;
+font-size:24px;
+padding:20px;
+color:white;
+">
+wacht op scan
+</div>
+<div id="qrInfo" style="margin-top:20px;color:white;font-size:22px;"></div> 
+<br>
+<button class="noodBtn"
+style="background:#444;"
+onclick="start nieuwe reset ()">
+← Reset 
+</button>
+
+</div>
+
+</div>
+<!-- ADMIN -->
+<div id="admin" class="tab">
+
+<!-- LOGIN -->
 <div id="login">
 <h2>🔐 Admin Login</h2>
 <input id="pin" type="text" placeholder="Pincode" autocomplete="off"><br>
@@ -1887,6 +2271,1516 @@ aspectRatio:1.777
         }
     );
 }
+</script>
+</body>
+</html>
+
+<!-- PANEL -->
+<div id="adminPanel" style="display:none;">
+
+<!-- MENU -->
+<div id="adminMenu">
+
+<h2>⚙️ ADMIN MENU</h2>
+
+<button class="noodBtn" onclick="openAdminPage('shopPage')">🛒 Shopbeheer</button><br>
+<button class="noodBtn" onclick="openAdminPage('qrPage')">🎟 QR Beheer</button><br>
+<button class="noodBtn" onclick="openAdminPage('ticketPage')">📦 Ticket Beheer</button><br>
+<button class="noodBtn" onclick="openAdminPage('systemPage')">🖥 Systeem</button><br>
+<button class="noodBtn" style="background:#444;" onclick="logout()">⬅ Terug</button>
+
+</div>
+
+<!-- SHOP -->
+<div id="shopPage" style="display:none;">
+
+<h2>🛒 Shopbeheer</h2>
+
+<h3>💵 Cash Pass</h3>
+<input id="cashNaam" placeholder="Naam"><br>
+<input id="cashPrijs" placeholder="Prijs"><br>
+<label><input type="checkbox" id="cashVisible"> Zichtbaar</label><br><br>
+
+<h3>🚪 Single Pass</h3>
+<input id="singleNaam" placeholder="Naam"><br>
+<input id="singlePrijs" placeholder="Prijs"><br>
+<input id="singleAantal" placeholder="Aantal scans"><br>
+<label><input type="checkbox" id="singleVisible"> Zichtbaar</label><br><br>
+
+<h3>👥 Share Pass</h3>
+<input id="shareNaam" placeholder="Naam"><br>
+<input id="sharePrijs" placeholder="Prijs"><br>
+<input id="shareAantal" placeholder="Aantal scans"><br>
+<label><input type="checkbox" id="shareVisible"> Zichtbaar</label><br><br>
+
+<h3>🎉 Group Pass</h3>
+<input id="groupNaam" placeholder="Naam"><br>
+<input id="groupPrijs" placeholder="Prijs"><br>
+<input id="groupAantal" placeholder="Aantal scans"><br>
+<label><input type="checkbox" id="groupVisible"> Zichtbaar</label><br><br>
+
+<h3>⚙ Instellingen</h3>
+<input id="siteTitel" placeholder="Titel"><br>
+<input id="bannerTekst" placeholder="Banner tekst"><br>
+<label><input type="checkbox" id="mollieOn"> Mollie actief</label><br>
+<label><input type="checkbox" id="cashOn"> Cash actief</label><br><br>
+
+<button class="noodBtn open" onclick="saveShopSettings()">💾 Opslaan</button><br>
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+<!-- QR -->
+<div id="qrPage" style="display:none;">
+
+<h2>🎟 QR Beheer</h2>
+
+<input id="eventnaam" placeholder="Event bv PRIDE2026"><br>
+<input id="code" placeholder="Code"><br>
+<input id="aantal" placeholder="Aantal scans"><br><br>
+
+<button class="noodBtn open" onclick="maakTicket()">💾 Ticket Opslaan</button><br>
+<button class="noodBtn" onclick="maakEnToonQR()">🖥 1 QR Tonen</button><br>
+<button class="noodBtn" onclick="printLaatsteQR()">🖨 Print QR</button><br>
+<button class="noodBtn" onclick="deelWhatsApp()">📲 Deel WhatsApp</button><br>
+<button class="noodBtn" onclick="deelMail()">📧 Deel Mail</button><br><br>
+
+<button class="noodBtn" onclick="bulk(1000)">1000 QR</button><br>
+<button class="noodBtn" onclick="bulk(2000)">2000 QR</button><br>
+<button class="noodBtn" onclick="bulk(3000)">3000 QR</button><br><br>
+
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+<!-- TICKET -->
+<div id="ticketPage" style="display:none;">
+
+<h2>📦 Ticket Beheer</h2>
+
+<button class="noodBtn" style="background:red;" onclick="wisAlles()">⚠ Wis Alle Tickets</button><br>
+<button class="noodBtn" onclick="resetTeller()">🔄 Reset Teller</button><br>
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+<!-- SYSTEM -->
+<div id="systemPage" style="display:none;">
+
+<h2>🖥 Systeembeheer PRO</h2>
+
+<button id="sysCam" class="noodBtn" style="background:blue;" onclick="checkCamera()">📷 Camera controleren</button><br>
+
+<button id="sysNet" class="noodBtn" style="background:blue;" onclick="checkInternet()">🌐 Internet controleren</button><br>
+
+<button id="sysFire" class="noodBtn" style="background:blue;" onclick="checkFirebase()">🔥 Firebase controleren</button><br>
+
+<button id="sysPay" class="noodBtn" style="background:blue;" onclick="checkMollie()">💳 Betalen controleren</button><br><br>
+<button id="sysModem" class="noodBtn" style="background:blue;" onclick="checkModem()">📡 Modem controleren</button><br><br>
+<button id="p1" class="noodBtn" style="background:blue;" onclick="checkShelly(1)">Poort 1 testen</button>
+<button id="p2" class="noodBtn" style="background:blue;" onclick="checkShelly(2)">Poort 2 testen</button>
+<button id="p3" class="noodBtn" style="background:blue;" onclick="checkShelly(3)">Poort 3 testen</button><br>
+
+<button id="p4" class="noodBtn" style="background:blue;" onclick="checkShelly(4)">Poort 4 testen</button>
+<button id="p5" class="noodBtn" style="background:blue;" onclick="checkShelly(5)">Poort 5 testen</button>
+<button id="p6" class="noodBtn" style="background:blue;" onclick="checkShelly(6)">Poort 6 testen</button><br><br>
+
+<button class="noodBtn open" onclick="checkAlles()">🧪 Controleer alles</button><br><br>
+
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug</button>
+
+</div>
+
+
+</div>
+
+</div>
+</div>
+
+<!-- QR SCREEN -->
+<div id="qrScreen" style="display:none;">
+<h2>QR Code</h2>
+<canvas id="qrCanvas"></canvas><br><br>
+<button class="noodBtn" onclick="sluitQR()">⬅ Terug</button>
+</div>
+
+<script>
+
+function openAdminPage(id){
+document.getElementById("adminMenu").style.display="none";
+document.getElementById("shopPage").style.display="none";
+document.getElementById("qrPage").style.display="none";
+document.getElementById("ticketPage").style.display="none";
+document.getElementById("systemPage").style.display="none";
+document.getElementById(id).style.display="block";
+}
+
+function backAdmin(){
+document.getElementById("adminMenu").style.display="block";
+document.getElementById("shopPage").style.display="none";
+document.getElementById("qrPage").style.display="none";
+document.getElementById("ticketPage").style.display="none";
+document.getElementById("systemPage").style.display="none";
+}
+
+function deelWhatsApp(){
+let code = document.getElementById("code").value;
+if(!code){ alert("Geen code"); return; }
+
+let txt = "Jouw QR code: " + code;
+window.open("https://wa.me/?text=" + encodeURIComponent(txt));
+}
+
+ function deelMail(){
+let code = document.getElementById("code").value;
+
+if(!code){
+alert("Geen code");
+return;
+}
+
+let onderwerp = "Jouw QR Ticket";
+let tekst = "Jouw QR code: " + code + "\nGebruik deze bij entree.";
+
+window.location.href =
+"mailto:?subject=" + encodeURIComponent(onderwerp) +
+"&body=" + encodeURIComponent(tekst);
+}
+ 
+async function saveShopSettings(){
+
+await db.collection("settings").doc("shop").set({
+
+cash:{
+naam:document.getElementById("cashNaam").value,
+prijs:document.getElementById("cashPrijs").value,
+visible:document.getElementById("cashVisible").checked
+},
+
+single:{
+naam:document.getElementById("singleNaam").value,
+prijs:document.getElementById("singlePrijs").value,
+aantal:document.getElementById("singleAantal").value,
+visible:document.getElementById("singleVisible").checked
+},
+
+share:{
+naam:document.getElementById("shareNaam").value,
+prijs:document.getElementById("sharePrijs").value,
+aantal:document.getElementById("shareAantal").value,
+visible:document.getElementById("shareVisible").checked
+},
+
+group:{
+naam:document.getElementById("groupNaam").value,
+prijs:document.getElementById("groupPrijs").value,
+aantal:document.getElementById("groupAantal").value,
+visible:document.getElementById("groupVisible").checked
+},
+
+titel:document.getElementById("siteTitel").value,
+banner:document.getElementById("bannerTekst").value,
+
+mollie:document.getElementById("mollieOn").checked,
+cashmode:document.getElementById("cashOn").checked
+
+});
+
+alert("✅ Shop instellingen opgeslagen");
+
+}
+
+</script> 
+<button onclick="logout()">Terug</button>
+</div>
+</div>
+<div id="qrScreen" style="display:none;">
+<h2>QR Code</h2>
+<canvas id="qrCanvas"></canvas>
+<br><br>
+<button onclick="sluitQR()">Terug</button>
+</div> 
+    
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+/* 🔥 CHECK: is dit een poort? */
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("poort")){
+    document.getElementById("appLock").style.display = "none";
+    return;
+}
+ 
+/* 🔒 ANDERS = kassa → WEL lock */
+
+let lock = document.getElementById("appLock");
+
+if(lock){
+
+if(sessionStorage.getItem("appLock") === "open"){
+    lock.style.display = "none";
+} else {
+    lock.style.display = "flex";
+}
+
+/* ENTER SUPPORT */
+
+}
+
+});
+let enteredPin = "";
+
+function pressPin(num){
+
+// 🔥 foutmelding leegmaken zodra iemand typt
+let e = document.getElementById("pinError");
+if(e) e.innerText = "";
+
+enteredPin += num;
+
+if(enteredPin.length > 4){
+enteredPin = enteredPin.slice(0,4);
+}
+
+updateDisplay();
+}
+
+function clearPin(){
+enteredPin = "";
+updateDisplay();
+}
+
+function updateDisplay(){
+let display = document.getElementById("pinDisplay");
+display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
+}
+
+function checkAppLock(){
+
+if(enteredPin === "1726"){
+    sessionStorage.setItem("appLock","open");
+    document.getElementById("appLock").style.display = "none";
+} else {
+
+    let e = document.getElementById("pinError");
+    if(e){
+        e.innerText = "❌ Foute pincode";
+
+        setTimeout(()=>{
+            e.innerText = "";
+        },1500);
+    }
+
+    clearPin();
+}
+
+}
+/* FIREBASE */
+firebase.initializeApp({
+apiKey:"AIza...",
+authDomain:"ticket-systeem-18a08.firebaseapp.com",
+projectId:"ticket-systeem-18a08"
+});
+const db = firebase.firestore();
+
+let qrLoggedIn = false;   // 👈 HIER toevoegen
+
+/* POORTEN */
+const POORTEN={
+1:"192.168.1.101",
+2:"192.168.1.102",
+3:"192.168.1.103",
+4:"192.168.1.104",
+5:"192.168.1.105",
+6:"192.168.1.106"
+};
+
+let teller=0;
+let tellerPoort={0:0,1:0,2:0,3:0,4:0,5:0,6:0};
+
+let MODE="kassa";
+let RELAIS_IP="";
+let POORT_NR=0;
+
+let scanLock=false;
+
+/* TAB */
+function showTab(id){
+
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+
+/* 🔥 QR = fullscreen modus */
+if(id === "qrmaak"){
+document.getElementById("tabs").style.display = "none";
+} else {
+document.getElementById("tabs").style.display = "block";
+}
+
+/* QR login */
+if(id === "qrmaak"){
+
+if(sessionStorage.getItem("qrLogin") === "true"){
+document.getElementById("qrLogin").style.display="none";
+document.getElementById("qrPanel").style.display="block";
+maakNieuweQR();
+} else {
+document.getElementById("qrLogin").style.display="block";
+document.getElementById("qrPanel").style.display="none";
+}
+
+}
+
+}
+
+/* MODE */
+const params=new URLSearchParams(window.location.search);
+if(params.get("poort")){
+MODE="poort";
+POORT_NR=parseInt(params.get("poort"));
+RELAIS_IP=POORTEN[POORT_NR];
+document.getElementById("tabs").style.display="none";
+}
+
+/* 🔥 NIEUW: REMOTE LISTENER */
+if(MODE==="poort"){
+db.collection("openPoort").doc("poort"+POORT_NR)
+.onSnapshot(doc=>{
+if(doc.exists && doc.data().trigger){
+fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
+}
+});
+}
+
+/* CAMERA */
+let scanner;
+let cameras=[];
+let currentCam=0;
+let scanSize = window.innerWidth > 768 ? 380 : 240;
+ 
+if(MODE !== "poort"){
+Html5Qrcode.getCameras().then(cam=>{
+cameras=cam;
+if(cameras.length){ startCamera(cameras.length-1); }
+});
+}else{
+document.getElementById("reader").style.display="none";
+document.getElementById("camBtn").style.display="none";
+}
+
+let camBig = false;
+
+/* 🔥 handmatige scan */
+function manualScan(){
+let val = document.getElementById("manualInput").value;
+if(val){
+processScan(val);
+document.getElementById("manualInput").value="";
+}
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+let input = document.getElementById("manualInput");
+
+if(input){
+input.addEventListener("keydown", function(e){
+
+/* 🔒 check: alleen scannen als lock weg is */
+let lock = document.getElementById("appLock");
+if(lock && lock.style.display !== "none"){
+return; // stop als lock actief is
+}
+
+if(e.key==="Enter"){
+manualScan();
+}
+});
+}
+
+});
+/* SCANNER */
+let buffer="";
+document.addEventListener("keydown", function(e){
+if(MODE !== "poort") return;
+
+if(e.key === "Enter"){
+processScan(buffer);
+buffer="";
+}else if(e.key.length===1){
+buffer+=e.key;
+}
+});
+
+/* CAMERA FUNCTIES */
+async function startCamera(i){
+
+    if(scanner){
+        try{
+            await scanner.stop();
+            await scanner.clear();
+        }catch(e){}
+    }
+
+    scanner = new Html5Qrcode("reader");
+
+    await scanner.start(
+        cameras[i].id,
+        {
+            fps:10,
+            qrbox: scanSize,
+            aspectRatio:1.777,
+            experimentalFeatures:{
+                useBarCodeDetectorIfSupported:true
+            },
+            videoConstraints:{
+                facingMode:(window.innerWidth > 900 ? "user" : "environment"),
+                width:{ideal:1920},
+                height:{ideal:1080}
+            }
+        },
+        (code) => processScan(code)
+    );
+}
+function switchCamera(){
+currentCam=(currentCam+1)%cameras.length;
+startCamera(currentCam);
+}
+
+let readerBig = false;
+
+function toggleScanSize(){
+
+    let reader = document.getElementById("reader");
+
+    if(!readerBig){
+        reader.classList.add("reader-big");
+        readerBig = true;
+    } else {
+        reader.classList.remove("reader-big");
+        readerBig = false;
+    }
+
+}
+ function getDeviceName(){
+
+let ua = navigator.userAgent;
+
+if(ua.includes("iPhone")) return "📱 iPhone";
+if(ua.includes("iPad")) return "📱 iPad";
+if(ua.includes("SM-S938")) return "📱 Samsung S25 Ultra";
+if(ua.includes("SM-S")) return "📱 Samsung Galaxy";
+if(ua.includes("Samsung")) return "📱 Samsung Galaxy";
+if(ua.includes("Redmi")) return "📱 Xiaomi Redmi";
+if(ua.includes("Mi ")) return "📱 Xiaomi";
+if(ua.includes("OPPO")) return "📱 Oppo";
+if(ua.includes("Windows")) return "💻 Windows PC";
+if(ua.includes("Macintosh")) return "💻 MacBook";
+if(ua.includes("Linux")) return "📱 Android toestel";
+
+return "📱 Onbekend toestel";
+}
+/* SCAN */
+async function processScan(code){
+
+if(scanLock) return;
+scanLock=true;
+
+code = code.trim().toUpperCase();
+
+// 🔥 FIX: scanner gebruikt / i.p.v -
+code = code.replace(/\//g, "-");
+
+console.log("SCAN:", code);
+
+let s=document.getElementById("status");
+try {
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    }
+} catch(e){}
+ 
+try{
+
+await db.runTransaction(async (t)=>{
+
+    let ref = db.collection("tickets").doc(code);
+    let doc = await t.get(ref);
+
+    if(!doc.exists) throw "invalid";
+
+   let r = parseInt(doc.data().remaining || 0);
+
+    /* ❌ GEEN BEURTEN MEER */
+    if(r <= 0){
+        throw "empty";
+    }
+/* 🔥 LAATSTE KEER */
+if(r === 1){
+
+t.update(ref,{
+remaining:0,
+laatsteScan: Date.now(),
+laatsteDatum: new Date().toLocaleDateString("nl-NL"),
+laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
+laatstePoort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
+laatsteDevice:navigator.userAgent,
+laatsteNaam:getDeviceName(),
+
+history: firebase.firestore.FieldValue.arrayUnion({
+poort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
+datum:new Date().toLocaleDateString("nl-NL"),
+tijd:new Date().toLocaleTimeString("nl-NL"),
+toestel:getDeviceName(),
+device:navigator.userAgent
+})
+
+});
+
+ if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+}
+    s.className="blink-orange";
+    s.innerHTML = `
+        <div style="font-size:60px;">🚽</div>
+        <div class="wave" style="font-size:40px;">👋</div>
+        <div style="font-size:20px; margin-top:10px;">
+            ⚠ Laatste toilet bezoek
+        </div>
+    `;
+
+} else {
+
+   t.update(ref,{
+remaining:r-1,
+laatsteScan: Date.now(),
+laatsteDatum: new Date().toLocaleDateString("nl-NL"),
+laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
+laatstePoort:(MODE==="poort" ? "Poort "+POORT_NR : "Kassa"),
+laatsteDevice:navigator.userAgent,
+laatsteNaam:getDeviceName(),
+
+history: firebase.firestore.FieldValue.arrayUnion({
+poort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
+datum:new Date().toLocaleDateString("nl-NL"),
+tijd:new Date().toLocaleTimeString("nl-NL"),
+toestel:getDeviceName(),
+device:navigator.userAgent
+})
+});
+
+    s.className="ok";
+    s.innerText="✔ TOEGANG ("+(r-1)+")";
+
+  if(MODE === "poort"){
+    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+}
+}
+
+}); // ✅ transaction dicht
+
+teller++;
+
+let updateData = {
+    totaal: firebase.firestore.FieldValue.increment(1)
+};
+
+if(MODE === "poort"){
+    updateData["poort"+POORT_NR] = firebase.firestore.FieldValue.increment(1);
+} else {
+    updateData["kassa"] = firebase.firestore.FieldValue.increment(1);
+}
+
+db.collection("teller").doc("main").set(updateData, {merge:true});
+
+updatePoortTellers();
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg").play();
+
+} catch(e){
+
+s.className="blink-red";
+
+s.innerHTML = `
+    <div style="font-size:70px;">🚽</div>
+    <div style="font-size:70px;">❌</div>
+    <div style="font-size:22px; margin-top:10px;">
+        ONGELDIG
+    </div>
+`;
+
+new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg").play();
+
+}
+
+if(scanner){
+try{ await scanner.stop(); await scanner.clear(); } catch(e){}
+}
+
+setTimeout(()=>{
+
+    scanLock = false;
+
+    if(MODE === "poort"){
+        // poort scanner weer vrij na 5 sec
+        return;
+    }
+
+    // alleen kassa camera opnieuw starten
+    startCamera(currentCam);
+
+},2000);
+
+setTimeout(()=>{
+    s.innerText="SCAN KLAAR";
+    s.className="";
+},1500);
+}
+
+/* 🔥 AANGEPAST */
+function nood(n,btn){
+btn.classList.add("open");
+
+db.collection("openPoort").doc("poort"+n).set({
+trigger:true,
+time:Date.now()
+});
+
+setTimeout(()=>btn.classList.remove("open"),3000);
+}
+
+/* REST BLIJFT IDENTIEK */
+function startStatusListener(){
+
+for(let i=1;i<=6;i++){
+
+let el = document.getElementById("p"+i);
+if(!el) continue;
+
+db.collection("status").doc("poort"+i)
+.onSnapshot(doc=>{
+
+if(!doc.exists){
+el.style.background="gray";
+el.innerText="⚪ Poort "+i+" GEEN DATA";
+return;
+}
+
+let data = doc.data();
+let s = data.status;
+
+if(s==="ONLINE"){
+el.style.background="green";
+el.innerText="🟢 Poort "+i+" ONLINE";
+}
+else if(s==="ACTIEF"){
+el.style.background="blue";
+el.innerText="🔵 Poort "+i+" ACTIEF";
+}
+else if(s==="GEEN_STROOM"){
+el.style.background="black";
+el.innerText="⚫ Poort "+i+" GEEN STROOM";
+}
+else if(s==="GEEN_INTERNET"){
+el.style.background="orange";
+el.innerText="🟠 Poort "+i+" GEEN INTERNET";
+}
+else if(s==="RASPI_OFFLINE"){
+el.style.background="red";
+el.innerText="🔴 Poort "+i+" RASPBERRY OFFLINE";
+}
+else{
+el.style.background="purple";
+el.innerText="🟣 ONBEKENDE STATUS";
+}
+
+});
+}
+}
+
+// startStatusListener();
+
+function resetTeller(){
+
+db.collection("teller").doc("main").set({
+    totaal: 0,
+    kassa: 0,
+    poort1: 0,
+    poort2: 0,
+    poort3: 0,
+    poort4: 0,
+    poort5: 0,
+    poort6: 0
+});
+
+}
+function updatePoortTellers(){
+
+db.collection("teller").doc("main")
+.onSnapshot(doc=>{
+
+if(!doc.exists){
+    document.getElementById("poortTellers").innerHTML = "Geen data";
+    return;
+}
+
+let data = doc.data();
+
+let html = "Totaal: " + (data.totaal || 0) + "<br><br>";
+
+html += "Kassa: " + (data.kassa || 0) + "<br>";
+
+for(let i=1;i<=6;i++){
+    html += "Poort " + i + ": " + (data["poort"+i] || 0) + "<br>";
+}
+
+/* 🔥 BELANGRIJK */
+document.getElementById("poortTellers").innerHTML = html;
+
+/* 🔥 OOK TOTAAL BOVENIN */
+document.getElementById("tellerWaarde").innerText = data.totaal || 0;
+
+});
+}
+ 
+function checkTeller(){
+if(document.getElementById("tellerPin").value==="9990"){
+
+document.getElementById("tellerLogin").style.display="none";
+document.getElementById("tellerPanel").style.display="block";
+
+updatePoortTellers();
+
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("tellerPin").value="";
+}
+}
+
+function terugNaarMenuQR(){
+
+document.getElementById("tabs").style.display = "block";
+
+document.getElementById("qrLogin").style.display="block";
+document.getElementById("qrPanel").style.display="none";
+
+showTab('scan');
+}
+function checkQrControleLogin(){
+
+if(document.getElementById("qrControlePin").value==="9990"){
+
+document.getElementById("qrControleLogin").style.display="none";
+document.getElementById("qrControlePanel").style.display="block";
+
+document.getElementById("qrControlePin").value="";
+
+}else{
+alert("Foute code");
+}
+
+}   // <-- DEZE TOEVOEGEN
+
+function login() {
+if(document.getElementById("pin").value==="8760") {
+    document.getElementById("login").style.display="none";
+    document.getElementById("adminPanel").style.display="block";
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("pin").value="";
+}
+}
+function logout(){ location.reload(); }
+
+async function maakTicket(){
+let code=document.getElementById("code").value.toUpperCase();
+let aantal=parseInt(document.getElementById("aantal").value);
+await db.collection("tickets").doc(code).set({
+remaining:aantal,
+created: Date.now(),
+bron:"admin",
+type:"handmatig",
+laatsteScan:null,
+laatstePoort:null,
+laatsteDevice:null
+});
+alert("Ticket opgeslagen");
+}
+
+async function bulk(aantal){
+let event=document.getElementById("eventnaam").value.toUpperCase();
+if(!event){ alert("Vul eerst event naam in"); return; }
+
+for(let i=1;i<=aantal;i++){
+let nr=String(i).padStart(6,"0");
+let code=event+"-"+nr;
+await db.collection("tickets").doc(code).set({remaining:10});
+}
+
+alert(aantal+" tickets aangemaakt");
+}
+function toonQR(code){
+
+document.getElementById("admin").style.display="none";
+document.getElementById("qrScreen").style.display="block";
+
+let canvas = document.getElementById("qrCanvas");
+
+QRCode.toCanvas(canvas, code, {
+    width:380,
+    margin:4,
+    errorCorrectionLevel:"M"
+});
+
+}
+
+function sluitQR(){
+
+document.getElementById("qrScreen").style.display="none";
+document.getElementById("admin").style.display="block";
+
+}
+
+async function maakEnToonQR(){
+let event = document.getElementById("eventnaam").value.toUpperCase();
+let codeInput = document.getElementById("code").value.toUpperCase();
+let aantal = parseInt(document.getElementById("aantal").value);
+
+if(!event || !codeInput || !aantal){
+alert("Vul alles in");
+return;
+}
+
+/* zelfde logica als oude systeem */
+let code = codeInput;
+
+/* opslaan met aantal beurten */
+await db.collection("tickets").doc(code).set({
+remaining:aantal
+});
+
+/* QR tonen */
+toonQR(code);
+
+}
+/* QR LOGIN */
+function checkQRLogin(){
+if(document.getElementById("qrPin").value==="9990"){
+
+qrLoggedIn = true;
+sessionStorage.setItem("qrLogin","true");
+
+document.getElementById("qrPin").value="";
+document.getElementById("qrLogin").style.display="none";
+document.getElementById("qrPanel").style.display="block";
+
+maakNieuweQR();
+
+} else {
+
+    let s = document.getElementById("status");
+    s.className = "fout";
+    s.innerText = "❌ Foute pincode";
+
+    setTimeout(()=>{
+        s.innerText = "SCAN KLAAR";
+        s.className = "";
+    },1500);
+
+    document.getElementById("qrPin").value="";
+}
+}
+
+function terugNaarMenuTeller(){
+
+document.getElementById("tellerLogin").style.display="block";
+document.getElementById("tellerPanel").style.display="none";
+
+showTab('scan');
+
+}    
+
+function sluitQRScherm(){
+document.getElementById("qrLogin").style.display="none";
+document.getElementById("qrPanel").style.display="block";
+}
+
+async function maakNieuweQR(){
+try {
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    }
+} catch(e) {
+    console.log("fullscreen geblokkeerd");
+}
+let jaar = new Date().getFullYear();
+document.getElementById("qrText").innerText = "The PLEE'S TO BEE " + jaar;
+
+let ref = db.collection("qrCounter").doc("counter");
+
+let nieuwNummer = await db.runTransaction(async (t)=>{
+let doc = await t.get(ref);
+
+let current = 0;
+if(doc.exists){ current = doc.data().value || 0; }
+
+let next = current + 1;
+t.set(ref,{value:next});
+
+return next;
+});
+function generateCode(){
+   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ2346789";
+    let part = () => {
+        let s = "";
+        for(let i=0;i<4;i++){
+            s += chars[Math.floor(Math.random()*chars.length)];
+        }
+        return s;
+    };
+    return part() + "-" + part() + "-" + part();
+}
+
+let code = generateCode();
+
+await db.collection("tickets").doc(code).set({
+remaining:10,
+created: Date.now(),
+bron:"qrmaak",
+type:"1qr",
+laatsteScan:null,
+laatstePoort:null,
+laatsteDevice:null
+});
+
+QRCode.toCanvas(document.getElementById("qrCanvasAuto"), code, {
+width:380
+});
+}
+
+/* OUDE FUNCTIE */
+function printLaatsteQR(){
+let canvas = document.getElementById("qrCanvas");
+
+let win = window.open();
+win.document.write("<img src='"+canvas.toDataURL()+"'/>");
+win.print();
+}
+
+/* 🔥 HIER TOEVOEGEN */
+function wisAlles(){
+
+if(!confirm("⚠ Weet je zeker dat je ALLE QR codes wilt verwijderen?")){
+    return;
+}
+
+doWisAlles();
+}
+
+async function doWisAlles(){
+
+let s = document.getElementById("status");
+
+try{
+
+s.innerText = "⏳ Bezig...";
+
+const snapshot = await db.collection("tickets").get();
+
+if(snapshot.empty){
+    s.innerText = "⚠ Geen tickets gevonden";
+    return;
+}
+
+let promises = [];
+
+snapshot.forEach(doc=>{
+    promises.push(doc.ref.delete());
+});
+
+await Promise.all(promises);
+
+s.className = "ok";
+s.innerText = "✅ Alles verwijderd";
+
+setTimeout(()=>{
+    s.innerText = "SCAN KLAAR";
+    s.className = "";
+},2000);
+
+}catch(e){
+
+console.error(e);
+
+s.className = "fout";
+s.innerText = "❌ Fout bij verwijderen";
+
+}
+
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll('input[type="password"]').forEach(el=>{
+        el.addEventListener('focus', ()=>{
+
+            let lock = document.getElementById("appLock");
+
+            // 🔥 alleen blokkeren als lock zichtbaar is
+            if(lock && lock.style.display !== "none"){
+                el.blur();
+            }
+
+        });
+    });
+}); 
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll('input').forEach(el=>{
+        el.value = "";
+    });
+}); 
+ 
+ function updatePoortTellers(){
+
+db.collection("teller").doc("main")
+.onSnapshot(doc=>{
+
+if(!doc.exists) return;
+
+let data = doc.data();
+
+let html = "Totaal: " + (data.totaal || 0) + "<br><br>";
+
+html += "Kassa: " + (data.kassa || 0) + "<br>";
+
+for(let i=1;i<=6;i++){
+    html += "Poort " + i + ": " + (data["poort"+i] || 0) + "<br>";
+}
+
+document.getElementById("poortTellers").innerHTML = html;
+
+});
+
+}
+updatePoortTellers();
+async function saveShopSettings(){
+
+await db.collection("settings").doc("shop").set({
+
+cash:{
+naam:document.getElementById("cashNaam").value,
+prijs:document.getElementById("cashPrijs").value,
+visible:document.getElementById("cashVisible").checked
+},
+
+single:{
+naam:document.getElementById("singleNaam").value,
+prijs:document.getElementById("singlePrijs").value,
+aantal:document.getElementById("singleAantal").value,
+visible:document.getElementById("singleVisible").checked
+},
+
+share:{
+naam:document.getElementById("shareNaam").value,
+prijs:document.getElementById("sharePrijs").value,
+aantal:document.getElementById("shareAantal").value,
+visible:document.getElementById("shareVisible").checked
+},
+
+group:{
+naam:document.getElementById("groupNaam").value,
+prijs:document.getElementById("groupPrijs").value,
+aantal:document.getElementById("groupAantal").value,
+visible:document.getElementById("groupVisible").checked
+}
+
+});
+
+alert("✅ Opgeslagen");
+
+} 
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+
+        const doc = await db.collection("settings").doc("shop").get();
+        if (!doc.exists) return;
+
+        const d = doc.data();
+
+        if (d.cash) {
+            document.getElementById("cashNaam").value = d.cash.naam || "";
+            document.getElementById("cashPrijs").value = d.cash.prijs || "";
+            document.getElementById("cashVisible").checked = d.cash.visible ?? true;
+        }
+
+        if (d.single) {
+            singleNaam.value = d.single.naam || "";
+            singlePrijs.value = d.single.prijs || "";
+            singleAantal.value = d.single.aantal || "";
+            singleVisible.checked = d.single.visible ?? true;
+        }
+
+        if (d.share) {
+            shareNaam.value = d.share.naam || "";
+            sharePrijs.value = d.share.prijs || "";
+            shareAantal.value = d.share.aantal || "";
+            shareVisible.checked = d.share.visible ?? true;
+        }
+
+        if (d.group) {
+            groupNaam.value = d.group.naam || "";
+            groupPrijs.value = d.group.prijs || "";
+            groupAantal.value = d.group.aantal || "";
+            groupVisible.checked = d.group.visible ?? true;
+        }
+
+    } catch(e) {
+        console.log("shop load fout", e);
+    }
+});
+function setBtn(id,color,text){
+let b=document.getElementById(id);
+if(!b) return;
+b.style.background=color;
+b.innerText=text;
+}
+
+function checkCamera(){
+Html5Qrcode.getCameras().then(cams=>{
+if(cams.length>0){
+setBtn("sysCam","green","✅ Camera werkt");
+}else{
+setBtn("sysCam","red","❌ Geen camera");
+}
+}).catch(()=>{
+setBtn("sysCam","red","❌ Camera fout");
+});
+}
+
+function checkInternet(){
+let start=Date.now();
+
+fetch("https://www.google.com/favicon.ico",{mode:"no-cors"})
+.then(()=>{
+let ms=Date.now()-start;
+
+if(ms<300){
+setBtn("sysNet","green","✅ Internet snel ("+ms+"ms)");
+}else{
+setBtn("sysNet","orange","⚠ Internet traag ("+ms+"ms)");
+}
+
+})
+.catch(()=>{
+setBtn("sysNet","red","❌ Geen internet");
+});
+}
+
+function checkFirebase(){
+db.collection("settings").doc("shop").get()
+.then(()=>{
+setBtn("sysFire","green","✅ Firebase online");
+})
+.catch(()=>{
+setBtn("sysFire","red","❌ Firebase fout");
+});
+}
+
+function checkMollie(){
+
+setBtn("sysPay","blue","⌛ Betalen controleren");
+
+if(navigator.onLine){
+setTimeout(()=>{
+setBtn("sysPay","green","🟢 Betalen beschikbaar");
+},600);
+}else{
+setBtn("sysPay","red","🔴 Geen internet voor betalen");
+}
+
+}
+
+function checkShelly(n){
+
+let btn = document.getElementById("p"+n);
+if(!btn) return;
+
+btn.style.background = "blue";
+btn.innerText = "⌛ Poort "+n+" laden...";
+
+db.collection("status").doc("poort"+n)
+.get()
+.then(doc=>{
+
+if(!doc.exists){
+setBtn("p"+n,"gray","⚫ Poort "+n+" geen data");
+return;
+}
+
+let s = doc.data().status || "";
+
+if(s==="ONLINE"){
+setBtn("p"+n,"green","🟢 Poort "+n+" online");
+}
+else if(s==="ACTIEF"){
+setBtn("p"+n,"blue","🔵 Poort "+n+" actief");
+}
+else if(s==="GEEN_INTERNET"){
+setBtn("p"+n,"red","🔴 Poort "+n+" geen internet");
+}
+else if(s==="SHELLY_FOUT"){
+setBtn("p"+n,"red","🔴 Poort "+n+" Shelly fout");
+}
+else if(s==="SCANNER_FOUT"){
+setBtn("p"+n,"red","🔴 Poort "+n+" scanner fout");
+}
+else if(s==="RASPBERRY_OFFLINE"){
+setBtn("p"+n,"red","🔴 Poort "+n+" Raspberry offline");
+}
+else if(s==="GEEN_STROOM"){
+setBtn("p"+n,"black","⚫ Poort "+n+" geen stroom");
+}
+else if(s==="LANGZAAM"){
+setBtn("p"+n,"orange","🟠 Poort "+n+" traag");
+}
+else{
+setBtn("p"+n,"purple","🟣 Poort "+n+" onbekend");
+}
+})
+.catch(()=>{
+setBtn("p"+n,"red","❌ Poort "+n+" fout");
+});
+
+}
+
+let modemIndex = 0;
+
+const modems = [
+ { naam:"Modem 1", ip:"192.168.8.1" },
+ { naam:"Modem 2", ip:"192.168.8.2" },
+ { naam:"Modem 3", ip:"192.168.8.3" },
+ { naam:"Modem 4", ip:"192.168.8.4" },
+ { naam:"Modem 5", ip:"192.168.8.5" },
+ { naam:"Modem 6", ip:"192.168.8.6" }
+];
+
+function checkAlles(){
+  checkCamera();
+  checkInternet();
+  checkFirebase();
+  checkMollie();
+  checkModem();
+
+  for(let i=1; i<=6; i++){
+    setTimeout(() => checkShelly(i), i*250);
+  }
+}
+
+function checkModem(){
+
+  let m = modems[modemIndex];
+
+  setBtn("sysModem","blue","⌛ " + m.naam + " controleren");
+
+  fetch("http://" + m.ip, {mode:"no-cors"})
+  .then(() => {
+    setBtn("sysModem","green","🟢 " + m.naam + " online");
+  })
+  .catch(() => {
+    setBtn("sysModem","black","⚫ " + m.naam + " geen stroom");
+  });
+
+  modemIndex++;
+
+  if(modemIndex >= modems.length){
+    modemIndex = 0;
+  }
+}
+
+let updateTimers = {};
+
+function startUpdateBlink(btnId, normalColor, normalText){
+
+  if(updateTimers[btnId]) return;
+
+  let state = false;
+
+  updateTimers[btnId] = setInterval(() => {
+
+    let btn = document.getElementById(btnId);
+    if(!btn) return;
+
+    if(state){
+      btn.style.background = normalColor;
+      btn.innerText = normalText;
+    } else {
+      btn.style.background = "purple";
+      btn.innerText = "🟣 Update beschikbaar";
+    }
+
+    state = !state;
+
+  }, 2000);
+}
+
+function stopUpdateBlink(btnId, color, text){
+
+  if(updateTimers[btnId]){
+    clearInterval(updateTimers[btnId]);
+    delete updateTimers[btnId];
+  }
+
+  let btn = document.getElementById(btnId);
+
+if(btn){
+    btn.style.background = color;
+    btn.innerText = text;
+}
+}
+  
+function openQrControle() {
+
+MODE = "controle"; 
+document.getElementById("qrControleLogin").style.display = "block";
+document.getElementById("qrControlePanel").style.display = "none";
+
+showTab("qrcontrole");
+
+}
+async function processControleScan(code){
+
+code = code.trim().toUpperCase().replace(/\//g,"-");
+
+let vak = document.getElementById("qrResultaat");
+vak.innerHTML = "⏳ Controleren...";
+
+try{
+
+let doc = await db.collection("tickets").doc(code).get();
+
+if(!doc.exists){
+vak.innerHTML =
+"🟥 ongeldig" +
+"<br><br>Laatste poort: " + (data.laatstePoort || "-") +
+"<br>Datum: " + (data.laatsteDatum || "-") +
+"<br>Tijd: " + (data.laatsteTijd || "-") +
+"<br>Apparaat: " + (data.laatsteNaam || "-");
+return;
+}
+
+let data = doc.data();
+let over = data.remaining || 0;
+
+if(over <= 0){
+vak.innerHTML =
+"🟥 AL GEBRUIKT" +
+"<br><br>Laatste poort: " + (data.laatstePoort || "-") +
+"<br>Datum: " + (data.laatsteDatum || "-") +
+"<br>Tijd: " + (data.laatsteTijd || "-") +
+"<br>Apparaat: " + (data.laatsteNaam || "-");
+}else{
+ 
+let lijst = "";
+
+if(data.history && data.history.length){
+let laatste = data.history.slice(-10).reverse();
+
+laatste.forEach(x=>{
+lijst += "<br>" + x.tijd + " - " + x.toestel;
+});
+}
+
+vak.innerHTML =
+"🟩 GELDIG<br>Nog " + over + " keer" +
+"<br><br>Poort: " + (data.laatstePoort || "-") +
+"<br>Datum: " + (data.laatsteDatum || "-") +
+"<br>Tijd: " + (data.laatsteTijd || "-") +
+"<br><br><b>Laatste scans:</b>" +
+(lijst || "<br>geen historie");
+}
+
+}catch(e){
+console.log(e);
+vak.innerHTML = "❌ FOUT";
+}
+}
+async function startQrControle(){
+
+    let btn = document.getElementById("btnQrControle");
+    let res = document.getElementById("qrResultaat");
+
+    btn.style.background = "#2196f3";
+    btn.innerText = "Camera opent...";
+    res.innerHTML = "📷 Richt camera op QR code";
+
+    if(window.qrScannerControle){
+        try{
+            await window.qrScannerControle.stop();
+            await window.qrScannerControle.clear();
+        }catch(e){}
+    }
+
+    window.qrScannerControle = new Html5Qrcode("qrResultaat");
+
+    await window.qrScannerControle.start(
+        { facingMode:"environment" },
+      {
+fps:10,
+qrbox:260,
+aspectRatio:1.777
+},
+        async (code)=>{
+
+            if(window.qrBusy) return;
+
+            btn.style.background = "#ff9800";
+            btn.innerText = "Moment alstublieft...";
+
+            window.qrBusy = true;
+
+            try{
+                await window.qrScannerControle.stop();
+                await window.qrScannerControle.clear();
+            }catch(e){}
+
+            res.innerHTML = "Controle bezig...";
+
+            await processControleScan(code);
+
+            btn.style.background = "#4caf50";
+            btn.innerText = "Scan voltooid";
+
+            window.qrBusy = false;
+        }
+    );
+}
+function pinAdd(n){
+document.getElementById("pin").value += n;
+}
+
+function pinClear(){
+document.getElementById("pin").value = "";
+} 
 </script>
 </body>
 </html>
