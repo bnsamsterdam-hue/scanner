@@ -368,12 +368,6 @@ color:white;
 wacht op scan
 </div>
 <div id="qrInfo" style="margin-top:20px;color:white;font-size:22px;"></div> 
-<br>
-<button class="noodBtn"
-style="background:#444;"
-onclick="start nieuwe reset ()">
-← Reset 
-</button>
 
 </div>
 
@@ -1842,8 +1836,8 @@ async function startQrControle(){
     let btn = document.getElementById("btnQrControle");
     let res = document.getElementById("qrResultaat");
 
-    btn.style.background = "#2196f3";
-    btn.innerText = "Camera opent...";
+   btn.style.background = "#ff9800";
+ btn.innerText = "Start nieuwe controle";
     res.innerHTML = "📷 Richt camera op QR code";
 
     if(window.qrScannerControle){
