@@ -1834,13 +1834,9 @@ async function startQrControle(){
     await window.qrScannerControle.start(
         { facingMode:"environment" },
       {
- fps:10,
- qrbox:320,
- aspectRatio:1.777,
- videoConstraints:{
-   width:{ideal:1920},
-   height:{ideal:1080}
- }
+fps:10,
+qrbox:260,
+aspectRatio:1.777
 },
         async (code)=>{
 
