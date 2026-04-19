@@ -1027,53 +1027,7 @@ if(sessionStorage.getItem("appLock") === "open"){
 }
 
 });
-let enteredPin = "";
 
-function pressPin(num){
-
-// 🔥 foutmelding leegmaken zodra iemand typt
-let e = document.getElementById("pinError");
-if(e) e.innerText = "";
-
-enteredPin += num;
-
-if(enteredPin.length > 4){
-enteredPin = enteredPin.slice(0,4);
-}
-
-updateDisplay();
-}
-
-function clearPin(){
-enteredPin = "";
-updateDisplay();
-}
-
-function updateDisplay(){
-let display = document.getElementById("pinDisplay");
-display.innerText = "*".repeat(enteredPin.length).padEnd(4,"-");
-}
-
-function checkAppLock(){
-
-if(enteredPin === "1726"){
-    sessionStorage.setItem("appLock","open");
-    document.getElementById("appLock").style.display = "none";
-} else {
-
-    let e = document.getElementById("pinError");
-    if(e){
-        e.innerText = "❌ Foute pincode";
-
-        setTimeout(()=>{
-            e.innerText = "";
-        },1500);
-    }
-
-    clearPin();
-}
-
-}
 /* FIREBASE */
 firebase.initializeApp({
 apiKey:"AIza...",
