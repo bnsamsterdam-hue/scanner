@@ -944,7 +944,9 @@ poort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
 datum:new Date().toLocaleDateString("nl-NL"),
 tijd:new Date().toLocaleTimeString("nl-NL"),
 toestel:getDeviceName()
-}));
+})
+
+});
 
  if(MODE === "poort"){
     fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
