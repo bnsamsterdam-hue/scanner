@@ -368,7 +368,7 @@ color:white;
 ">
 wacht op scan
 </div>
-
+<div id="qrInfo" style="margin-top:20px;color:white;font-size:22px;"></div> 
 <br>
 <button class="noodBtn" style="background:#444;" onclick="showTab('scan')">⬅ Terug naar hoofdmenu</button>
 
@@ -1755,7 +1755,12 @@ try{
 let doc = await db.collection("tickets").doc(code).get();
 
 if(!doc.exists){
-vak.innerHTML = "❌ ONGELDIG";
+vak.innerHTML =
+"🟥 ongeldig" +
+"<br><br>Laatste poort: " + (data.laatstePoort || "-") +
+"<br>Datum: " + (data.laatsteDatum || "-") +
+"<br>Tijd: " + (data.laatsteTijd || "-") +
+"<br>Apparaat: " + (data.laatsteNaam || "-");
 return;
 }
 
@@ -1763,9 +1768,19 @@ let data = doc.data();
 let over = data.remaining || 0;
 
 if(over <= 0){
-vak.innerHTML = "🟥 AL GEBRUIKT";
+vak.innerHTML =
+"🟥 AL GEBRUIKT" +
+"<br><br>Laatste poort: " + (data.laatstePoort || "-") +
+"<br>Datum: " + (data.laatsteDatum || "-") +
+"<br>Tijd: " + (data.laatsteTijd || "-") +
+"<br>Apparaat: " + (data.laatsteNaam || "-");
 }else{
-vak.innerHTML = "🟩 GELDIG<br>Nog " + over + " keer";
+vak.innerHTML =
+"🟩 GELDIG<br>Nog " + over + " keer" +
+"<br><br>Poort: " + (data.laatstePoort || "-") +
+"<br>Datum: " + (data.laatsteDatum || "-") +
+"<br>Tijd: " + (data.laatsteTijd || "-") +
+"<br>Apparaat: " + (data.laatsteNaam || "-");
 }
 
 }catch(e){
