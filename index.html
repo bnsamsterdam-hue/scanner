@@ -1874,10 +1874,15 @@ aspectRatio:1.777
 
             await processControleScan(code);
 
-            btn.style.background = "#4caf50";
-            btn.innerText = "Scan voltooid";
+           btn.style.background = "#4caf50";
+btn.innerText = "Scan voltooid";
 
-            window.qrBusy = false;
+setTimeout(function(){
+btn.style.background = "#2196f3";
+btn.innerText = "Nieuwe QR controleren";
+}, 5000);
+
+window.qrBusy = false;
         }
     );
 }
