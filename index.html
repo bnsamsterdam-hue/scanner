@@ -904,7 +904,7 @@ await db.runTransaction(async (t)=>{
 
     if(!doc.exists) throw "invalid";
 
-    let r = doc.data().overig;
+   let r = parseInt(doc.data().remaining || 0);
 
     /* ❌ GEEN BEURTEN MEER */
     if(r <= 0){
@@ -938,7 +938,7 @@ laatsteNaam:navigator.platform
 } else {
 
    t.update(ref,{
-overig:r-1,
+remaining:r-1,
 laatsteScan: Date.now(),
 laatsteDatum: new Date().toLocaleDateString("nl-NL"),
 laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
