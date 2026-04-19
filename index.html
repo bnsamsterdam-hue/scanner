@@ -1800,12 +1800,23 @@ vak.innerHTML =
 "<br>Tijd: " + (data.laatsteTijd || "-") +
 "<br>Apparaat: " + (data.laatsteNaam || "-");
 }else{
+let lijst = "";
+
+if(data.history && data.history.length){
+let laatste = data.history.slice(-10).reverse();
+
+laatste.forEach(x=>{
+lijst += "<br>" + x.tijd + " - " + x.toestel;
+});
+}
+
 vak.innerHTML =
 "🟩 GELDIG<br>Nog " + over + " keer" +
 "<br><br>Poort: " + (data.laatstePoort || "-") +
 "<br>Datum: " + (data.laatsteDatum || "-") +
 "<br>Tijd: " + (data.laatsteTijd || "-") +
-"<br>Apparaat: " + (data.laatsteNaam || "-");
+"<br><br><b>Laatste scans:</b>" +
+(lijst || "<br>geen historie");
 }
 
 }catch(e){
