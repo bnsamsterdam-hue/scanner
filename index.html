@@ -937,8 +937,14 @@ laatsteDatum: new Date().toLocaleDateString("nl-NL"),
 laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
 laatstePoort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
 laatsteDevice:navigator.userAgent,
-laatsteNaam:getDeviceName()
-});
+laatsteNaam:getDeviceName(),
+
+history: firebase.firestore.FieldValue.arrayUnion({
+poort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
+datum:new Date().toLocaleDateString("nl-NL"),
+tijd:new Date().toLocaleTimeString("nl-NL"),
+toestel:getDeviceName()
+})
 
  if(MODE === "poort"){
     fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
@@ -1825,7 +1831,15 @@ async function startQrControle(){
 
     await window.qrScannerControle.start(
         { facingMode:"environment" },
-        { fps:10, qrbox:250 },
+      {
+ fps:10,
+ qrbox:320,
+ aspectRatio:1.777,
+ videoConstraints:{
+   width:{ideal:1920},
+   height:{ideal:1080}
+ }
+},
         async (code)=>{
 
             if(window.qrBusy) return;
