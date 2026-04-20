@@ -306,6 +306,9 @@ z-index:999999;
 <h1 id="tellerWaarde">0</h1>
 
 <h3>Per poort</h3>
+<button onclick="updatePoortTellers()" style="background:#4caf50;color:#fff;padding:14px 22px;border:none;font-size:20px;margin-bottom:15px;">
+📊 Ophalen
+</button> 
 <div id="poortTellers"></div>
 
 <br>
@@ -1164,7 +1167,8 @@ if(document.getElementById("tellerPin").value==="9990"){
 
 document.getElementById("tellerLogin").style.display="none";
 document.getElementById("tellerPanel").style.display="block";
-
+document.getElementById("poortTellers").innerHTML = "📊 Druk op ophalen";
+document.getElementById("tellerWaarde").innerText = "-";
 } else {
 
     let s = document.getElementById("status");
