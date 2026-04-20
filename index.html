@@ -981,7 +981,7 @@ laatstePoort:(MODE==="poort" ? "Poort "+POORT_NR : "Kassa"),
 laatsteDevice:navigator.userAgent,
 laatsteNaam:getDeviceName(),
 
-history: firebase.firestore.FieldValue.arrayUnion({
+// history tijdelijk uit
 poort:(MODE==="poort" ? "Poort " + POORT_NR : "Kassa"),
 datum:new Date().toLocaleDateString("nl-NL"),
 tijd:new Date().toLocaleTimeString("nl-NL"),
