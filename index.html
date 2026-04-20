@@ -926,9 +926,48 @@ if(ua.includes("Linux")) return "Android toestel";
 
 return "Onbekend toestel";
 }
+let cleanupBusy = false;
+let laatsteCleanup = 0;
+
+async function autoCleanupTickets(){
+
+if(cleanupBusy) return;
+
+let nu = Date.now();
+
+if(nu - laatsteCleanup < 1800000) return;
+
+cleanupBusy = true;
+laatsteCleanup = nu;
+
+try{
+
+let snap = await db.collection("tickets")
+.where("remaining","==",0)
+.limit(25)
+.get();
+
+for (const doc of snap.docs){
+
+let d = doc.data();
+let tijd = d.usedUpAt || d.opgemaaktOp || d.gemaakt || 0;
+
+if(nu - tijd > 14400000){
+await doc.ref.delete();
+}
+
+}
+
+}catch(e){
+console.log("cleanup fout",e);
+}
+
+cleanupBusy = false;
+
+} 
 /* SCAN */
 async function processScan(code){
-
+autoCleanupTickets(); 
 if(scanLock) return;
 scanLock=true;
 
