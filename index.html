@@ -770,6 +770,19 @@ fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
 db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 }
 });
+// 🔥 luister naar systeem check
+db.collection("system").doc("check")
+.onSnapshot(doc=>{
+
+  if(!doc.exists) return;
+
+  // stuur status terug
+  db.collection("status").doc("poort"+POORT_NR).set({
+    status: "ONLINE",
+    time: Date.now()
+  });
+
+}); 
 }
 
 /* CAMERA */
@@ -1770,20 +1783,24 @@ const modems = [
  { naam:"Modem 6", ip:"192.168.1.6" }
 ];
 
-function checkAlles(){
+async function checkAlles(){
 
-checkCamera();
-checkInternet();
-checkFirebase();
-checkMollie();
-checkModem();
+  checkCamera();
+  checkInternet();
+  checkFirebase();
+  checkMollie();
 
-for(let i=1;i<=6;i++){
-setTimeout(function(){
-checkShelly(i);
-}, i*250);
-}
+  // 🔥 stuur check naar alle poorten
+  await db.collection("system").doc("check").set({
+    time: Date.now()
+  });
 
+  // 🔄 wacht even en lees daarna status
+  setTimeout(()=>{
+    for(let i=1;i<=6;i++){
+      checkShelly(i);
+    }
+  },2000);
 }
 
 function checkModem(){
