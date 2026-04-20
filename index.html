@@ -977,6 +977,7 @@ device:navigator.userAgent
 
    t.update(ref,{
 remaining:r-1,
+usedUpAt:(r-1)<=0 ? Date.now() : null,
 laatsteScan: Date.now(),
 laatsteDatum: new Date().toLocaleDateString("nl-NL"),
 laatsteTijd: new Date().toLocaleTimeString("nl-NL"),
