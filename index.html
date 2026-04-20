@@ -908,23 +908,62 @@ function toggleScanSize(){
     }
 
 }
- function getDeviceName(){
+async function getDeviceName(){
 
-let ua = navigator.userAgent;
+try{
 
-if(ua.includes("iPhone")) return "iPhone";
-if(ua.includes("iPad")) return "iPad";
-if(ua.includes("SM-S938")) return "Samsung S25 Ultra";
-if(ua.includes("SM-S")) return "Samsung Galaxy";
-if(ua.includes("Samsung")) return "Samsung Galaxy";
-if(ua.includes("Redmi")) return "Xiaomi Redmi";
-if(ua.includes("Mi ")) return "Xiaomi";
-if(ua.includes("OPPO")) return "Oppo";
-if(ua.includes("Windows")) return "Windows PC";
-if(ua.includes("Macintosh")) return "MacBook";
-if(ua.includes("Linux")) return "Android toestel";
+/* NIEUWE METHODE */
+if(navigator.userAgentData){
+
+let brands = navigator.userAgentData.brands || [];
+let txt = brands.map(b => b.brand.toLowerCase()).join(" ");
+
+if(txt.includes("samsung")) return "Samsung Galaxy";
+if(txt.includes("apple")) return "iPhone";
+if(txt.includes("xiaomi")) return "Xiaomi";
+if(txt.includes("oppo")) return "Oppo";
+if(txt.includes("huawei")) return "Huawei";
+if(txt.includes("honor")) return "Honor";
+
+}
+
+}catch(e){}
+
+/* OUDE METHODE */
+let ua = navigator.userAgent.toLowerCase();
+
+/* APPLE */
+if(ua.includes("iphone")) return "iPhone";
+if(ua.includes("ipad")) return "iPad";
+
+/* SAMSUNG MODELLEN */
+if(ua.includes("sm-s938")) return "Samsung S25 Ultra";
+if(ua.includes("sm-s928")) return "Samsung S24 Ultra";
+if(ua.includes("sm-s918")) return "Samsung S23 Ultra";
+if(ua.includes("sm-s")) return "Samsung Galaxy";
+if(ua.includes("samsung")) return "Samsung Galaxy";
+
+/* ANDERE MERKEN */
+if(ua.includes("redmi")) return "Xiaomi Redmi";
+if(ua.includes("xiaomi")) return "Xiaomi";
+if(ua.includes("mi ")) return "Xiaomi";
+if(ua.includes("oppo")) return "Oppo";
+if(ua.includes("huawei")) return "Huawei";
+if(ua.includes("honor")) return "Honor";
+if(ua.includes("oneplus")) return "OnePlus";
+if(ua.includes("nokia")) return "Nokia";
+if(ua.includes("motorola")) return "Motorola";
+
+/* PC */
+if(ua.includes("windows")) return "Windows PC";
+if(ua.includes("macintosh")) return "MacBook";
+if(ua.includes("linux")) return "Linux PC";
+
+/* ALGEMEEN */
+if(ua.includes("android")) return "Android toestel";
 
 return "Onbekend toestel";
+
 }
 let cleanupBusy = false;
 let laatsteCleanup = 0;
