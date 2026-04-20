@@ -793,6 +793,14 @@ document.getElementById("manualInput").value="";
 }
 }
 
+ setInterval(function(){
+let inp = document.getElementById("manualInput");
+
+if(inp && inp.value.length > 8){
+manualScan();
+}
+},300);
+ 
 document.addEventListener("DOMContentLoaded", function(){
 let input = document.getElementById("manualInput");
 
