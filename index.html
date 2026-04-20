@@ -1687,6 +1687,30 @@ if(!btn) return;
 btn.style.background = "blue";
 btn.innerText = "⌛ Poort "+n+" laden...";
 
+let ip = POORTEN[n];
+
+function timeout(ms){
+return new Promise((_,reject)=>
+setTimeout(()=>reject("timeout"),ms));
+}
+
+/* eerst live Shelly proberen */
+Promise.race([
+fetch("http://" + ip + "/status"),
+timeout(1800)
+])
+.then(res=>{
+
+if(res.ok){
+setBtn("p"+n,"green","🟢 Poort "+n+" online");
+}else{
+throw "fout";
+}
+
+})
+.catch(()=>{
+
+/* fallback Firebase behouden */
 db.collection("status").doc("poort"+n)
 .get()
 .then(doc=>{
@@ -1725,9 +1749,12 @@ setBtn("p"+n,"orange","🟠 Poort "+n+" traag");
 else{
 setBtn("p"+n,"purple","🟣 Poort "+n+" onbekend");
 }
+
 })
 .catch(()=>{
 setBtn("p"+n,"red","❌ Poort "+n+" fout");
+});
+
 });
 
 }
@@ -1744,40 +1771,59 @@ const modems = [
 ];
 
 function checkAlles(){
-  checkCamera();
-  checkInternet();
-  checkFirebase();
-  checkMollie();
-  checkModem();
 
-  for(let i=1; i<=6; i++){
-    setTimeout(() => checkShelly(i), i*250);
-  }
+checkCamera();
+checkInternet();
+checkFirebase();
+checkMollie();
+checkModem();
+
+for(let i=1;i<=6;i++){
+setTimeout(function(){
+checkShelly(i);
+}, i*250);
+}
+
 }
 
 function checkModem(){
 
-  let m = modems[modemIndex];
+let m = modems[modemIndex];
 
-  setBtn("sysModem","blue","⌛ " + m.naam + " controleren");
+setBtn("sysModem","blue","⌛ " + m.naam + " controleren");
 
-  fetch("http://" + m.ip, {mode:"no-cors"})
-  .then(() => {
-    setBtn("sysModem","green","🟢 " + m.naam + " online");
-  })
-  .catch(() => {
-    setBtn("sysModem","black","⚫ " + m.naam + " geen stroom");
-  });
+let klaar = false;
+let img = new Image();
 
-  modemIndex++;
+img.onload = function(){
+if(klaar) return;
+klaar = true;
+setBtn("sysModem","green","🟢 " + m.naam + " online");
+};
 
-  if(modemIndex >= modems.length){
-    modemIndex = 0;
-  }
+img.onerror = function(){
+if(klaar) return;
+klaar = true;
+setBtn("sysModem","black","⚫ " + m.naam + " geen stroom");
+};
+
+img.src = "http://" + m.ip + "/favicon.ico?" + Date.now();
+
+setTimeout(function(){
+if(!klaar){
+klaar = true;
+setBtn("sysModem","black","⚫ " + m.naam + " geen reactie");
+}
+},2000);
+
+modemIndex++;
+
+if(modemIndex >= modems.length){
+modemIndex = 0;
 }
 
-let updateTimers = {};
-
+}
+let updateTimers = {}; 
 function startUpdateBlink(btnId, normalColor, normalText){
 
   if(updateTimers[btnId]) return;
@@ -1838,12 +1884,7 @@ try{
 let doc = await db.collection("tickets").doc(code).get();
 
 if(!doc.exists){
-vak.innerHTML =
-"🟥 ongeldig" +
-"<br><br>Laatste poort: " + (data.laatstePoort || "-") +
-"<br>Datum: " + (data.laatsteDatum || "-") +
-"<br>Tijd: " + (data.laatsteTijd || "-") +
-"<br>Apparaat: " + (data.laatsteNaam || "-");
+vak.innerHTML = "🟥 ONGELDIGE QR CODE";
 return;
 }
 
