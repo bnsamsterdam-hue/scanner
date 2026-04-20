@@ -467,7 +467,7 @@ wacht op scan
 <button class="noodBtn" onclick="bulk(2000)">2000 QR</button><br>
 <button class="noodBtn" onclick="bulk(3000)">3000 QR</button><br><br>
 
-<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ AATerug</button>
+<button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug naar admin</button>
 
 </div>
 
@@ -1866,10 +1866,10 @@ lijst += "<br><span style='color:#fff'>" + x.tijd + "</span> <span style='color:
 
 vak.innerHTML =
 "🟩 GELDIG<br>Nog " + over + " keer" +
-"<br><br>Poort: " + (data.laatstePoort || "-") +
+"<br>Poort: " + (data.laatstePoort || "-") +
 "<br>Datum: " + (data.laatsteDatum || "-") +
 "<br>Tijd: " + (data.laatsteTijd || "-") +
-"<br><br><b>Laatste scans:</b>" +
+"<br>Toestel: " + (data.laatsteNaam || "-") +
 (lijst || "<br>geen historie");
 }
 
