@@ -778,8 +778,11 @@ cameras=cam;
 if(cameras.length){ startCamera(cameras.length-1); }
 });
 }else{
-document.getElementById("reader").style.display="none";
-document.getElementById("camBtn").style.display="none";
+let r = document.getElementById("reader");
+if(r) r.style.display="none";
+
+let c = document.getElementById("camBtn");
+if(c) c.style.display="none";
 }
 
 let camBig = false;
