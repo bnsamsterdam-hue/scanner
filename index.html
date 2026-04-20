@@ -181,7 +181,13 @@ input { background:#222; color:white; border:1px solid #555; padding:8px; margin
 .blink-red {
   animation: blinkRed 0.4s infinite;
 }
- 
+
+@keyframes blink{
+0%{opacity:1;}
+50%{opacity:0.3;}
+100%{opacity:1;}
+}
+
 </style>
 </head>
 
@@ -470,7 +476,7 @@ wacht op scan
 
 <h2>📦 Ticket Beheer</h2>
 
-<button class="noodBtn" style="background:red;" onclick="wisAlles()">⚠ Wis Alle Tickets</button><br>
+<button class="noodBtn" style="background:red;" onclick="wisAllesVeilig(this)">⚠ Wis Alle Tickets</button><br>
 <button class="noodBtn" onclick="resetTeller()">🔄 Reset Teller</button><br>
 <button class="noodBtn" style="background:#444;" onclick="backAdmin()">⬅ Terug naar admin</button>
 
@@ -1410,7 +1416,32 @@ win.document.write("<img src='"+canvas.toDataURL()+"'/>");
 win.print();
 }
 
-/* 🔥 HIER TOEVOEGEN */
+let wisBevestiging = false;
+
+function wisAllesVeilig(btn){
+
+if(!wisBevestiging){
+
+wisBevestiging = true;
+
+btn.dataset.oldtext = btn.innerText;
+btn.innerText = "⚠ LET OP U GAAT WISSEN ⚠";
+btn.style.animation = "blink 0.5s infinite";
+
+setTimeout(function(){
+wisBevestiging = false;
+btn.innerText = btn.dataset.oldtext;
+btn.style.animation = "";
+},5000);
+
+return;
+}
+
+/* tweede druk = wissen */
+wisBevestiging = false;
+wisAlleTickets();
+}
+</script>
 function wisAlles(){
 
 if(!confirm("⚠ Weet je zeker dat je ALLE QR codes wilt verwijderen?")){
