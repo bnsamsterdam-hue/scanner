@@ -1216,7 +1216,12 @@ document.getElementById("qrControlePanel").style.display="block";
 document.getElementById("qrControlePin").value="";
 
 }else{
-alert("Foute code");
+document.getElementById("status").className="fout";
+document.getElementById("status").innerText="❌ Foute code";
+setTimeout(()=>{
+document.getElementById("status").innerText="SCAN KLAAR";
+document.getElementById("status").className="";
+},1500);
 }
 
 }   // <-- DEZE TOEVOEGEN
