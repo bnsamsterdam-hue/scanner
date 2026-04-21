@@ -726,7 +726,9 @@ let POORT_NR=0;
 
 let scanLock=false;
  
-/* KIOSK FOCUS FIX */
+/* KIOSK FOCUS FIX - alleen desktop */
+if(window.innerWidth > 900){
+
 setInterval(() => {
     try{
         window.focus();
@@ -738,14 +740,15 @@ setInterval(() => {
         if(reader && reader.focus) reader.focus();
 
     }catch(e){}
-}, 5000);
- 
-/* EXTRA DIRECT FOCUS FIX */
+},5000);
+
 window.onblur = () => {
     try{
         window.focus();
     }catch(e){}
-}; 
+};
+
+}
 /* TAB */
 function showTab(id){
 
