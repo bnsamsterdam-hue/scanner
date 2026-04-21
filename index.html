@@ -774,18 +774,28 @@ db.collection("openPoort").doc("poort"+POORT_NR).set({trigger:false});
 }
 });
 // 🔥 luister naar systeem check
+let laatsteCheck = 0;
+
 db.collection("system").doc("check")
 .onSnapshot(doc=>{
 
-  if(!doc.exists) return;
+if(!doc.exists) return;
 
-  // stuur status terug
-  db.collection("status").doc("poort"+POORT_NR).set({
-    status: "ONLINE",
-    time: Date.now()
-  });
+let data = doc.data();
+if(!data.time) return;
 
-}); 
+/* zelfde check niet 2x uitvoeren */
+if(data.time === laatsteCheck) return;
+
+laatsteCheck = data.time;
+
+/* stuur status terug */
+db.collection("status").doc("poort"+POORT_NR).set({
+status:"ONLINE",
+time: Date.now()
+});
+
+});
 }
 
 /* CAMERA */
@@ -1876,7 +1886,12 @@ klaar = true;
 setBtn("sysModem","black","⚫ " + m.naam + " geen stroom");
 };
 
-img.src = "http://" + m.ip + "/favicon.ico?" + Date.now();
+fetch("http://" + m.ip,{mode:"no-cors"})
+.then(()=>{
+klaar = true;
+setBtn("sysModem","green","🟢 " + m.naam + " online");
+})
+.catch(()=>{});
 
 setTimeout(function(){
 if(!klaar){
