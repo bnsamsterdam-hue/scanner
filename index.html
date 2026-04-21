@@ -1882,10 +1882,11 @@ const modems = [
 
 async function checkAlles(){
 
-  checkCamera();
-  checkInternet();
-  checkFirebase();
-  checkMollie();
+checkCamera();
+checkInternet();
+checkFirebase();
+checkMollie();
+checkModem();
 
   // 🔥 stuur check naar alle poorten
   await db.collection("system").doc("check").set({
