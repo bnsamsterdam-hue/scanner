@@ -908,7 +908,7 @@ function toggleScanSize(){
     }
 
 }
-async function getDeviceName(){
+function getDeviceName(){
 
 try{
 
@@ -957,10 +957,10 @@ if(ua.includes("motorola")) return "Motorola";
 /* PC */
 if(ua.includes("windows")) return "Windows PC";
 if(ua.includes("macintosh")) return "MacBook";
-if(ua.includes("linux")) return "Linux PC";
+if(ua.includes("android")) return "Android toestel";
 
 /* ALGEMEEN */
-if(ua.includes("android")) return "Android toestel";
+if(ua.includes("linux")) return "Linux PC";
 
 return "Onbekend toestel";
 
