@@ -897,6 +897,18 @@ async function startCamera(i){
         },
         (code) => processScan(code)
     );
+ /* 🔥 KIOSK FOCUS FIX */
+setInterval(() => {
+
+let reader = document.getElementById("reader");
+if(reader){
+reader.focus();
+reader.click();
+}
+
+window.focus();
+
+}, 3000);
 }
 function switchCamera(){
 currentCam=(currentCam+1)%cameras.length;
@@ -1164,7 +1176,7 @@ setTimeout(()=>{
     // alleen kassa camera opnieuw starten
     startCamera(currentCam);
 
-},2000);
+},3000);
 
 setTimeout(()=>{
     s.innerText="SCAN KLAAR";
