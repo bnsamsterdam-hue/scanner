@@ -725,7 +725,27 @@ let RELAIS_IP="";
 let POORT_NR=0;
 
 let scanLock=false;
+ 
+/* KIOSK FOCUS FIX */
+setInterval(() => {
+    try{
+        window.focus();
 
+        let a = document.activeElement;
+        if(a && a.blur) a.blur();
+
+        let reader = document.getElementById("reader");
+        if(reader && reader.focus) reader.focus();
+
+    }catch(e){}
+}, 5000);
+ 
+/* EXTRA DIRECT FOCUS FIX */
+window.onblur = () => {
+    try{
+        window.focus();
+    }catch(e){}
+}; 
 /* TAB */
 function showTab(id){
 
