@@ -1107,7 +1107,7 @@ device:navigator.userAgent
 });
 
  if(MODE === "poort"){
-    fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
+    ("http://"+RELAIS_IP+"/relay/0?turn=on");
 }
     s.className="blink-orange";
     s.innerHTML = `
@@ -1903,44 +1903,46 @@ checkModem();
 
 function checkModem(){
 
-let m = modems[modemIndex];
+setBtn("sysModem","blue","🔄 Modem controleren...");
 
-setBtn("sysModem","blue","⌛ " + m.naam + " controleren");
+let blink = setInterval(()=>{
+let b = document.getElementById("sysModem");
+if(!b) return;
 
-let klaar = false;
-let img = new Image();
-
-img.onload = function(){
-if(klaar) return;
-klaar = true;
-setBtn("sysModem","green","🟢 " + m.naam + " online");
-};
-
-img.onerror = function(){
-if(klaar) return;
-klaar = true;
-setBtn("sysModem","black","⚫ " + m.naam + " geen stroom");
-};
-
-fetch("http://" + m.ip,{mode:"no-cors"})
-.then(()=>{
-klaar = true;
-setBtn("sysModem","green","🟢 " + m.naam + " online");
-})
-.catch(()=>{});
-
-setTimeout(function(){
-if(!klaar){
-klaar = true;
-setBtn("sysModem","black","⚫ " + m.naam + " geen reactie");
+if(b.style.background=="blue"){
+b.style.background="purple";
+b.innerText="🟣 Bezig met testen...";
+}else{
+b.style.background="blue";
+b.innerText="🔄 Modem controleren...";
 }
-},2000);
 
-modemIndex++;
+},500);
 
-if(modemIndex >= modems.length){
-modemIndex = 0;
+
+db.collection("status").doc("modem").get().then(doc=>{
+
+clearInterval(blink);
+
+if(!doc.exists){
+setBtn("sysModem","red","🔴 Geen modem data");
+return;
 }
+
+let d = doc.data();
+
+setBtn(
+"sysModem",
+d.color || "green",
+d.text || "🟢 Modem online"
+);
+
+}).catch(()=>{
+
+clearInterval(blink);
+setBtn("sysModem","red","🔴 Fout");
+
+});
 
 }
 let updateTimers = {}; 
