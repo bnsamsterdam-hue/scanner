@@ -1903,29 +1903,14 @@ checkModem();
 
 function checkModem(){
 
-setBtn("sysModem","blue","🔄 Modem controleren...");
+setBtn("sysModem","blue","⌛ Modem laden...");
 
-let blink = setInterval(()=>{
-let b = document.getElementById("sysModem");
-if(!b) return;
-
-if(b.style.background=="blue"){
-b.style.background="purple";
-b.innerText="🟣 Bezig met testen...";
-}else{
-b.style.background="blue";
-b.innerText="🔄 Modem controleren...";
-}
-
-},500);
-
-
-db.collection("status").doc("modem").get().then(doc=>{
-
-clearInterval(blink);
+db.collection("status").doc("modem"+(modemIndex+1)).get()
+.then(doc=>{
 
 if(!doc.exists){
-setBtn("sysModem","red","🔴 Geen modem data");
+setBtn("sysModem","purple","🟣 Modem "+(modemIndex+1)+" geen stroom");
+nextModem();
 return;
 }
 
@@ -1934,15 +1919,23 @@ let d = doc.data();
 setBtn(
 "sysModem",
 d.color || "green",
-d.text || "🟢 Modem online"
+d.text || ("🟢 Modem "+(modemIndex+1)+" online")
 );
 
-}).catch(()=>{
+nextModem();
 
-clearInterval(blink);
-setBtn("sysModem","red","🔴 Fout");
+})
+.catch(()=>{
+
+setBtn("sysModem","red","🔴 Modem "+(modemIndex+1)+" offline");
+nextModem();
 
 });
+
+function nextModem(){
+modemIndex++;
+if(modemIndex >= 6) modemIndex = 0;
+}
 
 }
 let updateTimers = {}; 
