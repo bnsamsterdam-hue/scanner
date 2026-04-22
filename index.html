@@ -497,7 +497,7 @@ wacht op scan
 <button id="sysFire" class="noodBtn" style="background:blue;" onclick="checkFirebase()">🔥 Firebase controleren</button><br>
 
 <button id="sysPay" class="noodBtn" style="background:blue;" onclick="checkMollie()">💳 Betalen controleren</button><br><br>
-<button id="sysModem" class="noodBtn" style="background:blue;" onclick="Poort beheer()">📡 Modem controleren</button><br><br>
+<button id="sysModem" class="noodBtn" style="background:blue;" onclick="checkModem()">📡 Modem controleren</button><br><br>
 <button id="p1" class="noodBtn" style="background:blue;" onclick="checkShelly(1)">Poort 1 testen</button>
 <button id="p2" class="noodBtn" style="background:blue;" onclick="checkShelly(2)">Poort 2 testen</button>
 <button id="p3" class="noodBtn" style="background:blue;" onclick="checkShelly(3)">Poort 3 testen</button><br>
@@ -1869,9 +1869,8 @@ setBtn("p"+n,"red","❌ Poort "+n+" fout");
 
 }
 
-let piIndex = 0;
-let resetClicks = {};
- 
+let modemIndex = 0;
+
 const modems = [
  { naam:"Modem 1", ip:"192.168.1.1" },
  { naam:"Modem 2", ip:"192.168.1.2" },
@@ -1901,97 +1900,49 @@ checkModem();
     }
   },2000);
 }
+
 function checkModem(){
 
-let n = piIndex + 1;
+setBtn("sysModem","blue","🔄 Modem controleren...");
 
-db.collection("status").doc("poort"+n).get()
-.then(doc=>{
+let blink = setInterval(()=>{
+let b = document.getElementById("sysModem");
+if(!b) return;
+
+if(b.style.background=="blue"){
+b.style.background="purple";
+b.innerText="🟣 Bezig met testen...";
+}else{
+b.style.background="blue";
+b.innerText="🔄 Modem controleren...";
+}
+
+},500);
+
+
+db.collection("status").doc("modem").get().then(doc=>{
+
+clearInterval(blink);
 
 if(!doc.exists){
-setBtn("sysModem","red","🔴 Pi "+n+" geen data");
+setBtn("sysModem","red","🔴 Geen modem data");
 return;
 }
 
-let s = doc.data().status || "";
-
-if(
-s==="GEEN_INTERNET" ||
-s==="SHELLY_FOUT" ||
-s==="SCANNER_FOUT" ||
-s==="RASPBERRY_OFFLINE"
-){
-
-if(!resetClicks[n]) resetClicks[n]=0;
-
-resetClicks[n]++;
-
-if(resetClicks[n] < 3){
+let d = doc.data();
 
 setBtn(
 "sysModem",
-"orange",
-"🟠 Pi "+n+" reset "+resetClicks[n]+"/3"
+d.color || "green",
+d.text || "🟢 Modem online"
 );
 
-setTimeout(()=>{ resetClicks[n]=0; },5000);
+}).catch(()=>{
 
-}else{
-
-resetClicks[n]=0;
-
-startResetAnim(n);
-
-}
-
-}else{
-
-setBtn("sysModem","green","🟢 Pi "+n+" online");
-
-nextPi();
-
-}
-
-})
-.catch(()=>{
-
-setBtn("sysModem","red","🔴 Pi "+n+" fout");
+clearInterval(blink);
+setBtn("sysModem","red","🔴 Fout");
 
 });
-
-function nextPi(){
-piIndex++;
-if(piIndex >= 6) piIndex = 0;
-}
-
-function startResetAnim(n){
-
-let colors = ["green","blue","orange","purple","red"];
-let i = 0;
-
-let anim = setInterval(()=>{
-
-setBtn(
-"sysModem",
-colors[i],
-"🔄 Pi "+n+" reset gestart..."
-);
-
-i++;
-if(i >= colors.length) i = 0;
-
-},400);
-
-setTimeout(()=>{
-
-clearInterval(anim);
-setBtn("sysModem","blue","⌛ Wachten op Pi "+n);
-
-nextPi();
-
-},4000);
-
-}
 
 }
 let updateTimers = {}; 
