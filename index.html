@@ -1900,7 +1900,6 @@ checkModem();
     }
   },2000);
 }
-
 function checkModem(){
 
 setBtn("sysModem","blue","⌛ Modem laden...");
@@ -1909,7 +1908,7 @@ db.collection("status").doc("modem"+(modemIndex+1)).get()
 .then(doc=>{
 
 if(!doc.exists){
-setBtn("sysModem","purple","🟣 Modem "+(modemIndex+1)+" geen stroom");
+setBtn("sysModem","gray","⚫ Modem "+(modemIndex+1)+" geen data");
 nextModem();
 return;
 }
