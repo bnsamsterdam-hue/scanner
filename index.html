@@ -497,7 +497,7 @@ wacht op scan
 <button id="sysFire" class="noodBtn" style="background:blue;" onclick="checkFirebase()">🔥 Firebase controleren</button><br>
 
 <button id="sysPay" class="noodBtn" style="background:blue;" onclick="checkMollie()">💳 Betalen controleren</button><br><br>
-<button id="sysModem" class="noodBtn" style="background:blue;" onclick="checkModem()">📡 Modem controleren</button><br><br>
+<button id="sysModem" class="noodBtn" style="background:blue;" onclick="Poort beheer()">📡 Modem controleren</button><br><br>
 <button id="p1" class="noodBtn" style="background:blue;" onclick="checkShelly(1)">Poort 1 testen</button>
 <button id="p2" class="noodBtn" style="background:blue;" onclick="checkShelly(2)">Poort 2 testen</button>
 <button id="p3" class="noodBtn" style="background:blue;" onclick="checkShelly(3)">Poort 3 testen</button><br>
@@ -1869,8 +1869,9 @@ setBtn("p"+n,"red","❌ Poort "+n+" fout");
 
 }
 
-let modemIndex = 0;
-
+let piIndex = 0;
+let resetClicks = {};
+ 
 const modems = [
  { naam:"Modem 1", ip:"192.168.1.1" },
  { naam:"Modem 2", ip:"192.168.1.2" },
