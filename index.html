@@ -1106,17 +1106,12 @@ device:navigator.userAgent
 
 });
 
- if(MODE === "poort"){
-    ("http://"+RELAIS_IP+"/relay/0?turn=on");
+if(MODE === "poort"){
+fetch("http://"+RELAIS_IP+"/relay/0?turn=on");
 }
-    s.className="blink-orange";
-    s.innerHTML = `
-        <div style="font-size:60px;">🚽</div>
-        <div class="wave" style="font-size:40px;">👋</div>
-        <div style="font-size:20px; margin-top:10px;">
-            ⚠ Laatste toilet bezoek
-        </div>
-    `;
+
+s.className="ok";
+s.innerText="✔ TOEGANG (0)";
 
 } else {
 
