@@ -2007,35 +2007,44 @@ return;
 
 let data = doc.data();
 let over = data.remaining || 0;
-
-if(over <= 0){
-vak.innerHTML =
-"🟥 AL GEBRUIKT" +
-"<br><br>Laatste poort: " + (data.laatstePoort || "-") +
-"<br>Datum: " + (data.laatsteDatum || "-") +
-"<br>Tijd: " + (data.laatsteTijd || "-") +
-"<br>Apparaat: " + (data.laatsteNaam || "-");
-}else{
- 
 let lijst = "";
 
 if(data.history && data.history.length){
-let laatste = data.history.slice(-10).reverse();
+    let laatste = data.history.slice(-10).reverse();
 
-laatste.forEach(x=>{
-lijst += "<br><span style='color:#fff'>" + x.tijd + "</span> <span style='color:#888'>|</span> <span style='color:#00ff99;font-weight:bold'>" + (x.poort || "-").toUpperCase() + "</span> <span style='color:#888'>|</span> <span style='color:#4da6ff'>" + x.toestel + "</span>";
-});
+    laatste.forEach(x=>{
+        lijst += "<br>"
+        + "<span style='color:#fff'>" + (x.tijd || "-") + "</span> "
+        + "<span style='color:#888'>|</span> "
+        + "<span style='color:#00ff99;font-weight:bold'>" + ((x.poort || "-") + "").toUpperCase() + "</span> "
+        + "<span style='color:#888'>|</span> "
+        + "<span style='color:#4da6ff'>" + (x.toestel || "-") + "</span>";
+    });
 }
 
-vak.innerHTML =
-"🟩 GELDIG<br>Nog " + over + " keer" +
-"<br>Poort: " + (data.laatstePoort || "-") +
-"<br>Datum: " + (data.laatsteDatum || "-") +
-"<br>Tijd: " + (data.laatsteTijd || "-") +
-"<br>Toestel: " + (data.laatsteNaam || "-") +
-(lijst || "<br>geen historie");
-}
+if(over <= 0){
 
+    vak.innerHTML =
+    "🟥 AL GEBRUIKT" +
+    "<br><br>Laatste poort: " + (data.laatstePoort || "-") +
+    "<br>Datum: " + (data.laatsteDatum || "-") +
+    "<br>Tijd: " + (data.laatsteTijd || "-") +
+    "<br>Apparaat: " + (data.laatsteNaam || "-") +
+    "<br><br><b>Laatste scans:</b>" +
+    (lijst ? lijst : "<br>geen historie");
+
+}else{
+
+    vak.innerHTML =
+    "🟩 GELDIG<br>Nog " + over + " keer" +
+    "<br><br>Poort: " + (data.laatstePoort || "-") +
+    "<br>Datum: " + (data.laatsteDatum || "-") +
+    "<br>Tijd: " + (data.laatsteTijd || "-") +
+    "<br>Toestel: " + (data.laatsteNaam || "-") +
+    "<br><br><b>Laatste scans:</b>" +
+    (lijst ? lijst : "<br>geen historie");
+
+}
 }catch(e){
 console.log(e);
 vak.innerHTML = "❌ FOUT";
